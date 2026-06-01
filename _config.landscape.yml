@@ -1,0 +1,6 @@
+# 源文件在  node_modules/hexo-theme-landscape-landscape/_config.yml
+
+menu:
+  Home: /
+  Archives: /archives
+  About: /about
