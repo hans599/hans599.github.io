@@ -60,14 +60,12 @@ Computer Vision, Large Language Models, Multi-Modal AI, Agent
 ### 2024
 - **Neuproofreader: An Interactive Proofreading System with Suggestive Prompts for Connectomics**
 **Yixiong Liu**, Qihua Chen, Xuejin Chen
-*2024 IEEE International Conference on Multimedia and Engineering (ICMEW)*
-[IEEE Xplore](https://ieeexplore.ieee.org/document/10645359) | [GitHub](https://github.com/hans599/NeuProofreader)
+*2024 IEEE International Conference on Multimedia and Expo Workshops (ICMEW) (ICMEW)*
 
 ### 2022
 -  **Zero-shot image classification based on random propagation graph convolution model**
 Nannan Lu, **Yixiong Liu**, Mingkai Qiu
 *Journal of Graphics, 2022, 43(4): 624-631*
-[Journal of Graphics](http://www.txxb.com.cn/CN/abstract/abstract1994.shtml)
 
 ## Certifications & Awards
 
