@@ -10,7 +10,7 @@ title: null
 - **GitHub**: [github.com/hans599](https://github.com/hans599)
 
 ## Skills
-- **Coding**: Python, C++, HTML, JavaScript, SQL
+- **Coding**: Python, C++, HTML, TypeScript, SQL
 - **Tools**: Git, Docker, Linux
 
 ## Research Interests
@@ -57,26 +57,16 @@ Computer Vision, Large Language Models, Multi-Modal AI, Agent
 
 ## Publications
 
-### 2024
 - **Neuproofreader: An Interactive Proofreading System with Suggestive Prompts for Connectomics**
 **Yixiong Liu**, Qihua Chen, Xuejin Chen
 *2024 IEEE International Conference on Multimedia and Expo Workshops (ICMEW) (ICMEW)*
 
-### 2022
 -  **Zero-shot image classification based on random propagation graph convolution model**
 Nannan Lu, **Yixiong Liu**, Mingkai Qiu
 *Journal of Graphics, 2022, 43(4): 624-631*
 
-## Certifications & Awards
+## Awards
 
-### Certifications
-- **CET-6** (College English Test Band 6) – 558
-
-
-### Awards
-#### 2021
-- Outstanding Graduate, China University of Mining and Technology
-
-#### 2020
-- National Scholarship
-- Mathematical Contest in Modeling (MCM/ICM) — Finalist Winner (1%)  <!-- 队伍编号2014688，https://contest.comap.com/Certform/process.php 可以查证书 -->
+- 2021 Outstanding Graduate, China University of Mining and Technology
+- 2020 National Scholarship
+- 2020 Mathematical Contest in Modeling (MCM/ICM) — Finalist Winner (1%)  <!-- 队伍编号2014688，https://contest.comap.com/Certform/process.php 可以查证书 -->

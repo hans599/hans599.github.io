@@ -1,3 +1,16 @@
+# 更换电脑
+# 克隆source分支到本地
+git clone -b source https://github.com/hans599/hans599.github.io.git 
+
+# 进入项目目录
+cd hans599.github.io
+
+# 安装依赖
+npm install
+
+
+# ----------------------------------------------------------------------------------  #
+
 # 每次写作前
 git pull origin source
 
