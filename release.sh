@@ -22,7 +22,7 @@ git commit -m "更新内容"
 git push origin source
 
 # 部署（不用切换分支）
-npx hexo clean && npx hexo generate && npx npx hexo deploy 
+npx hexo clean && npx hexo generate && npx hexo deploy 
 
 # 本体调试渲染
 npx hexo server
