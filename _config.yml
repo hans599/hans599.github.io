@@ -98,7 +98,7 @@ ignore:
 # Extensions
 ## Plugins: https://hexo.io/plugins/
 ## Themes: https://hexo.io/themes/
-theme: landscape
+theme: next
 
 # Deployment
 ## Docs: https://hexo.io/docs/one-command-deployment
@@ -106,3 +106,10 @@ deploy:
   type: git
   repo: https://github.com/hans599/hans599.github.io.git
   branch: main
+
+
+search:
+  path: search.xml
+  field: post
+  format: html
+  limit: 10000
