@@ -8,6 +8,12 @@ cd hans599.github.io
 # 安装依赖
 npm install
 
+# 安装next主题
+git clone https://github.com/next-theme/hexo-theme-next themes/next
+
+# 将其配置文件拷贝到自己的项目中  如果已经有了 就不需要了
+cp _config.next.yml themes/next/_config.yml
+
 
 # ----------------------------------------------------------------------------------  #
 
