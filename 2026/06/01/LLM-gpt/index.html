@@ -1,0 +1,984 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#222" media="(prefers-color-scheme: dark)"><meta name="generator" content="Hexo 8.1.2">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css" integrity="sha256-VHqXKFhhMxcpubYf9xiWdCiojEbY9NexQ4jh8AxbvcM=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"hans599.github.io","root":"/","images":"/images","scheme":"Pisces","darkmode":true,"version":"8.27.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"codeblock":{"theme":{"light":"default","dark":"stackoverflow-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"language":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"},"path":"/search.xml","localsearch":{"enable":true,"top_n_per_article":1,"unescape":false,"preload":true,"trigger":"auto"}}</script><script src="/js/config.js" defer></script>
+
+    <meta name="description" content="以下内容主要根据博客GPT in 60 Lines of NumPy 翻译而来，之所以选择这篇博客，是因为它以代码而且是numpy的形式来解释介绍GPT的基本原理，而非大白话，比较适合有一定代码基础的人入门。 GPT 是什么GPT代表生成式预训练Transformer(Generative Pre-trained Transformer)。这是一类基于transformer的神经网络架构。  生成">
+<meta property="og:type" content="article">
+<meta property="og:title" content="LLM核心原理 - GPT">
+<meta property="og:url" content="https://hans599.github.io/2026/06/01/LLM-gpt/index.html">
+<meta property="og:site_name" content="Hans&#39;s Homepage">
+<meta property="og:description" content="以下内容主要根据博客GPT in 60 Lines of NumPy 翻译而来，之所以选择这篇博客，是因为它以代码而且是numpy的形式来解释介绍GPT的基本原理，而非大白话，比较适合有一定代码基础的人入门。 GPT 是什么GPT代表生成式预训练Transformer(Generative Pre-trained Transformer)。这是一类基于transformer的神经网络架构。  生成">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2026-05-31T16:00:00.000Z">
+<meta property="article:modified_time" content="2026-06-07T12:50:45.824Z">
+<meta property="article:author" content="Hans">
+<meta property="article:tag" content="LLM">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="https://hans599.github.io/2026/06/01/LLM-gpt/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"en","comments":true,"permalink":"https://hans599.github.io/2026/06/01/LLM-gpt/","path":"2026/06/01/LLM-gpt/","title":"LLM核心原理 - GPT"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>LLM核心原理 - GPT | Hans's Homepage</title>
+  
+
+
+
+
+
+
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous" defer></script>
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.5.0/search.js" integrity="sha256-xFC6PJ82SL9b3WkGjFavNiA9gm5z6UBxWPiu4CYjptg=" crossorigin="anonymous" defer></script>
+<script src="/js/third-party/search/local-search.js" defer></script>
+
+
+
+
+
+
+
+  
+
+
+
+
+  
+
+  <script class="next-config" data-name="enableMath" type="application/json">true</script><script class="next-config" data-name="mathjax" type="application/json">{"enable":true,"tags":"none","js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-mml-chtml.js","integrity":"sha256-MASABpB4tYktI2Oitl4t+78w/lyA+D7b/s9GEP0JOGI="}}</script>
+<script src="/js/third-party/math/mathjax.js" defer></script>
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">Hans's Homepage</p>
+      <i class="logo-line"></i>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="Search" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>About</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>Search
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+      <div class="search-header">
+        <span class="search-icon">
+          <i class="fa fa-search"></i>
+        </span>
+        <div class="search-input-container">
+          <input autocomplete="off" autocapitalize="off" maxlength="80"
+                placeholder="Searching..." spellcheck="false"
+                type="search" class="search-input">
+        </div>
+        <span class="popup-btn-close" role="button">
+          <i class="fa fa-times-circle"></i>
+        </span>
+      </div>
+      <div class="search-result-container">
+        <div class="search-result-icon">
+          <i class="fa fa-spinner fa-pulse fa-5x"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#GPT-%E6%98%AF%E4%BB%80%E4%B9%88"><span class="nav-number">1.</span> <span class="nav-text">GPT 是什么</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%BE%93%E5%85%A5-%E8%BE%93%E5%87%BA"><span class="nav-number">1.1.</span> <span class="nav-text">输入&#x2F;输出</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%BE%93%E5%85%A5"><span class="nav-number">1.1.1.</span> <span class="nav-text">输入</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%BE%93%E5%87%BA"><span class="nav-number">1.1.2.</span> <span class="nav-text">输出</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%94%9F%E6%88%90%E6%96%87%E6%9C%AC"><span class="nav-number">1.2.</span> <span class="nav-text">生成文本</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%87%AA%E5%9B%9E%E5%BD%92%EF%BC%88Autoregressive%EF%BC%89"><span class="nav-number">1.2.1.</span> <span class="nav-text">自回归（Autoregressive）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%87%87%E6%A0%B7%EF%BC%88Sampling%EF%BC%89"><span class="nav-number">1.2.2.</span> <span class="nav-text">采样（Sampling）</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%AE%AD%E7%BB%83"><span class="nav-number">1.3.</span> <span class="nav-text">训练</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%8F%90%E7%A4%BA%E8%AF%8D%E5%BA%94%E7%94%A8%EF%BC%88Prompting%EF%BC%89"><span class="nav-number">1.4.</span> <span class="nav-text">提示词应用（Prompting）</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%BB%A3%E7%A0%81%E5%AE%9E%E8%B7%B5%E8%AE%BE%E7%BD%AE"><span class="nav-number">2.</span> <span class="nav-text">代码实践设置</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%BC%96%E7%A0%81%E5%99%A8%EF%BC%88Encoder%EF%BC%89"><span class="nav-number">2.1.</span> <span class="nav-text">编码器（Encoder）</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%B6%85%E5%8F%82%E6%95%B0%EF%BC%88-Hyperparameters%EF%BC%89"><span class="nav-number">2.2.</span> <span class="nav-text">超参数（ Hyperparameters）</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8F%82%E6%95%B0-%EF%BC%88Parameters%EF%BC%89"><span class="nav-number">2.3.</span> <span class="nav-text">参数 （Parameters）</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%BD%91%E7%BB%9C%E5%B1%82%E8%A7%A3%E6%9E%90%EF%BC%88Basic-Layers%EF%BC%89"><span class="nav-number">3.</span> <span class="nav-text">网络层解析（Basic Layers）</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#GELU"><span class="nav-number">3.1.</span> <span class="nav-text">GELU</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Softmax"><span class="nav-number">3.2.</span> <span class="nav-text">Softmax</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Layer-Normalization"><span class="nav-number">3.3.</span> <span class="nav-text">Layer Normalization</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%8EBatchNorm%E7%9A%84%E6%AF%94%E8%BE%83"><span class="nav-number">3.3.1.</span> <span class="nav-text">与BatchNorm的比较</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#NLP-%E7%94%A8-LayerNorm-%E7%9A%84%E5%8E%9F%E5%9B%A0"><span class="nav-number">3.3.2.</span> <span class="nav-text">NLP 用 LayerNorm 的原因</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%A4%9A%E6%A8%A1%E6%80%81%E4%BD%BF%E7%94%A8BN%E8%BF%98%E6%98%AFLN%EF%BC%9F"><span class="nav-number">3.3.3.</span> <span class="nav-text">多模态使用BN还是LN？</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%BA%BF%E6%80%A7%E5%B1%82%EF%BC%88Linear%EF%BC%89"><span class="nav-number">3.4.</span> <span class="nav-text">线性层（Linear）</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#GPT%E6%9E%B6%E6%9E%84"><span class="nav-number">4.</span> <span class="nav-text">GPT架构</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Embeddings"><span class="nav-number">4.1.</span> <span class="nav-text">Embeddings</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Token-Embeddings"><span class="nav-number">4.1.1.</span> <span class="nav-text">Token Embeddings</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Positional-Embeddings"><span class="nav-number">4.1.2.</span> <span class="nav-text">Positional Embeddings</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Combined"><span class="nav-number">4.1.3.</span> <span class="nav-text">Combined</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Decoder-Stack"><span class="nav-number">4.2.</span> <span class="nav-text">Decoder Stack</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Projection-to-Vocab-%E6%8A%95%E5%BD%B1%E5%88%B0%E8%AF%8D%E6%B1%87%E8%A1%A8"><span class="nav-number">4.3.</span> <span class="nav-text">Projection to Vocab (投影到词汇表)</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Decoder-Block"><span class="nav-number">4.4.</span> <span class="nav-text">Decoder Block</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Position-wise-Feed-Forward-Network"><span class="nav-number">4.5.</span> <span class="nav-text">Position-wise Feed Forward Network</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Multi-Head-Causal-Self-Attention"><span class="nav-number">4.6.</span> <span class="nav-text">Multi-Head Causal Self Attention</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Attention"><span class="nav-number">4.6.1.</span> <span class="nav-text">Attention</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Self"><span class="nav-number">4.6.2.</span> <span class="nav-text">Self</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Causal"><span class="nav-number">4.6.3.</span> <span class="nav-text">Causal</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Multi-Head"><span class="nav-number">4.6.4.</span> <span class="nav-text">Multi-Head</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Putting-it-All-Together"><span class="nav-number">4.7.</span> <span class="nav-text">Putting it All Together</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#What-Next"><span class="nav-number">4.8.</span> <span class="nav-text">What Next?</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#GPU-TPU-Support"><span class="nav-number">4.8.1.</span> <span class="nav-text">GPU&#x2F;TPU Support</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Backpropagation"><span class="nav-number">4.8.2.</span> <span class="nav-text">Backpropagation</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Batching"><span class="nav-number">4.8.3.</span> <span class="nav-text">Batching</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Inference-Optimization"><span class="nav-number">4.8.4.</span> <span class="nav-text">Inference Optimization</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Training"><span class="nav-number">4.8.5.</span> <span class="nav-text">Training</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Evaluation"><span class="nav-number">4.8.6.</span> <span class="nav-text">Evaluation</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Architecture-Improvements"><span class="nav-number">4.8.7.</span> <span class="nav-text">Architecture Improvements</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Stopping-Generation"><span class="nav-number">4.8.8.</span> <span class="nav-text">Stopping Generation</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Fine-tuning"><span class="nav-number">4.8.9.</span> <span class="nav-text">Fine-tuning</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Classification-Fine-tuning"><span class="nav-number">4.8.9.1.</span> <span class="nav-text">Classification Fine-tuning</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Generative-Fine-tuning"><span class="nav-number">4.8.9.2.</span> <span class="nav-text">Generative Fine-tuning</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Instruction-Fine-tuning"><span class="nav-number">4.8.9.3.</span> <span class="nav-text">Instruction Fine-tuning</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Parameter-Efficient-Fine-tuning"><span class="nav-number">4.8.9.4.</span> <span class="nav-text">Parameter Efficient Fine-tuning</span></a></li></ol></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%8F%82%E8%80%83%E6%96%87%E7%8C%AE"><span class="nav-number">5.</span> <span class="nav-text">参考文献</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Hans</p>
+  <div class="site-description" itemprop="description">Personal website for research and blog</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">1</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">1</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="en">
+    <link itemprop="mainEntityOfPage" href="https://hans599.github.io/2026/06/01/LLM-gpt/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Hans">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Hans's Homepage">
+      <meta itemprop="description" content="Personal website for research and blog">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="LLM核心原理 - GPT | Hans's Homepage">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          LLM核心原理 - GPT
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+
+      <time title="Created: 2026-06-01 00:00:00" itemprop="dateCreated datePublished" datetime="2026-06-01T00:00:00+08:00">2026-06-01</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">Edited on</span>
+      <time title="Modified: 2026-06-07 20:50:45" itemprop="dateModified" datetime="2026-06-07T20:50:45+08:00">2026-06-07</time>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p>以下内容主要根据博客<a target="_blank" rel="noopener" href="https://jaykmody.com/blog/gpt-from-scratch/#what-is-a-gpt%3F">GPT in 60 Lines of NumPy</a> 翻译而来，之所以选择这篇博客，是因为它以代码而且是numpy的形式来解释介绍GPT的基本原理，而非大白话，比较适合有一定代码基础的人入门。</p>
+<h1 id="GPT-是什么"><a href="#GPT-是什么" class="headerlink" title="GPT 是什么"></a>GPT 是什么</h1><p>GPT代表生成式预训练Transformer(Generative Pre-trained Transformer)。这是一类基于transformer的神经网络架构。</p>
+<ul>
+<li>生成式(Generative)：GPT可以生成文本</li>
+<li>预训练(Pre-trained)：GPT基于来自于书本、互联网等来源的海量文本进行训练</li>
+<li>Transformer：GPT是一个decoder-only的transformer神经网络结构。</li>
+</ul>
+<p>类似 OpenAI 的 GPT-3、谷歌的 LaMDA 以及 Cohere 的 Command XLarge，这些大语言模型的底层架构都基于 GPT。它们的特殊之处在于两点：1）规模巨大，参数动辄成百上千亿；2）训练数据海量，涵盖成百上千 GB 的文本。<br>关于GPT3 如何工作的，可以查看博客：<br><a target="_blank" rel="noopener" href="https://jalammar.github.io/how-gpt3-works-visualizations-animations/">How GPT3 Works - Visualizations and Animations</a></p>
+<h2 id="输入-输出"><a href="#输入-输出" class="headerlink" title="输入&#x2F;输出"></a>输入&#x2F;输出</h2><p>GPT 的函数原型大致如下：</p>
+<figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">gpt</span>(<span class="params">inputs: <span class="built_in">list</span>[<span class="built_in">int</span>]</span>) -&gt; <span class="built_in">list</span>[<span class="built_in">list</span>[<span class="built_in">float</span>]]:</span><br><span class="line">    <span class="comment"># inputs has shape [n_seq]</span></span><br><span class="line">    <span class="comment"># output has shape [n_seq, n_vocab]</span></span><br><span class="line">    output = <span class="comment"># beep boop neural network magic</span></span><br><span class="line">    <span class="keyword">return</span> output</span><br></pre></td></tr></table></figure>
+<h3 id="输入"><a href="#输入" class="headerlink" title="输入"></a>输入</h3><p>输入是一段由整数序列表示的文本，这些整数与文本中的词元（tokens）一一对应。</p>
+<figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># integers represent tokens in our text, for example:</span></span><br><span class="line"><span class="comment"># text   = &quot;not all heroes wear capes&quot;:</span></span><br><span class="line"><span class="comment"># tokens = &quot;not&quot;  &quot;all&quot; &quot;heroes&quot; &quot;wear&quot; &quot;capes&quot;</span></span><br><span class="line">inputs =   [<span class="number">1</span>,     <span class="number">0</span>,    <span class="number">2</span>,      <span class="number">4</span>,     <span class="number">6</span>]</span><br></pre></td></tr></table></figure>
+
+
+<p>词元（Tokens）是文本的子片段，通过某种分词器（Tokenizer）生成。我们可以使用词汇表（Vocabulary）将词元映射为整数：</p>
+<figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># the index of a token in the vocab represents the integer id for that token</span></span><br><span class="line"><span class="comment"># i.e. the integer id for &quot;heroes&quot; would be 2, since vocab[2] = &quot;heroes&quot;</span></span><br><span class="line">vocab = [<span class="string">&quot;all&quot;</span>, <span class="string">&quot;not&quot;</span>, <span class="string">&quot;heroes&quot;</span>, <span class="string">&quot;the&quot;</span>, <span class="string">&quot;wear&quot;</span>, <span class="string">&quot;.&quot;</span>, <span class="string">&quot;capes&quot;</span>]</span><br><span class="line"></span><br><span class="line"><span class="comment"># a pretend tokenizer that tokenizes on whitespace</span></span><br><span class="line">tokenizer = WhitespaceTokenizer(vocab)</span><br><span class="line"></span><br><span class="line"><span class="comment"># the encode() method converts a str -&gt; list[int]</span></span><br><span class="line">ids = tokenizer.encode(<span class="string">&quot;not all heroes wear&quot;</span>) <span class="comment"># ids = [1, 0, 2, 4]</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># we can see what the actual tokens are via our vocab mapping</span></span><br><span class="line">tokens = [tokenizer.vocab[i] <span class="keyword">for</span> i <span class="keyword">in</span> ids] <span class="comment"># tokens = [&quot;not&quot;, &quot;all&quot;, &quot;heroes&quot;, &quot;wear&quot;]</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># the decode() method converts back a list[int] -&gt; str</span></span><br><span class="line">text = tokenizer.decode(ids) <span class="comment"># text = &quot;not all heroes wear&quot;</span></span><br></pre></td></tr></table></figure>
+
+<p>简而言之：</p>
+<ol>
+<li>我们拥有一段字符串。</li>
+<li>我们使用分词器将其拆分为更小的片段，称为词元（tokens）。</li>
+<li>我们使用词汇表将这些词元映射为整数。</li>
+</ol>
+<p>在实际应用中，我们会使用比单纯按空格拆分更先进的分词方法，例如字节对编码（Byte-Pair Encoding）或词块编码（WordPiece），但其核心原理是一致的：</p>
+<ol>
+<li>存在一个词汇表，用于将字符串形式的词元映射为整数索引；</li>
+<li>存在一个编码（encode）方法，将字符串转换为整数列表；</li>
+<li>存在一个解码（decode）方法，将整数列表还原为字符串。</li>
+</ol>
+<h3 id="输出"><a href="#输出" class="headerlink" title="输出"></a>输出</h3><p>模型的输出是一个二维数组，其中 <code>output[i][j]</code> 表示模型预测的概率。<code>output [i][j] = 数字</code>：代表模型觉得第 j 个词，有多大可能是第 i 个位置后面的那个词，这就是 GPT 猜下一个词的原理。</p>
+<figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">vocab = [<span class="string">&quot;all&quot;</span>, <span class="string">&quot;not&quot;</span>, <span class="string">&quot;heroes&quot;</span>, <span class="string">&quot;the&quot;</span>, <span class="string">&quot;wear&quot;</span>, <span class="string">&quot;.&quot;</span>, <span class="string">&quot;capes&quot;</span>]</span><br><span class="line">inputs = [<span class="number">1</span>, <span class="number">0</span>, <span class="number">2</span>, <span class="number">4</span>] <span class="comment"># &quot;not&quot; &quot;all&quot; &quot;heroes&quot; &quot;wear&quot;</span></span><br><span class="line">output = gpt(inputs)</span><br><span class="line"><span class="comment">#              [&quot;all&quot;, &quot;not&quot;, &quot;heroes&quot;, &quot;the&quot;, &quot;wear&quot;, &quot;.&quot;, &quot;capes&quot;]</span></span><br><span class="line"><span class="comment"># output[0] =  [0.75    0.1     0.0       0.15    0.0   0.0    0.0  ]</span></span><br><span class="line"><span class="comment"># given just &quot;not&quot;, the model predicts the word &quot;all&quot; with the highest probability</span></span><br><span class="line"></span><br><span class="line"><span class="comment">#              [&quot;all&quot;, &quot;not&quot;, &quot;heroes&quot;, &quot;the&quot;, &quot;wear&quot;, &quot;.&quot;, &quot;capes&quot;]</span></span><br><span class="line"><span class="comment"># output[1] =  [0.0     0.0      0.8     0.1    0.0    0.0   0.1  ]</span></span><br><span class="line"><span class="comment"># given the sequence [&quot;not&quot;, &quot;all&quot;], the model predicts the word &quot;heroes&quot; with the highest probability</span></span><br><span class="line"></span><br><span class="line"><span class="comment">#              [&quot;all&quot;, &quot;not&quot;, &quot;heroes&quot;, &quot;the&quot;, &quot;wear&quot;, &quot;.&quot;, &quot;capes&quot;]</span></span><br><span class="line"><span class="comment"># output[-1] = [0.0     0.0     0.0     0.1     0.0    0.05  0.85  ]</span></span><br><span class="line"><span class="comment"># given the whole sequence [&quot;not&quot;, &quot;all&quot;, &quot;heroes&quot;, &quot;wear&quot;], the model predicts the word &quot;capes&quot; with the highest probability</span></span><br></pre></td></tr></table></figure>
+
+<p>若要对整个序列预测下一个词元，我们只需取输出结果最后一行中概率最高的词元即可：</p>
+<figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">vocab = [<span class="string">&quot;all&quot;</span>, <span class="string">&quot;not&quot;</span>, <span class="string">&quot;heroes&quot;</span>, <span class="string">&quot;the&quot;</span>, <span class="string">&quot;wear&quot;</span>, <span class="string">&quot;.&quot;</span>, <span class="string">&quot;capes&quot;</span>]</span><br><span class="line">inputs = [<span class="number">1</span>, <span class="number">0</span>, <span class="number">2</span>, <span class="number">4</span>] <span class="comment"># &quot;not&quot; &quot;all&quot; &quot;heroes&quot; &quot;wear&quot;</span></span><br><span class="line">output = gpt(inputs)</span><br><span class="line">next_token_id = np.argmax(output[-<span class="number">1</span>]) <span class="comment"># next_token_id = 6</span></span><br><span class="line">next_token = vocab[next_token_id] <span class="comment"># next_token = &quot;capes&quot;</span></span><br></pre></td></tr></table></figure>
+
+<p>将概率最高的词元作为预测结果，这一做法称为贪婪解码（greedy decoding）或贪婪采样（greedy sampling）。</p>
+<p>预测序列中下一个逻辑合理的词，这项任务被称为语言建模（language modeling）。因此，我们可以把 GPT 称为语言模型（language model）。</p>
+<p>只生成单个词固然不错，但如果要生成完整句子、段落乃至更长文本，又该如何实现呢？</p>
+<h2 id="生成文本"><a href="#生成文本" class="headerlink" title="生成文本"></a>生成文本</h2><h3 id="自回归（Autoregressive）"><a href="#自回归（Autoregressive）" class="headerlink" title="自回归（Autoregressive）"></a>自回归（Autoregressive）</h3><p>我们可以迭代式地从模型中获取下一个词元预测，从而生成完整句子。每一轮迭代时，都会将预测出的词元追加回输入序列：</p>
+<figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">generate</span>(<span class="params">inputs, n_tokens_to_generate</span>):</span><br><span class="line">    <span class="comment"># 循环：要生成多少个词，就循环多少次</span></span><br><span class="line">    <span class="keyword">for</span> _ <span class="keyword">in</span> <span class="built_in">range</span>(n_tokens_to_generate):</span><br><span class="line">        </span><br><span class="line">        <span class="comment"># 1. 把当前输入丢进 GPT 模型，得到下一个词的概率</span></span><br><span class="line">        output = gpt(inputs)</span><br><span class="line">        </span><br><span class="line">        <span class="comment"># 2. 贪婪采样：选概率最高的那个词作为下一个词</span></span><br><span class="line">        next_id = np.argmax(output[-<span class="number">1</span>])</span><br><span class="line">        </span><br><span class="line">        <span class="comment"># 3. 把新生成的词加回到输入里</span></span><br><span class="line">        inputs.append(<span class="built_in">int</span>(next_id))</span><br><span class="line">    </span><br><span class="line">    <span class="comment"># 最后只返回【新生成的部分】</span></span><br><span class="line">    <span class="keyword">return</span> inputs[<span class="built_in">len</span>(inputs) - n_tokens_to_generate :]  </span><br><span class="line">    </span><br><span class="line"></span><br><span class="line">input_ids = [<span class="number">1</span>, <span class="number">0</span>]          <span class="comment"># 对应单词：&quot;not&quot; &quot;all&quot;</span></span><br><span class="line">output_ids = generate(input_ids, <span class="number">3</span>)  <span class="comment"># 生成 3 个新词</span></span><br><span class="line">output_tokens = [vocab[i] <span class="keyword">for</span> i <span class="keyword">in</span> output_ids]   <span class="comment">#  heroes wear capes</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>这种预测未来值（regression）并将其重新加入输入（auto）的过程，正是 GPT 被称为自回归（autoregressive） 模型的原因。</p>
+<h3 id="采样（Sampling）"><a href="#采样（Sampling）" class="headerlink" title="采样（Sampling）"></a>采样（Sampling）</h3><p>我们可以不使用贪婪策略，转而从概率分布中进行随机采样，以此为文本生成过程引入随机性（不确定性）。</p>
+<figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">inputs = [<span class="number">1</span>, <span class="number">0</span>, <span class="number">2</span>, <span class="number">4</span>] <span class="comment"># &quot;not&quot; &quot;all&quot; &quot;heroes&quot; &quot;wear&quot;</span></span><br><span class="line">output = gpt(inputs)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 随机采样（不是只选最高）</span></span><br><span class="line">np.random.choice(np.arange(vocab_size), p=output[-<span class="number">1</span>]) <span class="comment"># capes</span></span><br><span class="line">np.random.choice(np.arange(vocab_size), p=output[-<span class="number">1</span>]) <span class="comment"># hats</span></span><br><span class="line">np.random.choice(np.arange(vocab_size), p=output[-<span class="number">1</span>]) <span class="comment"># capes</span></span><br><span class="line">np.random.choice(np.arange(vocab_size), p=output[-<span class="number">1</span>]) <span class="comment"># capes</span></span><br><span class="line">np.random.choice(np.arange(vocab_size), p=output[-<span class="number">1</span>]) <span class="comment"># pants</span></span><br></pre></td></tr></table></figure>
+<p>这使得我们在输入相同的情况下，也能生成不同的句子。<br>当与 <a target="_blank" rel="noopener" href="https://docs.cohere.ai/docs/controlling-generation-with-top-k-top-p#2-pick-from-amongst-the-top-tokens-top-k">Top-k</a>、 <a target="_blank" rel="noopener" href="https://docs.cohere.com/docs/controlling-generation-with-top-k-top-p#3-pick-from-amongst-the-top-tokens-whose-probabilities-add-up-to-15-top-p">Top-p</a> 和 <a target="_blank" rel="noopener" href="https://docs.cohere.com/docs/temperature">Temperature（温度系数）</a>等技术结合使用时（这些技术会在采样前调整概率分布），生成文本的质量会大幅提升。<br>这些技术还引入了一些我们可以调节的超参数，以获得不同的生成效果（例如，提高温度系数会让模型更大胆，从而变得更有 “创造力”）。</p>
+<table>
+<thead>
+<tr>
+<th align="left">维度</th>
+<th align="left">Temperature (温度)</th>
+<th align="left">Top-K (前K个)</th>
+<th align="left">Top-P (核采样)</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">核心作用</td>
+<td align="left">重塑概率分布形状<br>改变模型预测的“自信度”</td>
+<td align="left">硬性数量截断<br>限制候选词的绝对个数</td>
+<td align="left">动态概率截断<br>基于累积概率筛选候选词</td>
+</tr>
+<tr>
+<td align="left">计算逻辑</td>
+<td align="left">在 Softmax 之前缩放 Logits。<br>公式： $P_i &#x3D; \frac{e^{z_i&#x2F;T}}{\sum e^{z_j&#x2F;T}}$</td>
+<td align="left">1. 按概率排序<br>2. 仅保留前  $K$  个词<br>3. 剔除其余词并重新归一化</td>
+<td align="left">1. 按概率排序并累加<br>2. 截取累积概率达  $P$  的词集<br>3. 剔除其余词并重新归一化</td>
+</tr>
+</tbody></table>
+<p>在实际工作流中，三种采样方法一般结合使用：<br>Temperature 缩放 ➔ Softmax 算概率 ➔ Top-K 截断 ➔ Top-P 截断 ➔ 最终随机采样</p>
+<h2 id="训练"><a href="#训练" class="headerlink" title="训练"></a>训练</h2><p>训练 GPT 的方式与其他神经网络一致，基于损失函数使用梯度下降算法。针对 GPT 这类语言模型，训练采用语言建模任务下的交叉熵损失。</p>
+<ul>
+<li>损失函数</li>
+</ul>
+<figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">lm_loss</span>(<span class="params">inputs: <span class="built_in">list</span>[<span class="built_in">int</span>], params</span>) -&gt; <span class="built_in">float</span>:</span><br><span class="line">    <span class="string">&quot;&quot;&quot;</span></span><br><span class="line"><span class="string">    语言模型损失函数：计算GPT的预测误差值</span></span><br><span class="line"><span class="string">    inputs: 输入的词元编号序列 [1,0,2,4,6]</span></span><br><span class="line"><span class="string">    params: 模型参数</span></span><br><span class="line"><span class="string">    return: 损失值（越小表示预测越准）</span></span><br><span class="line"><span class="string">    &quot;&quot;&quot;</span></span><br><span class="line">    <span class="comment"># 标签 y 就是输入序列【向右移动一位】</span></span><br><span class="line">    <span class="comment"># 例子：</span></span><br><span class="line">    <span class="comment"># inputs = [not,   all,  heroes, wear, capes]</span></span><br><span class="line">    <span class="comment">#      x = [not,   all,  heroes, wear]        → 输入：用前n-1个词</span></span><br><span class="line">    <span class="comment">#      y = [all, heroes,   wear, capes]       → 标签：后n-1个词（真实答案）</span></span><br><span class="line">    <span class="comment"># 总结：用第1个词预测第2个，用1+2预测3，用1+2+3预测4……</span></span><br><span class="line">    </span><br><span class="line">    <span class="comment"># 构建训练对：</span></span><br><span class="line">    <span class="comment"># x = 除了最后一个词之外的所有词（用来预测）</span></span><br><span class="line">    <span class="comment"># y = 除了第一个词之外的所有词（正确答案）</span></span><br><span class="line">    x, y = inputs[:-<span class="number">1</span>], inputs[<span class="number">1</span>:] </span><br><span class="line"></span><br><span class="line">    <span class="comment"># 前向传播：把输入 x 送入 GPT 模型</span></span><br><span class="line">    <span class="comment"># 输出：模型在【每一个位置】预测的【下一个词的概率分布】</span></span><br><span class="line">    output = gpt(x, params) </span><br><span class="line"></span><br><span class="line">    <span class="comment"># 计算【交叉熵损失】（语言模型标准损失函数）</span></span><br><span class="line">    <span class="comment"># 1. output[位置索引, 正确答案编号] → 取出模型对正确答案的预测概率</span></span><br><span class="line">    <span class="comment"># 2. -log(概率) → 概率越小，损失越大；概率越大，损失越小</span></span><br><span class="line">    <span class="comment"># 3. np.mean → 对所有位置的损失取平均值</span></span><br><span class="line">    loss = np.mean(-np.log(output[np.arange(<span class="built_in">len</span>(output)), y]))</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 返回最终的平均损失</span></span><br><span class="line">    <span class="keyword">return</span> loss</span><br></pre></td></tr></table></figure>
+
+
+<ul>
+<li>训练过程</li>
+</ul>
+<figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">train</span>(<span class="params">texts: <span class="built_in">list</span>[<span class="built_in">list</span>[<span class="built_in">str</span>]], params</span>) -&gt; <span class="built_in">float</span>:</span><br><span class="line">    <span class="string">&quot;&quot;&quot;</span></span><br><span class="line"><span class="string">    GPT 模型训练函数</span></span><br><span class="line"><span class="string">    texts: 训练用的大量文本数据</span></span><br><span class="line"><span class="string">    params: 模型初始参数</span></span><br><span class="line"><span class="string">    return: 训练好的模型参数</span></span><br><span class="line"><span class="string">    &quot;&quot;&quot;</span></span><br><span class="line">    <span class="comment"># 遍历每一篇训练文本</span></span><br><span class="line">    <span class="keyword">for</span> text <span class="keyword">in</span> texts:</span><br><span class="line">        <span class="comment"># 1. 分词：把文本字符串 → 数字编号（编码）</span></span><br><span class="line">        inputs = tokenizer.encode(text)</span><br><span class="line">        </span><br><span class="line">        <span class="comment"># 2. 前向传播 + 计算损失：模型预测，看看错了多少</span></span><br><span class="line">        loss = lm_loss(inputs, params)</span><br><span class="line">        </span><br><span class="line">        <span class="comment"># 3. 反向传播：计算损失对参数的梯度（知道往哪改能降低损失）</span></span><br><span class="line">        gradients = compute_gradients_via_backpropagation(loss, params)</span><br><span class="line">        </span><br><span class="line">        <span class="comment"># 4. 梯度下降更新：根据梯度，微调模型参数，让损失变小</span></span><br><span class="line">        params = gradient_descent_update_step(gradients, params)</span><br><span class="line">    </span><br><span class="line">    <span class="comment"># 训练完成，返回优化后的参数</span></span><br><span class="line">    <span class="keyword">return</span> params</span><br></pre></td></tr></table></figure>
+<p>这是一个高度简化的训练流程，但它足以说明核心原理。请注意我们在 GPT 函数签名中加入了参数（params）（为了简洁起见，前面的章节中我们省略了这部分）。<br>在训练循环的每一次迭代中：</p>
+<ol>
+<li>我们对给定的输入文本样本计算语言建模损失。</li>
+<li>损失值通过反向传播计算出梯度。</li>
+<li>我们使用梯度来更新模型参数，从而最小化损失（梯度下降）。</li>
+</ol>
+<p>请注意，我们没有使用人工标注的数据。相反，我们仅从原始文本中就能自动生成输入 &#x2F; 标签对。这种方式被称为自监督学习（Self-supervised learning）。</p>
+<p>自监督学习使我们能够大规模扩展训练数据。我们只需获取尽可能多的原始文本，然后丢给模型即可。例如，GPT-3 就是使用来自互联网和书籍的3000 亿个词元进行训练的。</p>
+<p>当然，你需要一个足够大的模型才能从所有这些数据中学习，这就是为什么 GPT-3 拥有 1750 亿个参数，其训练算力成本可能在 100 万到 1000 万美元 之间。</p>
+<p>这个自监督训练阶段被称为预训练（Pre-training），因为我们可以复用这些 “预训练好的模型权重”，在下游任务中进一步训练模型，例如判断一条推文是否包含恶意言论。<br>预训练模型有时也被称为基础模型（Foundation Models）。</p>
+<p>在下游任务上训练模型的过程被称为微调（Fine-tuning）。因为模型权重已经通过预训练学会了理解语言，现在只是针对当前的特定任务进行微调。<br>“通用任务预训练 + 特定任务微调” 这种策略，被称为迁移学习（Transfer Learning）。</p>
+<h2 id="提示词应用（Prompting）"><a href="#提示词应用（Prompting）" class="headerlink" title="提示词应用（Prompting）"></a>提示词应用（Prompting）</h2><p>从原理上讲，初代 GPT <a href="#ref-gpt1">[GPT-1]</a> 论文仅论证了对 Transformer 模型进行预训练以实现迁移学习所带来的优势。该论文证实，参数量为 1.17 亿的 GPT 模型经过预训练后，再基于标注数据集开展微调，便能在各类自然语言处理（NLP）任务上取得当时业界顶尖的效果。<br>直到 GPT-2 <a href="#ref-gpt2">[GPT-2]</a> 与 GPT-3 <a href="#ref-gpt3">[GPT-3]</a> 相关研究问世，人们才发现：当 GPT 模型拥有足量训练数据与大规模参数时，无需额外微调，仅凭自身即可完成各类任务。只需向模型输入提示词，依托自回归语言建模能力，模型就能直接输出合理答案。这种能力被称为上下文学习，模型仅依靠提示词中的上下文信息完成任务。上下文学习又可分为零样本、单样本、少样本三种形式。</p>
+<table>
+<thead>
+<tr>
+<th align="left">提示方法</th>
+<th align="left">核心逻辑</th>
+<th align="left">示例数量</th>
+<th align="left">实际 Prompt 示例（以“情感分类”为例）</th>
+<th align="left">模型预期输出</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">Zero-shot<br>(零样本)</td>
+<td align="left">直接下指令<br>完全依赖模型已有的通用知识，不给任何参考。</td>
+<td align="left">0 个</td>
+<td align="left">请把这句话的情感归类为“正面”或“负面”：<br>“这款手机的续航能力太强了！”</td>
+<td align="left">正面</td>
+</tr>
+<tr>
+<td align="left">One-shot<br>(单样本)</td>
+<td align="left">提供一个示范<br>给模型一个“输入-输出”的例子，让它照猫画虎。</td>
+<td align="left">1 个</td>
+<td align="left">任务：把日常用语改成高冷的“霸总”语气。<br>示例：<br>输入：“记得带伞。”<br>输出：“别淋湿了，我不希望我的东西受损。”<br><br>请转换：<br>输入：“早点睡觉。”</td>
+<td align="left">赶紧去睡，熬夜对身体不好这种事不用我教你吧。</td>
+</tr>
+<tr>
+<td align="left">Few-shot<br>(少样本)</td>
+<td align="left">提供多个示范<br>通过多个例子让模型掌握复杂的规律、格式或逻辑。</td>
+<td align="left">2~5个</td>
+<td align="left">任务：提取句子中的实体并标注类型。<br>示例：<br>输入：“马斯克在得克萨斯州成立了SpaceX。”<br>输出：[马斯克:人物], [得克萨斯州:地点], [SpaceX:公司]<br>输入：“乔布斯在加州发布了初代iPhone。”<br>输出：[乔布斯:人物], [加州:地点], [iPhone:产品]<br><br>请处理：<br>输入：“库克在苹果总部介绍了新款Vision Pro。”</td>
+<td align="left">[库克:人物], [苹果总部:地点], [Vision Pro:产品]</td>
+</tr>
+</tbody></table>
+<p>根据提示词生成文本，有时也被称作条件生成，因为模型是依据输入内容来产出对应结果。</p>
+<p>GPT 并非只能用于自然语言处理任务，你可以用任意内容作为条件来引导模型。举个例子，依托对话历史作为输入条件，就能将 GPT 改造成聊天机器人（比如 ChatGPT）。还可以在提示词开头补充描述内容，进一步限定机器人的行为风格，例如：“你是一名聊天助手，说话礼貌、使用完整句式，不输出不当内容”。这类条件设定甚至能为机器人赋予专属人设，对应的提示内容通常叫做系统提示词。</p>
+<p>但这种方式并不具备强约束能力，依旧可以通过特定手段绕过限制，诱导模型做出违规输出。</p>
+<p>介绍完以上概念，接下来我们正式进入代码实现环节。</p>
+<h1 id="代码实践设置"><a href="#代码实践设置" class="headerlink" title="代码实践设置"></a>代码实践设置</h1><p>克隆本教程所需的代码仓库：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">git <span class="built_in">clone</span> https://github.com/jaymody/picoGPT</span><br><span class="line"><span class="built_in">cd</span> picoGPT</span><br></pre></td></tr></table></figure>
+<p>接下来，我们安装项目依赖：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">pip install -r requirements.txt</span><br></pre></td></tr></table></figure>
+<p>注意：本代码已在 Python 3.9.10 环境下测试通过。</p>
+<p>各文件简要说明：</p>
+<ul>
+<li><code>encoder.py </code>存放 OpenAI 的 BPE 分词器代码，源码直接取自官方 gpt-2 仓库；</li>
+<li><code>utils.py</code> 实现 GPT-2 模型权重、分词器与超参数的下载和加载逻辑；</li>
+<li><code>gpt2.py </code>是 GPT 主体模型与文本生成代码，可直接当作 Python 脚本运行；  </li>
+<li><code>gpt2_pico.py </code>功能和 <code>gpt2.py </code>一致，但代码更加精简，纯粹是精简写法。</li>
+</ul>
+<p>我们接下来从零手写实现 <code>gpt2.py</code>，因此先删除原有文件，再新建空白文件。或者说新建一个<code>gpt2_copy.py</code>，内容如下：</p>
+<figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">gpt2</span>(<span class="params">inputs, wte, wpe, blocks, ln_f, n_head</span>):</span><br><span class="line">    <span class="comment"># <span class="doctag">TODO:</span> 待实现GPT-2核心模型</span></span><br><span class="line">    <span class="keyword">pass</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">generate</span>(<span class="params">inputs, params, n_head, n_tokens_to_generate</span>):</span><br><span class="line">    <span class="keyword">from</span> tqdm <span class="keyword">import</span> tqdm</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 自回归生成循环（逐个生成token）</span></span><br><span class="line">    <span class="keyword">for</span> _ <span class="keyword">in</span> tqdm(<span class="built_in">range</span>(n_tokens_to_generate), <span class="string">&quot;生成中&quot;</span>):</span><br><span class="line">        logits = gpt2(inputs, **params, n_head=n_head)  <span class="comment"># 模型前向计算</span></span><br><span class="line">        next_id = np.argmax(logits[-<span class="number">1</span>])                 <span class="comment"># 贪心采样：取概率最高的下一个词</span></span><br><span class="line">        inputs.append(<span class="built_in">int</span>(next_id))                     <span class="comment"># 将预测结果添加到输入中</span></span><br><span class="line"></span><br><span class="line">    <span class="comment"># 仅返回新生成的token部分</span></span><br><span class="line">    <span class="keyword">return</span> inputs[<span class="built_in">len</span>(inputs) - n_tokens_to_generate :]</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">main</span>(<span class="params">prompt: <span class="built_in">str</span>, n_tokens_to_generate: <span class="built_in">int</span> = <span class="number">40</span>, model_size: <span class="built_in">str</span> = <span class="string">&quot;124M&quot;</span>, models_dir: <span class="built_in">str</span> = <span class="string">&quot;models&quot;</span></span>):</span><br><span class="line">    <span class="keyword">from</span> utils <span class="keyword">import</span> load_encoder_hparams_and_params</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 从OpenAI官方GPT-2文件中加载：分词器、超参数、模型权重</span></span><br><span class="line">    encoder, hparams, params = load_encoder_hparams_and_params(model_size, models_dir)</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 使用BPE分词器对输入文本进行编码</span></span><br><span class="line">    input_ids = encoder.encode(prompt)</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 确保总长度不超过模型最大序列限制</span></span><br><span class="line">    <span class="keyword">assert</span> <span class="built_in">len</span>(input_ids) + n_tokens_to_generate &lt; hparams[<span class="string">&quot;n_ctx&quot;</span>]</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 生成输出token</span></span><br><span class="line">    output_ids = generate(input_ids, params, hparams[<span class="string">&quot;n_head&quot;</span>], n_tokens_to_generate)</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 将token解码回文本</span></span><br><span class="line">    output_text = encoder.decode(output_ids)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> output_text</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">&quot;__main__&quot;</span>:</span><br><span class="line">    <span class="keyword">import</span> fire</span><br><span class="line">    fire.Fire(main)  <span class="comment"># 命令行启动主函数</span></span><br></pre></td></tr></table></figure>
+
+<p>对上述 gpt2 的实现的基本框架的 4 个部分逐一说明：</p>
+<ul>
+<li><p><code>gpt2</code> 函数是我们即将实现的 GPT 核心代码。你会发现函数签名中除了 inputs 之外，还包含一些额外参数：wte、wpe、blocks 和 ln_f 都是模型的参数。n_head 是前向传播时需要用到的超参数。</p>
+</li>
+<li><p><code>generate</code> 函数是我们之前见过的自回归解码算法。为了简单起见，我们使用贪心采样。tqdm 是一个进度条，用于在模型逐个生成 token 时直观展示解码过程。</p>
+</li>
+<li><p><code>main</code> 函数负责：</p>
+<ul>
+<li>加载分词器（encoder）、模型权重（params）和超参数（hparams）</li>
+<li>使用分词器将输入提示词编码为 token ID</li>
+<li>调用 generate 函数</li>
+<li>将输出的 ID 解码为字符串</li>
+</ul>
+</li>
+<li><p><code>fire.Fire (main)</code> 只是将我们的文件变成一个命令行（CLI）程序，这样我们最终就可以用以下命令运行代码：<code>python gpt2.py &quot;这里输入提示词&quot;</code></p>
+</li>
+</ul>
+<p>新建一个脚本，运行以下命令，将自动下载对应的模型，模型参数，encoder编码等到models目录下：</p>
+<figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> utils <span class="keyword">import</span> load_encoder_hparams_and_params</span><br><span class="line">encoder, hparams, params = load_encoder_hparams_and_params(<span class="string">&quot;124M&quot;</span>, <span class="string">&quot;models&quot;</span>)</span><br></pre></td></tr></table></figure>
+<p>下载好的文件目录如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">├─models              # 模型总文件夹（存放所有GPT-2模型）</span><br><span class="line">│  └─124M             # GPT-2 最小版本模型（1.24亿参数）</span><br><span class="line">│          checkpoint          # 训练检查点（记录模型训练状态）</span><br><span class="line">│          encoder.json        # 分词器编码配置（词→ID 映射表）</span><br><span class="line">│          hparams.json        # 模型超参数（层数、头数、维度等）</span><br><span class="line">│          model.ckpt.data-00000-of-00001  # 模型权重数据（核心！）</span><br><span class="line">│          model.ckpt.index              # 权重索引文件</span><br><span class="line">│          model.ckpt.meta               # 模型结构元数据</span><br><span class="line">│          vocab.bpe           # BPE 分词词汇表（GPT-2的分词字典）</span><br></pre></td></tr></table></figure>
+
+<h2 id="编码器（Encoder）"><a href="#编码器（Encoder）" class="headerlink" title="编码器（Encoder）"></a>编码器（Encoder）</h2><p>encoder 就是 GPT-2 所使用的 BPE 分词器：</p>
+<figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&gt;&gt;&gt; </span><span class="keyword">from</span> utils <span class="keyword">import</span> load_encoder_hparams_and_params                                                                                                                             </span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>encoder, hparams, params = load_encoder_hparams_and_params(<span class="string">&quot;124M&quot;</span>, <span class="string">&quot;models&quot;</span>)                                                                     </span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>ids = encoder.encode(<span class="string">&quot;Not all heroes wear capes.&quot;</span>)                                                                                               </span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>ids                                                                                                                                              </span><br><span class="line">[<span class="number">3673</span>, <span class="number">477</span>, <span class="number">10281</span>, <span class="number">5806</span>, <span class="number">1451</span>, <span class="number">274</span>, <span class="number">13</span>]</span><br></pre></td></tr></table></figure>
+<p>使用分词器的词汇表（存储在 encoder.decoder 中），我们可以查看一下真实的 token 长什么样：</p>
+<figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&gt;&gt;&gt; </span>[encoder.decoder[i] <span class="keyword">for</span> i <span class="keyword">in</span> ids]                                                                                                                </span><br><span class="line">[<span class="string">&#x27;Not&#x27;</span>, <span class="string">&#x27;Ġall&#x27;</span>, <span class="string">&#x27;Ġheroes&#x27;</span>, <span class="string">&#x27;Ġwear&#x27;</span>, <span class="string">&#x27;Ġcap&#x27;</span>, <span class="string">&#x27;es&#x27;</span>, <span class="string">&#x27;.&#x27;</span>]   </span><br></pre></td></tr></table></figure>
+<p>可以看到：部分 token 是完整单词（例如 Not），部分单词开头带有特殊符号Ġ（如Ġall，Ġ代表空格）；还有的是单词片段（比如 capes 被拆成Ġcap 与 es），也有标点符号单独成为 token（如.）。</p>
+<p>BPE 分词法的一个优点是它可以对任意字符串进行编码。如果遇到词汇表中不存在的内容，它会自动将其拆分成它能识别的子字符串。</p>
+<figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&gt;&gt;&gt; </span>[encoder.decoder[i] <span class="keyword">for</span> i <span class="keyword">in</span> encoder.encode(<span class="string">&quot;zjqfl&quot;</span>)]                                                                                            </span><br><span class="line">[<span class="string">&#x27;z&#x27;</span>, <span class="string">&#x27;j&#x27;</span>, <span class="string">&#x27;q&#x27;</span>, <span class="string">&#x27;fl&#x27;</span>]     </span><br></pre></td></tr></table></figure>
+
+<p>我们还可以查看词汇表的大小：</p>
+<figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&gt;&gt;&gt; </span><span class="built_in">len</span>(encoder.decoder)</span><br><span class="line"><span class="number">50257</span></span><br></pre></td></tr></table></figure>
+<p>词汇表，以及决定字符串如何拆分的字节对合并规则，都是通过训练分词器得到的。当我们加载分词器时，实际上是从文件中加载已经训练好的词汇表和字节对合并规则，这些文件是我们运行 load_encoder_hparams_and_params 时与模型文件一起下载的。可以查看 models&#x2F;124M&#x2F;encoder.json（词汇表）和 models&#x2F;124M&#x2F;vocab.bpe（字节对合并规则）。简单来说，<strong>BPE 分词器 &#x3D; 词汇表 + 分词规则。</strong></p>
+<h2 id="超参数（-Hyperparameters）"><a href="#超参数（-Hyperparameters）" class="headerlink" title="超参数（ Hyperparameters）"></a>超参数（ Hyperparameters）</h2><p>hparams 是一个字典，里面存放着模型的超参数。</p>
+<figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&gt;&gt;&gt; </span>hparams</span><br><span class="line">&#123;</span><br><span class="line">  <span class="string">&quot;n_vocab&quot;</span>: <span class="number">50257</span>,        <span class="comment"># 词汇表中的 token 总数</span></span><br><span class="line">  <span class="string">&quot;n_ctx&quot;</span>: <span class="number">1024</span>,           <span class="comment"># 输入的最大序列长度</span></span><br><span class="line">  <span class="string">&quot;n_embd&quot;</span>: <span class="number">768</span>,           <span class="comment"># 词嵌入维度（决定了网络的“宽度”）</span></span><br><span class="line">  <span class="string">&quot;n_head&quot;</span>: <span class="number">12</span>,            <span class="comment"># 注意力头的数量（n_embd 必须能被 n_head 整除）</span></span><br><span class="line">  <span class="string">&quot;n_layer&quot;</span>: <span class="number">12</span>            <span class="comment"># 网络层数（决定了网络的“深度”）</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>我们将在代码注释中使用这些符号来表示数据的维度 &#x2F; 形状。我们还会用 n_seq 来表示输入序列的长度（即 <code>n_seq = len(inputs)</code>）。</p>
+<h2 id="参数-（Parameters）"><a href="#参数-（Parameters）" class="headerlink" title="参数 （Parameters）"></a>参数 （Parameters）</h2><p>params 是一个嵌套字典，存储了模型的训练权重。该字典的最底层节点是 NumPy 数组。如果我们打印 params，并将其中的数组替换为它们的形状（维度）进行展示，结果如下：</p>
+<figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&gt;&gt;&gt; </span><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span><span class="keyword">def</span> <span class="title function_">shape_tree</span>(<span class="params">d</span>):</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>    <span class="keyword">if</span> <span class="built_in">isinstance</span>(d, np.ndarray):</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>        <span class="keyword">return</span> <span class="built_in">list</span>(d.shape)</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>    <span class="keyword">elif</span> <span class="built_in">isinstance</span>(d, <span class="built_in">list</span>):</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>        <span class="keyword">return</span> [shape_tree(v) <span class="keyword">for</span> v <span class="keyword">in</span> d]</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>    <span class="keyword">elif</span> <span class="built_in">isinstance</span>(d, <span class="built_in">dict</span>):</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>        <span class="keyword">return</span> &#123;k: shape_tree(v) <span class="keyword">for</span> k, v <span class="keyword">in</span> d.items()&#125;</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>    <span class="keyword">else</span>:</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>        ValueError(<span class="string">&quot;uh oh&quot;</span>)</span><br><span class="line">&gt;&gt;&gt;</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span><span class="built_in">print</span>(shape_tree(params))</span><br><span class="line">&#123;</span><br><span class="line">    <span class="string">&quot;wpe&quot;</span>: [<span class="number">1024</span>, <span class="number">768</span>],</span><br><span class="line">    <span class="string">&quot;wte&quot;</span>: [<span class="number">50257</span>, <span class="number">768</span>],</span><br><span class="line">    <span class="string">&quot;ln_f&quot;</span>: &#123;<span class="string">&quot;b&quot;</span>: [<span class="number">768</span>], <span class="string">&quot;g&quot;</span>: [<span class="number">768</span>]&#125;,</span><br><span class="line">    <span class="string">&quot;blocks&quot;</span>: [</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="string">&quot;attn&quot;</span>: &#123;</span><br><span class="line">                <span class="string">&quot;c_attn&quot;</span>: &#123;<span class="string">&quot;b&quot;</span>: [<span class="number">2304</span>], <span class="string">&quot;w&quot;</span>: [<span class="number">768</span>, <span class="number">2304</span>]&#125;,</span><br><span class="line">                <span class="string">&quot;c_proj&quot;</span>: &#123;<span class="string">&quot;b&quot;</span>: [<span class="number">768</span>], <span class="string">&quot;w&quot;</span>: [<span class="number">768</span>, <span class="number">768</span>]&#125;,</span><br><span class="line">            &#125;,</span><br><span class="line">            <span class="string">&quot;ln_1&quot;</span>: &#123;<span class="string">&quot;b&quot;</span>: [<span class="number">768</span>], <span class="string">&quot;g&quot;</span>: [<span class="number">768</span>]&#125;,</span><br><span class="line">            <span class="string">&quot;ln_2&quot;</span>: &#123;<span class="string">&quot;b&quot;</span>: [<span class="number">768</span>], <span class="string">&quot;g&quot;</span>: [<span class="number">768</span>]&#125;,</span><br><span class="line">            <span class="string">&quot;mlp&quot;</span>: &#123;</span><br><span class="line">                <span class="string">&quot;c_fc&quot;</span>: &#123;<span class="string">&quot;b&quot;</span>: [<span class="number">3072</span>], <span class="string">&quot;w&quot;</span>: [<span class="number">768</span>, <span class="number">3072</span>]&#125;,</span><br><span class="line">                <span class="string">&quot;c_proj&quot;</span>: &#123;<span class="string">&quot;b&quot;</span>: [<span class="number">768</span>], <span class="string">&quot;w&quot;</span>: [<span class="number">3072</span>, <span class="number">768</span>]&#125;,</span><br><span class="line">            &#125;,</span><br><span class="line">        &#125;,</span><br><span class="line">        ... <span class="comment"># repeat for n_layers</span></span><br><span class="line">    ]</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>这些权重是从 OpenAI 官方提供的原始 TensorFlow 检查点(checkpoint)文件中加载出来的：</p>
+<figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&gt;&gt;&gt; </span><span class="keyword">import</span> tensorflow <span class="keyword">as</span> tf</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>tf_ckpt_path = tf.train.latest_checkpoint(<span class="string">&quot;models/124M&quot;</span>)</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span><span class="keyword">for</span> name, _ <span class="keyword">in</span> tf.train.list_variables(tf_ckpt_path):</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>    arr = tf.train.load_variable(tf_ckpt_path, name).squeeze()</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>    <span class="built_in">print</span>(<span class="string">f&quot;<span class="subst">&#123;name&#125;</span>: <span class="subst">&#123;arr.shape&#125;</span>&quot;</span>)</span><br><span class="line">model/h0/attn/c_attn/b: (<span class="number">2304</span>,)</span><br><span class="line">model/h0/attn/c_attn/w: (<span class="number">768</span>, <span class="number">2304</span>)</span><br><span class="line">model/h0/attn/c_proj/b: (<span class="number">768</span>,)</span><br><span class="line">model/h0/attn/c_proj/w: (<span class="number">768</span>, <span class="number">768</span>)</span><br><span class="line">model/h0/ln_1/b: (<span class="number">768</span>,)</span><br><span class="line">model/h0/ln_1/g: (<span class="number">768</span>,)</span><br><span class="line">model/h0/ln_2/b: (<span class="number">768</span>,)</span><br><span class="line">model/h0/ln_2/g: (<span class="number">768</span>,)</span><br><span class="line">model/h0/mlp/c_fc/b: (<span class="number">3072</span>,)</span><br><span class="line">model/h0/mlp/c_fc/w: (<span class="number">768</span>, <span class="number">3072</span>)</span><br><span class="line">model/h0/mlp/c_proj/b: (<span class="number">768</span>,)</span><br><span class="line">model/h0/mlp/c_proj/w: (<span class="number">3072</span>, <span class="number">768</span>)</span><br><span class="line">model/h1/attn/c_attn/b: (<span class="number">2304</span>,)</span><br><span class="line">model/h1/attn/c_attn/w: (<span class="number">768</span>, <span class="number">2304</span>)</span><br><span class="line">...</span><br><span class="line">model/h9/mlp/c_proj/b: (<span class="number">768</span>,)</span><br><span class="line">model/h9/mlp/c_proj/w: (<span class="number">3072</span>, <span class="number">768</span>)</span><br><span class="line">model/ln_f/b: (<span class="number">768</span>,)</span><br><span class="line">model/ln_f/g: (<span class="number">768</span>,)</span><br><span class="line">model/wpe: (<span class="number">1024</span>, <span class="number">768</span>)</span><br><span class="line">model/wte: (<span class="number">50257</span>, <span class="number">768</span>)</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+
+<p>下面的代码会把上面提到的 TensorFlow 变量，转换成我们的 params 字典。这里提供一份参考：这是 params 里各权重的形状，其中具体数字已经替换成了它们对应的超参数符号来表示：</p>
+<figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">    <span class="string">&quot;wpe&quot;</span>: [n_ctx, n_embd],</span><br><span class="line">    <span class="string">&quot;wte&quot;</span>: [n_vocab, n_embd],</span><br><span class="line">    <span class="string">&quot;ln_f&quot;</span>: &#123;<span class="string">&quot;b&quot;</span>: [n_embd], <span class="string">&quot;g&quot;</span>: [n_embd]&#125;,</span><br><span class="line">    <span class="string">&quot;blocks&quot;</span>: [</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="string">&quot;attn&quot;</span>: &#123;</span><br><span class="line">                <span class="string">&quot;c_attn&quot;</span>: &#123;<span class="string">&quot;b&quot;</span>: [<span class="number">3</span>*n_embd], <span class="string">&quot;w&quot;</span>: [n_embd, <span class="number">3</span>*n_embd]&#125;,</span><br><span class="line">                <span class="string">&quot;c_proj&quot;</span>: &#123;<span class="string">&quot;b&quot;</span>: [n_embd], <span class="string">&quot;w&quot;</span>: [n_embd, n_embd]&#125;,</span><br><span class="line">            &#125;,</span><br><span class="line">            <span class="string">&quot;ln_1&quot;</span>: &#123;<span class="string">&quot;b&quot;</span>: [n_embd], <span class="string">&quot;g&quot;</span>: [n_embd]&#125;,</span><br><span class="line">            <span class="string">&quot;ln_2&quot;</span>: &#123;<span class="string">&quot;b&quot;</span>: [n_embd], <span class="string">&quot;g&quot;</span>: [n_embd]&#125;,</span><br><span class="line">            <span class="string">&quot;mlp&quot;</span>: &#123;</span><br><span class="line">                <span class="string">&quot;c_fc&quot;</span>: &#123;<span class="string">&quot;b&quot;</span>: [<span class="number">4</span>*n_embd], <span class="string">&quot;w&quot;</span>: [n_embd, <span class="number">4</span>*n_embd]&#125;,</span><br><span class="line">                <span class="string">&quot;c_proj&quot;</span>: &#123;<span class="string">&quot;b&quot;</span>: [n_embd], <span class="string">&quot;w&quot;</span>: [<span class="number">4</span>*n_embd, n_embd]&#125;,</span><br><span class="line">            &#125;,</span><br><span class="line">        &#125;,</span><br><span class="line">        ... <span class="comment"># repeat for n_layers</span></span><br><span class="line">    ]</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>在我们实现 GPT 模型的过程中，你会经常需要回来查阅这个字典，以确认权重的形状。为了保持一致，我们代码里的变量名会和这个字典里的键名完全对应。</p>
+<table>
+<thead>
+<tr>
+<th align="left">参数名</th>
+<th align="left">形状</th>
+<th align="left">含义说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left"><strong><code>wpe</code></strong></td>
+<td align="left"><code>[n_ctx, n_embd]</code></td>
+<td align="left"><strong>位置编码矩阵</strong>。Word Position Embedding.为每个位置（最多<code>n_ctx</code>个）学习一个<code>n_embd</code>维的向量，用来表示序列中不同位置的顺序信息。</td>
+</tr>
+<tr>
+<td align="left"><strong><code>wte</code></strong></td>
+<td align="left"><code>[n_vocab, n_embd]</code></td>
+<td align="left"><strong>词嵌入矩阵</strong>。Word Token Embedding.将词汇表中每个token（共<code>n_vocab</code>个）映射成一个<code>n_embd</code>维的向量，代表其语义。</td>
+</tr>
+<tr>
+<td align="left"><strong><code>ln_f</code></strong></td>
+<td align="left"><code>{&quot;b&quot;: [n_embd], &quot;g&quot;: [n_embd]}</code></td>
+<td align="left"><strong>最终层归一化</strong>。Layer Norm。包含偏置(<code>b</code>)和增益(<code>g</code>)参数，在输出最后一个token的logits前对特征进行归一化。</td>
+</tr>
+<tr>
+<td align="left"><strong><code>blocks[].ln_1</code></strong></td>
+<td align="left"><code>{&quot;b&quot;: [n_embd], &quot;g&quot;: [n_embd]}</code></td>
+<td align="left"><strong>第一个层归一化</strong>（注意力前）。位于多头自注意力层之前，包含偏置(<code>b</code>)和增益(<code>g</code>)。</td>
+</tr>
+<tr>
+<td align="left"><strong><code>blocks[].attn.c_attn</code></strong></td>
+<td align="left"><code>{&quot;b&quot;: [3*n_embd], &quot;w&quot;: [n_embd, 3*n_embd]}</code></td>
+<td align="left"><strong>注意力层的合并投影</strong>。将输入同时线性投影为<strong>查询(Q)、键(K)、值(V)</strong> 三部分。权重<code>w</code>和偏置<code>b</code>的输出维度均为<code>3*n_embd</code>，之后会被拆分为三个<code>n_embd</code>的向量。</td>
+</tr>
+<tr>
+<td align="left"><strong><code>blocks[].attn.c_proj</code></strong></td>
+<td align="left"><code>{&quot;b&quot;: [n_embd], &quot;w&quot;: [n_embd, n_embd]}</code></td>
+<td align="left"><strong>注意力输出投影</strong>。对多头自注意力计算后的结果做一次线性变换，输出维度回到<code>n_embd</code>。</td>
+</tr>
+<tr>
+<td align="left"><strong><code>blocks[].ln_2</code></strong></td>
+<td align="left"><code>{&quot;b&quot;: [n_embd], &quot;g&quot;: [n_embd]}</code></td>
+<td align="left"><strong>第二个层归一化</strong>（MLP前）。位于MLP层之前，包含偏置(<code>b</code>)和增益(<code>g</code>)。</td>
+</tr>
+<tr>
+<td align="left"><strong><code>blocks[].mlp.c_fc</code></strong></td>
+<td align="left"><code>{&quot;b&quot;: [4*n_embd], &quot;w&quot;: [n_embd, 4*n_embd]}</code></td>
+<td align="left"><strong>MLP的扩张层</strong>。将<code>n_embd</code>维的输入升维到<code>4*n_embd</code>，增加模型的表达能力（通常后接GELU激活函数）。</td>
+</tr>
+<tr>
+<td align="left"><strong><code>blocks[].mlp.c_proj</code></strong></td>
+<td align="left"><code>{&quot;b&quot;: [n_embd], &quot;w&quot;: [4*n_embd, n_embd]}</code></td>
+<td align="left"><strong>MLP的压缩层</strong>。将<code>4*n_embd</code>维的特征降维回<code>n_embd</code>，作为残差连接和下一层的输入。</td>
+</tr>
+</tbody></table>
+<h1 id="网络层解析（Basic-Layers）"><a href="#网络层解析（Basic-Layers）" class="headerlink" title="网络层解析（Basic Layers）"></a>网络层解析（Basic Layers）</h1><h2 id="GELU"><a href="#GELU" class="headerlink" title="GELU"></a>GELU</h2><p>GPT-2 选用的非线性激活函数是  <a target="_blank" rel="noopener" href="https://arxiv.org/pdf/1606.08415">GELU (Gaussian Error Linear Units)</a>, 它是 ReLU 的替代方案。  </p>
+<p>GELU 的精确形式：<br>$$<br>\text{GELU}(x) &#x3D; x \cdot \Phi(x) &#x3D; x \cdot \frac{1}{2} \left[1 + \text{erf}\left(\frac{x}{\sqrt{2}}\right)\right]<br>$$</p>
+<table>
+<thead>
+<tr>
+<th align="left">符号</th>
+<th align="left">含义</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">$P(X \leq x)$</td>
+<td align="left">标准正态分布 $X \sim \mathcal{N}(0, 1)$ 的累积分布函数 (CDF)，即随机变量 $X$ 小于等于 $x$ 的概率</td>
+</tr>
+<tr>
+<td align="left">$\Phi(x)$</td>
+<td align="left">标准正态分布的 CDF，与 $P(X \leq x)$ 是同一回事</td>
+</tr>
+<tr>
+<td align="left">$\text{erf}(x)$</td>
+<td align="left">误差函数（error function），与正态分布 CDF 的关系为 $\Phi(x) &#x3D; \frac{1}{2} \left[ 1 + \text{erf}(x&#x2F;\sqrt{2}) \right]$</td>
+</tr>
+</tbody></table>
+<p>直观理解：</p>
+<ul>
+<li><strong>ReLU</strong>：$\text{ReLU}(x) &#x3D; \max(0, x)$，是一个”硬门控”——小于 0 的直接置 0，大于 0 的保留原值</li>
+<li><strong>GELU</strong>：是一个”软门控”——不是简单地把负数置 0，而是按概率 $P(X \leq x)$ 对输入 $x$ 进行”缩放”</li>
+</ul>
+<blockquote>
+<p>当 $x$ 很小时（如 $-2$），$P(X \leq -2) \approx 0.023$，输出 $\approx x \times 0.023$，很小但不为零</p>
+<p>当 $x$ 很大时（如 $+2$），$P(X \leq 2) \approx 0.977$，输出 $\approx x \times 0.977$，接近原值</p>
+<p>当 $x &#x3D; 0$ 时，$P(X \leq 0) &#x3D; 0.5$，输出 $&#x3D; 0 \times 0.5 &#x3D; 0$</p>
+</blockquote>
+<p>tanh 近似公式：</p>
+<p>$$<br>\text{GELU}(x) \approx 0.5x \left(1 + \tanh\left[\sqrt{\frac{2}{\pi}}\left(x + 0.044715x^3\right)\right]\right)<br>$$</p>
+<p>为什么会需要这个近似？</p>
+<ul>
+<li>精确形式中的 $\text{erf}(x&#x2F;\sqrt{2})$ 计算代价较高（涉及数值积分或查表）</li>
+<li>$\tanh$ 是大多数深度学习框架都高度优化的函数，计算更快</li>
+</ul>
+<p>sigmoid 近似公式：<br>$$<br>\text{GELU}(x) \approx x \cdot \sigma(1.702x) &#x3D; \frac{x}{1 + e^{-1.702x}}<br>$$</p>
+<p>tanh近似公式代码：</p>
+<figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">gelu</span>(<span class="params">x</span>):</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0.5</span> * x * (<span class="number">1</span> + np.tanh(np.sqrt(<span class="number">2</span> / np.pi) * (x + <span class="number">0.044715</span> * x**<span class="number">3</span>)))</span><br></pre></td></tr></table></figure>
+
+<p>与 ReLU 一样，GELU 会对输入进行逐元素计算。</p>
+<figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&gt;&gt;&gt; </span>gelu(np.array([[<span class="number">1</span>, <span class="number">2</span>], [-<span class="number">2</span>, <span class="number">0.5</span>]]))                                                                                                              </span><br><span class="line">array([[ <span class="number">0.84119199</span>,  <span class="number">1.95459769</span>],                                                                                                                   </span><br><span class="line">       [-<span class="number">0.04540231</span>,  <span class="number">0.34571401</span>]])     </span><br></pre></td></tr></table></figure>
+<h2 id="Softmax"><a href="#Softmax" class="headerlink" title="Softmax"></a>Softmax</h2><p>我们熟悉的老朋友 <a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Softmax_function">Softmax</a></p>
+<p>$$<br>\text{softmax}(x)_i &#x3D; \frac{e^{x_i}}{\sum_j e^{x_j}}<br>$$</p>
+<p>我们使用 减去最大值（max (x)） 的技巧 <a target="_blank" rel="noopener" href="https://jaykmody.com/blog/stable-softmax/">stable-softmax</a>来保证数值稳定性。</p>
+<p>$$<br>\text{stable softmax}(x)_i &#x3D; \frac{e^{x_i - \max(x)}}{\sum_j e^{x_j - \max(x)}}<br>$$</p>
+<p>Softmax 用于将一组任意实数（正负无穷之间）转换为概率值（0~1 之间，且所有数值之和为 1）。<br>我们会在输入的最后一个维度上执行 Softmax。</p>
+<figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">softmax</span>(<span class="params">x</span>):</span><br><span class="line">    exp_x = np.exp(x - np.<span class="built_in">max</span>(x, axis=-<span class="number">1</span>, keepdims=<span class="literal">True</span>))</span><br><span class="line">    <span class="keyword">return</span> exp_x / np.<span class="built_in">sum</span>(exp_x, axis=-<span class="number">1</span>, keepdims=<span class="literal">True</span>)</span><br></pre></td></tr></table></figure>
+
+
+<h2 id="Layer-Normalization"><a href="#Layer-Normalization" class="headerlink" title="Layer Normalization"></a>Layer Normalization</h2><p> <a target="_blank" rel="noopener" href="https://arxiv.org/pdf/1607.06450">Layer normalization</a> standardizes values to have a mean of 0 and a variance of 1:</p>
+<p>$$<br>\text{LayerNorm}(x) &#x3D; \gamma \cdot \frac{x - \mu}{\sqrt{\sigma^2 + \epsilon}} + \beta<br>$$</p>
+<p>其中 $\mu$ 是 $x$ 的均值，$\sigma^2$ 是 $x$ 的方差，$\gamma$ 和 $\beta$ 是可学习的参数，$\epsilon$ 是一个很小的常数（用于数值稳定）。</p>
+<figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">layer_norm</span>(<span class="params">x, g, b, eps: <span class="built_in">float</span> = <span class="number">1e-5</span></span>):</span><br><span class="line">    mean = np.mean(x, axis=-<span class="number">1</span>, keepdims=<span class="literal">True</span>)</span><br><span class="line">    variance = np.var(x, axis=-<span class="number">1</span>, keepdims=<span class="literal">True</span>)</span><br><span class="line">    x = (x - mean) / np.sqrt(variance + eps)  <span class="comment"># normalize x to have mean=0 and var=1 over last axis</span></span><br><span class="line">    <span class="keyword">return</span> g * x + b  <span class="comment"># scale and offset with gamma/beta params</span></span><br></pre></td></tr></table></figure>
+
+<p>层归一化（Layer Norm）会确保每一层的输入始终保持在一个稳定的数值范围内，这能够加速训练并让训练过程更稳定。与批量归一化（<a target="_blank" rel="noopener" href="https://arxiv.org/pdf/1502.03167">Batch Norm</a>）一样，归一化后的结果会使用两个可学习的参数向量 gamma（缩放）和 beta（偏移）进行调整。公式分母中加入的极小值 epsilon 是为了避免出现除零错误。</p>
+<h3 id="与BatchNorm的比较"><a href="#与BatchNorm的比较" class="headerlink" title="与BatchNorm的比较"></a>与BatchNorm的比较</h3><figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">layer_norm</span>(<span class="params">x, g, b, eps=<span class="number">1e-5</span></span>):</span><br><span class="line">    <span class="string">&quot;&quot;&quot;Layer Normalization：对每个样本的特征维度做归一化&quot;&quot;&quot;</span></span><br><span class="line">    mean = np.mean(x, axis=-<span class="number">1</span>, keepdims=<span class="literal">True</span>)</span><br><span class="line">    var = np.var(x, axis=-<span class="number">1</span>, keepdims=<span class="literal">True</span>)</span><br><span class="line">    x_norm = (x - mean) / np.sqrt(var + eps)</span><br><span class="line">    <span class="keyword">return</span> g * x_norm + b</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">batch_norm</span>(<span class="params">x, g, b, eps=<span class="number">1e-5</span></span>):</span><br><span class="line">    <span class="string">&quot;&quot;&quot;Batch Normalization：对每个特征的 batch 维度做归一化&quot;&quot;&quot;</span></span><br><span class="line">    mean = np.mean(x, axis=<span class="number">0</span>, keepdims=<span class="literal">True</span>)</span><br><span class="line">    var = np.var(x, axis=<span class="number">0</span>, keepdims=<span class="literal">True</span>)</span><br><span class="line">    x_norm = (x - mean) / np.sqrt(var + eps)</span><br><span class="line">    <span class="keyword">return</span> g * x_norm + b</span><br><span class="line"></span><br><span class="line"><span class="comment"># 示例数据：4 个样本，每个样本 3 个特征</span></span><br><span class="line"><span class="comment"># 特征1（第1列）：样本间差异很大</span></span><br><span class="line"><span class="comment"># 特征2（第2列）：样本间差异中等</span></span><br><span class="line"><span class="comment"># 特征3（第3列）：样本间差异很小（趋同）</span></span><br><span class="line">x = np.array([</span><br><span class="line">    [<span class="number">100</span>,  <span class="number">50</span>,  <span class="number">10</span>],   <span class="comment"># 样本0</span></span><br><span class="line">    [  <span class="number">0</span>,  <span class="number">40</span>,  <span class="number">12</span>],   <span class="comment"># 样本1</span></span><br><span class="line">    [ <span class="number">50</span>,  <span class="number">60</span>,   <span class="number">8</span>],   <span class="comment"># 样本2</span></span><br><span class="line">    [ <span class="number">30</span>,  <span class="number">70</span>,  <span class="number">10</span>]    <span class="comment"># 样本3</span></span><br><span class="line">])</span><br><span class="line"></span><br><span class="line"><span class="built_in">print</span>(<span class="string">&quot;=&quot;</span> * <span class="number">60</span>)</span><br><span class="line"><span class="built_in">print</span>(<span class="string">&quot;原始输入 x (4个样本，每个样本3个特征):&quot;</span>)</span><br><span class="line"><span class="built_in">print</span>(x)</span><br><span class="line"><span class="built_in">print</span>(<span class="string">f&quot;shape: <span class="subst">&#123;x.shape&#125;</span>\n&quot;</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># LayerNorm 参数</span></span><br><span class="line">g_ln = np.ones(x.shape[-<span class="number">1</span>])</span><br><span class="line">b_ln = np.zeros(x.shape[-<span class="number">1</span>])</span><br><span class="line"></span><br><span class="line"><span class="comment"># BatchNorm 参数</span></span><br><span class="line">g_bn = np.ones(x.shape[-<span class="number">1</span>])</span><br><span class="line">b_bn = np.zeros(x.shape[-<span class="number">1</span>])</span><br><span class="line"></span><br><span class="line">x_ln = layer_norm(x, g_ln, b_ln)</span><br><span class="line">x_bn = batch_norm(x, g_bn, b_bn)</span><br><span class="line"></span><br><span class="line"><span class="built_in">print</span>(<span class="string">&quot;=&quot;</span> * <span class="number">60</span>)</span><br><span class="line"><span class="built_in">print</span>(<span class="string">&quot;Layer Normalization 结果:&quot;</span>)</span><br><span class="line"><span class="built_in">print</span>(x_ln)</span><br><span class="line"><span class="built_in">print</span>(<span class="string">&quot;\n【LayerNorm 的统计维度】对每个样本单独归一化:&quot;</span>)</span><br><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(x.shape[<span class="number">0</span>]):</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">f&quot;  样本<span class="subst">&#123;i&#125;</span>: 原始 <span class="subst">&#123;x[i]&#125;</span> -&gt; 归一化后 <span class="subst">&#123;x_ln[i]&#125;</span>, 均值=<span class="subst">&#123;np.mean(x_ln[i]):<span class="number">.2</span>e&#125;</span>, 方差=<span class="subst">&#123;np.var(x_ln[i]):<span class="number">.2</span>f&#125;</span>&quot;</span>)</span><br><span class="line"><span class="built_in">print</span>(<span class="string">f&quot;\n  ✓ 每个样本归一化后，自己的均值为0，方差为1&quot;</span>)</span><br><span class="line"><span class="built_in">print</span>(<span class="string">f&quot;  ✓ 样本之间互相不影响&quot;</span>)</span><br><span class="line"></span><br><span class="line"><span class="built_in">print</span>(<span class="string">&quot;\n&quot;</span> + <span class="string">&quot;=&quot;</span> * <span class="number">60</span>)</span><br><span class="line"><span class="built_in">print</span>(<span class="string">&quot;Batch Normalization 结果:&quot;</span>)</span><br><span class="line"><span class="built_in">print</span>(x_bn)</span><br><span class="line"><span class="built_in">print</span>(<span class="string">&quot;\n【BatchNorm 的统计维度】对每个特征跨样本归一化:&quot;</span>)</span><br><span class="line"><span class="keyword">for</span> j <span class="keyword">in</span> <span class="built_in">range</span>(x.shape[<span class="number">1</span>]):</span><br><span class="line">    col_original = x[:, j]</span><br><span class="line">    col_normed = x_bn[:, j]</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">f&quot;  特征<span class="subst">&#123;j&#125;</span>: 原始 <span class="subst">&#123;col_original&#125;</span> -&gt; 归一化后 <span class="subst">&#123;col_normed&#125;</span>, 均值=<span class="subst">&#123;np.mean(col_normed):<span class="number">.2</span>e&#125;</span>, 方差=<span class="subst">&#123;np.var(col_normed):<span class="number">.2</span>f&#125;</span>&quot;</span>)</span><br><span class="line"><span class="built_in">print</span>(<span class="string">f&quot;\n  ✓ 每个特征归一化后，跨样本的均值为0，方差为1&quot;</span>)</span><br><span class="line"><span class="built_in">print</span>(<span class="string">f&quot;  ✓ 特征之间互相不影响&quot;</span>)</span><br></pre></td></tr></table></figure>
+
+<p>输出</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><span class="line">============================================================</span><br><span class="line">原始输入 x (4个样本，每个样本3个特征):</span><br><span class="line">[[100  50  10]</span><br><span class="line"> [  0  40  12]</span><br><span class="line"> [ 50  60   8]</span><br><span class="line"> [ 30  70  10]]</span><br><span class="line">shape: (4, 3)</span><br><span class="line"></span><br><span class="line">============================================================</span><br><span class="line">Layer Normalization 结果:</span><br><span class="line">[[ 1.26750044 -0.09053575 -1.17696469]</span><br><span class="line"> [-1.03422445  1.35244736 -0.31822291]</span><br><span class="line"> [ 0.47346396  0.91733642 -1.39080038]</span><br><span class="line"> [-0.26726124  1.3363062  -1.06904496]]</span><br><span class="line"></span><br><span class="line">【LayerNorm 的统计维度】对每个样本单独归一化:</span><br><span class="line">  样本0: 原始 [100  50  10] -&gt; 归一化后 [ 1.26750044 -0.09053575 -1.17696469], 均值=0.00e+00, 方差=1.00</span><br><span class="line">  样本1: 原始 [ 0 40 12] -&gt; 归一化后 [-1.03422445  1.35244736 -0.31822291], 均值=7.40e-17, 方差=1.00</span><br><span class="line">  样本2: 原始 [50 60  8] -&gt; 归一化后 [ 0.47346396  0.91733642 -1.39080038], 均值=-1.48e-16, 方差=1.00</span><br><span class="line">  样本3: 原始 [30 70 10] -&gt; 归一化后 [-0.26726124  1.3363062  -1.06904496], 均值=1.48e-16, 方差=1.00</span><br><span class="line"></span><br><span class="line">  ✓ 每个样本归一化后，自己的均值为0，方差为1</span><br><span class="line">  ✓ 样本之间互相不影响</span><br><span class="line"></span><br><span class="line">============================================================</span><br><span class="line">Batch Normalization 结果:</span><br><span class="line">[[ 1.5109662  -0.44721358  0.        ]</span><br><span class="line"> [-1.23624507 -1.34164073  1.41421003]</span><br><span class="line"> [ 0.13736056  0.44721358 -1.41421003]</span><br><span class="line"> [-0.41208169  1.34164073  0.        ]]</span><br><span class="line"></span><br><span class="line">【BatchNorm 的统计维度】对每个特征跨样本归一化:</span><br><span class="line">  特征0: 原始 [100   0  50  30] -&gt; 归一化后 [ 1.5109662  -1.23624507  0.13736056 -0.41208169], 均值=1.39e-17, 方差=1.00</span><br><span class="line">  特征1: 原始 [50 40 60 70] -&gt; 归一化后 [-0.44721358 -1.34164073  0.44721358  1.34164073], 均值=0.00e+00, 方差=1.00</span><br><span class="line">  特征2: 原始 [10 12  8 10] -&gt; 归一化后 [ 0.          1.41421003 -1.41421003  0.        ], 均值=0.00e+00, 方差=1.00</span><br><span class="line"></span><br><span class="line">  ✓ 每个特征归一化后，跨样本的均值为0，方差为1</span><br><span class="line">  ✓ 特征之间互相不影响</span><br></pre></td></tr></table></figure>
+
+<p>直观理解</p>
+<figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 用图形化的方式理解两种归一化的&quot;方向&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="built_in">print</span>(<span class="string">&quot;\n&quot;</span> + <span class="string">&quot;=&quot;</span> * <span class="number">60</span>)</span><br><span class="line"><span class="built_in">print</span>(<span class="string">&quot;【直观理解】两种归一化的维度对比:&quot;</span>)</span><br><span class="line"><span class="built_in">print</span>(<span class="string">&quot;=&quot;</span> * <span class="number">60</span>)</span><br><span class="line"></span><br><span class="line"><span class="built_in">print</span>(<span class="string">&quot;&quot;&quot;</span></span><br><span class="line"><span class="string">       样本0   样本1   样本2   样本3</span></span><br><span class="line"><span class="string">特征0:  100     0      50      30</span></span><br><span class="line"><span class="string">特征1:   50     40     60      70</span></span><br><span class="line"><span class="string">特征2:   10     12      8      10</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">┌─────────────────────────────────────────────────────────────┐</span></span><br><span class="line"><span class="string">│  LayerNorm：对 → 方向（每一行/每个样本）做归一化            │</span></span><br><span class="line"><span class="string">├─────────────────────────────────────────────────────────────┤</span></span><br><span class="line"><span class="string">│  样本0: [100, 50, 10]  →  对自己算均值→归一化               │</span></span><br><span class="line"><span class="string">│  样本1: [ 0, 40, 12]  →  对自己算均值→归一化               │</span></span><br><span class="line"><span class="string">│  样本2: [50, 60,  8]  →  对自己算均值→归一化               │</span></span><br><span class="line"><span class="string">│  样本3: [30, 70, 10]  →  对自己算均值→归一化               │</span></span><br><span class="line"><span class="string">│                                                             │</span></span><br><span class="line"><span class="string">│  特点：每个样本独立，不受 batch 内其他样本影响              │</span></span><br><span class="line"><span class="string">│  适用：NLP、RNN、Transformer（序列长度可变）                │</span></span><br><span class="line"><span class="string">└─────────────────────────────────────────────────────────────┘</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">┌─────────────────────────────────────────────────────────────┐</span></span><br><span class="line"><span class="string">│  BatchNorm：对 ↓ 方向（每一列/每个特征）做归一化           │</span></span><br><span class="line"><span class="string">├─────────────────────────────────────────────────────────────┤</span></span><br><span class="line"><span class="string">│  特征0: [100, 0, 50, 30] → 跨4个样本算均值→归一化          │</span></span><br><span class="line"><span class="string">│  特征1: [50, 40, 60, 70] → 跨4个样本算均值→归一化          │</span></span><br><span class="line"><span class="string">│  特征2: [10, 12, 8, 10]  → 跨4个样本算均值→归一化          │</span></span><br><span class="line"><span class="string">│                                                             │</span></span><br><span class="line"><span class="string">│  特点：依赖 batch 内其他样本，batch size 影响效果           │</span></span><br><span class="line"><span class="string">│  适用：CV、固定 batch size 的场景                          │</span></span><br><span class="line"><span class="string">└─────────────────────────────────────────────────────────────┘</span></span><br><span class="line"><span class="string">&quot;&quot;&quot;</span>)</span><br></pre></td></tr></table></figure>
+
+<table>
+<thead>
+<tr>
+<th align="left">Normalization</th>
+<th align="left">归一化的维度</th>
+<th align="left">通俗理解</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left"><strong>LayerNorm</strong></td>
+<td align="left">对<strong>每一行</strong>（每个样本的所有特征）</td>
+<td align="left">给自己所有成绩算平均，不看别人</td>
+</tr>
+<tr>
+<td align="left"><strong>BatchNorm</strong></td>
+<td align="left">对<strong>每一列</strong>（每个特征的所有样本）</td>
+<td align="left">看全班同学某一科的成绩，然后标准化</td>
+</tr>
+</tbody></table>
+<h3 id="NLP-用-LayerNorm-的原因"><a href="#NLP-用-LayerNorm-的原因" class="headerlink" title="NLP 用 LayerNorm 的原因"></a>NLP 用 LayerNorm 的原因</h3><p>主要有三个层面的原因：</p>
+<ol>
+<li>Padding 污染统计量</li>
+</ol>
+<ul>
+<li>Batch 中长短句混合，Padding 位置（值为0）参与 BN 的均值和方差计算，严重扭曲统计分布</li>
+<li>LayerNorm：每个样本独立归一化，Padding 只影响自身，不污染其他样本</li>
+<li>CV 无此问题：图像尺寸固定，Padding一般也是填充有效像素（复制、镜像、反射等）</li>
+</ul>
+<ol start="2">
+<li>训练推理不一致</li>
+</ol>
+<ul>
+<li>推理时只有单条短句，无法计算可靠的 batch 统计量，只能使用训练时被 Padding 污染的 running_mean</li>
+<li>LayerNorm：训练推理行为一致，不依赖 batch</li>
+<li>CV 无此问题：单张图片有数万像素，自身统计量已足够可靠</li>
+</ul>
+<ol start="3">
+<li>位置语义不同</li>
+</ol>
+<ul>
+<li>NLP 中每个位置语义不同，BatchNorm 强制对齐不同样本的同一位置（尤其是 Padding 位置与有效词位置），语义错误</li>
+<li>LayerNorm：仅在一个样本内部归一化，保留各位置的语义独特性</li>
+<li>CV 无此问题：图像像素在统计意义上近似同分布，不同样本的同一通道位置对齐是合理的</li>
+</ul>
+<h3 id="多模态使用BN还是LN？"><a href="#多模态使用BN还是LN？" class="headerlink" title="多模态使用BN还是LN？"></a>多模态使用BN还是LN？</h3><ul>
+<li><p>多模态模型：典型的多模态模型（如视觉-语言模型）通常视觉部分采用 ViT 架构（用 LN），文本部分采用 BERT&#x2F;GPT 架构（也用 LN）。为了保持架构的一致性和训练的稳定性，整体都会统一使用 LN。  原因主要有：</p>
+<ul>
+<li>BN 依赖 batch 维度的统计量，对 batch size 很敏感。ViT 在图像上常用大 patch size 或者训练时 batch size 较小，BN 不稳定。</li>
+<li>LN 是对每个样本独立计算的，不依赖 batch，大模型或小 batch 都稳定。</li>
+</ul>
+<p>  有些改造版（比如 ConvStem + Transformer 的 hybrid）在卷积层可以用 BN，但 Transformer block 内仍是 LN。</p>
+</li>
+<li><p>LN 的进阶版（RMSNorm）：在目前最顶尖的大模型（如 LLaMA、Qwen 等）中，甚至连标准的 LN 都被进一步简化，改用 RMSNorm。它去掉了 LN 中的“减去均值”操作，只保留缩放，计算效率更高，训练也更稳定。</p>
+</li>
+</ul>
+<h2 id="线性层（Linear）"><a href="#线性层（Linear）" class="headerlink" title="线性层（Linear）"></a>线性层（Linear）</h2><p>经典标准的运算：矩阵乘法 + 偏置项</p>
+<figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">linear</span>(<span class="params">x, w, b</span>):  <span class="comment"># [m, in], [in, out], [out] -&gt; [m, out]</span></span><br><span class="line">    <span class="keyword">return</span> x @ w + b  <span class="comment"># @ 矩阵乘法</span></span><br></pre></td></tr></table></figure>
+
+<p>线性层通常也被称为 投射层 &#x2F; 投影层 (projections ) ，因为它们的作用是将向量从一个向量空间投射到另一个向量空间。</p>
+<figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&gt;&gt;&gt; </span>x = np.random.normal(size=(<span class="number">64</span>, <span class="number">784</span>)) <span class="comment"># input dim = 784, batch/sequence dim = 64</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>w = np.random.normal(size=(<span class="number">784</span>, <span class="number">10</span>)) <span class="comment"># output dim = 10</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>b = np.random.normal(size=(<span class="number">10</span>,))</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>x.shape <span class="comment"># shape before linear projection</span></span><br><span class="line">(<span class="number">64</span>, <span class="number">784</span>)</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>linear(x, w, b).shape <span class="comment"># shape after linear projection</span></span><br><span class="line">(<span class="number">64</span>, <span class="number">10</span>)</span><br></pre></td></tr></table></figure>
+
+
+<h1 id="GPT架构"><a href="#GPT架构" class="headerlink" title="GPT架构"></a>GPT架构</h1><p>GPT 的模型架构沿用了 <a target="_blank" rel="noopener" href="https://arxiv.org/pdf/1706.03762">Transformer</a> 的结构，但仅使用解码器堆叠结构（Decoder）。由于去掉了编码器，中间的  交叉注意力层（cross‑attention） 也一并移除。GPT 只做”根据上文预测下文”的自回归生成，不需要从另一段输入中提取信息，因此保留了原始 Transformer 的解码器结构，但移除了依赖编码器的交叉注意力层。</p>
+<p>在代码中，它看起来是这样的：</p>
+<figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">gpt2</span>(<span class="params">inputs, wte, wpe, blocks, ln_f, n_head</span>):  <span class="comment"># 输入：序列token  输出：每个位置的词表概率</span></span><br><span class="line">    <span class="comment"># 步骤1：词嵌入 + 位置嵌入（把输入的token变成向量）</span></span><br><span class="line">    x = wte[inputs] + wpe[<span class="built_in">range</span>(<span class="built_in">len</span>(inputs))]  <span class="comment"># 形状：[序列长度] -&gt; [序列长度, 词向量维度]</span></span><br><span class="line"></span><br><span class="line">    <span class="comment"># 步骤2：前向传播， passing 数据穿过所有 transformer 块（多层解码器）</span></span><br><span class="line">    <span class="keyword">for</span> block <span class="keyword">in</span> blocks:</span><br><span class="line">        x = transformer_block(x, **block, n_head=n_head)  <span class="comment"># 形状：[n_seq, n_embd] -&gt; [n_seq, n_embd]</span></span><br><span class="line"></span><br><span class="line">    <span class="comment"># 步骤3：最终层归一化</span></span><br><span class="line">    x = layer_norm(x, **ln_f)  <span class="comment"># 形状不变：[n_seq, n_embd]</span></span><br><span class="line">    </span><br><span class="line">    <span class="comment"># 步骤4：投影到词表，输出每个token的概率</span></span><br><span class="line">    <span class="keyword">return</span> x @ wte.T  <span class="comment"># 形状：[n_seq, n_embd] -&gt; [n_seq, n_vocab]</span></span><br><span class="line">    </span><br></pre></td></tr></table></figure>
+<p>接下来，我们把这三个部分逐一拆解，进行更详细的讲解。</p>
+<h2 id="Embeddings"><a href="#Embeddings" class="headerlink" title="Embeddings"></a>Embeddings</h2><h3 id="Token-Embeddings"><a href="#Token-Embeddings" class="headerlink" title="Token Embeddings"></a>Token Embeddings</h3><p>Token ID 本身对神经网络来说并不是很好的表示方式。首先，Token ID 的相对大小会误导性地传递信息（例如，如果词汇表中 Apple &#x3D; 5，Table &#x3D; 10，这就意味着 2 × Table &#x3D; Apple）。其次，单个数字对于神经网络来说维度太低，不利于处理。</p>
+<p>为了解决这些局限性，我们将借助词向量，具体来说是通过一个可学习的嵌入矩阵来实现：</p>
+<figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">wte[inputs] <span class="comment"># [n_seq] -&gt; [n_seq, n_embd]</span></span><br></pre></td></tr></table></figure>
+<p>回顾一下，wte 是一个形状为 [n_vocab, n_embd] 的矩阵。它充当一个查找表，其中矩阵的第 i 行对应词汇表中第 i 个 Token 的学习向量。wte[inputs] 使用整数数组索引来检索与输入中每个 Token 相对应的向量。</p>
+<p>与网络中的任何其他参数一样，wte 也是可学习的。也就是说，它在训练开始时被随机初始化，然后通过梯度下降进行更新。</p>
+<h3 id="Positional-Embeddings"><a href="#Positional-Embeddings" class="headerlink" title="Positional Embeddings"></a>Positional Embeddings</h3><p>Transformer 的核心自注意力机制是并行且无序地处理所有词，因此天然不具备理解词语顺序的能力。例如，“猫追狗”和“狗追猫”如果不加位置信息，模型会得到相同的理解。为了解决这个问题，需要人为加入位置嵌入（可学习的位置向量），将其加到词向量上，从而让模型感知输入的顺序。</p>
+<ul>
+<li>与RNN的对比：循环神经网络（RNN）是串行处理句子的，先读第一个词，再读第二个词。这种天然的顺序就隐含了位置信息。</li>
+<li>Transformer的处理方式：它是一次性把所有词都输入进去，然后让每个词都与其他所有词“对话”，计算彼此之间的关联度。在这个“对话”过程中，词的身份（Token ID）是核心，但词的绝对或相对位置在数学计算里并没有被体现。</li>
+</ul>
+<figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">wpe[<span class="built_in">range</span>(<span class="built_in">len</span>(inputs))] <span class="comment"># [n_seq] -&gt; [n_seq, n_embd]</span></span><br></pre></td></tr></table></figure>
+
+<p>回顾一下，wpe 是一个形状为 [n_ctx, n_embd] 的矩阵。该矩阵的第 i 行包含一个向量，用于编码输入中第 i 个位置的信息。与 wte 类似，这个矩阵也是在梯度下降过程中学习得到的。</p>
+<p>请注意，这限制了模型的最大序列长度为 n_ctx。也就是说，必须满足 len(inputs) &lt;&#x3D; n_ctx 这一条件。</p>
+<p>拓展  </p>
+<p>RoPE <a target="_blank" rel="noopener" href="https://arxiv.org/abs/2104.09864">RoFormer: Enhanced Transformer with Rotary Position Embedding</a></p>
+<ul>
+<li><p>旋转位置编码，核心操作不是“加”信息，而是“旋转”向量。让每个位置的词向量都旋转一个特定的角度。这样，两个词之间的相对距离就变成了它们旋转后的向量夹角。</p>
+</li>
+<li><p>RoPE凭借其在复杂任务上的卓越表现和良好的综合性能，成为了当今大模型（如LLaMA、GPT系列）的绝对主流选择</p>
+</li>
+</ul>
+<h3 id="Combined"><a href="#Combined" class="headerlink" title="Combined"></a>Combined</h3><p>我们可以将词元嵌入（Token Embedding）和位置嵌入（Positional Embedding）相加，得到一个能够同时编码词元信息和位置信息的组合嵌入。</p>
+<figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># token + positional embeddings</span></span><br><span class="line">x = wte[inputs] + wpe[<span class="built_in">range</span>(<span class="built_in">len</span>(inputs))]  <span class="comment"># [n_seq] -&gt; [n_seq, n_embd]</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># x[i] 代表第 i 个词的词嵌入 加上 第 i 个位置的位置嵌入</span></span><br></pre></td></tr></table></figure>
+<p>这是 Transformer 模型处理序列数据的关键步骤，确保模型既能理解词的含义，也能理解词在句子中的位置关系。</p>
+<h2 id="Decoder-Stack"><a href="#Decoder-Stack" class="headerlink" title="Decoder Stack"></a>Decoder Stack</h2><p>这是所有魔法发生的地方，也是深度学习中‘深度’的体现。我们将嵌入向量传递给堆叠在一起的 n_layer 个 Transformer 解码器模块。</p>
+<figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 逐层通过 n_layer 个 Transformer 模块</span></span><br><span class="line"><span class="keyword">for</span> block <span class="keyword">in</span> blocks:</span><br><span class="line">    x = transformer_block(x, **block, n_head=n_head)  <span class="comment"># [n_seq, n_embd] -&gt; [n_seq, n_embd]</span></span><br></pre></td></tr></table></figure>
+
+<p>transformer_block 内部通常包含：多头自注意力 → Add &amp; Norm（残差连接和层归一化）→ 前馈网络 → Add &amp; Norm。</p>
+<p>一个直观的例子<br>对输入序列 <code>[&quot;猫&quot;, &quot;追&quot;, &quot;狗&quot;]</code>：</p>
+<ul>
+<li><p>开始时 (x)：<code>[猫-位置0向量, 追-位置1向量, 狗-位置2向量]</code>，只包含自身孤立的信息。</p>
+</li>
+<li><p>经过第一层：<code>猫</code> 看到了 <code>追</code> 和 <code>狗</code>，开始理解自己可能是“动作的发出者”；<code>追 </code>看到了前后词，明确自己是“动词”。</p>
+</li>
+<li><p>经过多层后<code> (x&#39;)</code>：<code>猫</code> 的表示中已经包含了“它是主语”、“动物”、“可能正在捕猎”等复杂信息；<code>追 </code>的表示中包含了“主动态”、“正在进行”等语法信息；<code>狗</code> 的表示中包含了“是宾语”、“被追”等信息。</p>
+</li>
+<li><p>最终：根据任务需要，取<code>x&#39;</code>中最后一个位置的向量（或所有位置），就能用于预测下一个词（如 “。” 或 “。”）。</p>
+</li>
+</ul>
+<p>堆叠更多的层（n_layer）让我们能够控制网络的深度。例如，GPT-3 就拥有多达 96 层。另一方面，选择更大的 n_embd 值可以让我们控制网络的宽度（例如，GPT-3 使用的嵌入维度为 12288）。</p>
+<h2 id="Projection-to-Vocab-投影到词汇表"><a href="#Projection-to-Vocab-投影到词汇表" class="headerlink" title="Projection to Vocab (投影到词汇表)"></a>Projection to Vocab (投影到词汇表)</h2><p>在我们最后一步中，我们将最后一个 Transformer 模块的输出投影到词汇表上的概率分布：</p>
+<figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># projection to vocab</span></span><br><span class="line">x = layer_norm(x, **ln_f)  <span class="comment"># [n_seq, n_embd] -&gt; [n_seq, n_embd]</span></span><br><span class="line"><span class="keyword">return</span> x @ wte.T  <span class="comment"># [n_seq, n_embd] -&gt; [n_seq, n_vocab] </span></span><br><span class="line"><span class="comment"># x @ wte.T 这个矩阵乘法操作，本质上就是并行计算批次中所有位置的词向量与词汇表中所有词向量的余弦相似度</span></span><br></pre></td></tr></table></figure>
+<p>直观理解：<br>假设 n_vocab&#x3D;5（词汇表：[猫, 狗, 追, 吃, 鱼]），n_seq&#x3D;3（输入 [“猫”, “追”, “狗”]）</p>
+<table>
+<thead>
+<tr>
+<th>步骤</th>
+<th>形状</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>经过所有 Transformer 层后</td>
+<td><code>[3, n_embd]</code></td>
+<td>每个位置有了深度语义表征（如 <code>x[0]</code> 是融合上下文后的“猫”）</td>
+</tr>
+<tr>
+<td><code>layer_norm</code> 归一化</td>
+<td><code>[3, n_embd]</code></td>
+<td>数值更稳定</td>
+</tr>
+<tr>
+<td><code>x @ wte.T</code></td>
+<td><code>[3, 5]</code></td>
+<td>每个位置与5个词的匹配得分</td>
+</tr>
+</tbody></table>
+<p>通过 softmax 将这些得分转换为概率分布，就可以用于预测下一个词或计算损失函数了</p>
+<p>这里需要注意几点：</p>
+<ol>
+<li><p>投影前先做层归一化：在投影到词汇表之前，我们先将 x 通过一个最终的层归一化层。这是 GPT-2 架构特有的做法（原始的 GPT 和 Transformer 论文中没有这一步）。</p>
+</li>
+<li><p>复用嵌入矩阵 wte 进行投影：其他 GPT 实现可能会选择使用单独的可学习权重矩阵进行投影，但共享嵌入矩阵有几个优点：</p>
+<ul>
+<li><p>节省参数（虽然在 GPT-3 这种规模下，这点节省可以忽略不计）。</p>
+</li>
+<li><p>该矩阵既负责将词映射到向量，也负责将向量映射回词，理论上相比使用两个独立矩阵，能学到更丰富的表示。</p>
+</li>
+</ul>
+</li>
+<li><p>最后不应用 Softmax：所以我们的输出是 logits，而不是介于 0 和 1 之间的概率。这样做有几个原因：</p>
+<ul>
+<li><p>Softmax 是单调函数，因此对于贪心采样，np.argmax(logits) 等价于 np.argmax(softmax(logits))，使得 Softmax 变得多余。</p>
+</li>
+<li><p>Softmax 是不可逆的，意味着我们总可以通过 Softmax 从 logits 得到概率，但无法从概率回到 logits。因此为了最大灵活性，我们输出 logits。</p>
+</li>
+<li><p>数值稳定性（例如，计算交叉熵损失时，log(softmax(logits)) 相比 log_softmax(logits) 在数值上更不稳定）。</p>
+</li>
+</ul>
+</li>
+</ol>
+<p>投影到词汇表的这一步有时也被称为<code>语言建模头(language modeling head.)</code>。这里的“头”是什么意思？一旦你的 GPT 完成了预训练，你可以把语言建模头换成其他类型的投影，例如用于在分类任务上微调模型的分类头。这样你的模型就可以有多个“头”，有点像九头蛇（Hydra）。  换句话说，一个强大的预训练模型（身体）可以同时拥有多个不同的头，根据不同的任务伸出不同的头来使用。</p>
+<p>具体做法：</p>
+<ol>
+<li>预训练阶段：模型主体 + 语言建模头，在海量文本上学习预测下一个词。</li>
+<li>微调阶段：<ul>
+<li>对于情感分类任务：换掉语言建模头，接上一个分类头，用少量标注数据微调。</li>
+<li>对于问答任务：换掉语言建模头，接上一个问答头（输出答案的开始和结束位置）。</li>
+</ul>
+</li>
+</ol>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">                     ┌─────────────┐</span><br><span class="line">                     │  分类头      │ → 情感判断 (正面/负面)</span><br><span class="line">                     └──────┬──────┘</span><br><span class="line">                            │</span><br><span class="line">预训练 Transformer 主体 ←────┤ (共享特征)</span><br><span class="line">   (多层解码器堆叠)           |</span><br><span class="line">                            │</span><br><span class="line">                     ┌──────┴──────┐</span><br><span class="line">                     │ 语言建模头   │ → 预测下一个词</span><br><span class="line">                     └─────────────┘                 </span><br></pre></td></tr></table></figure>
+<p>以上就是 GPT 架构的高层次概览。接下来，让我们更深入地探讨一下解码器模块内部具体在做什么。</p>
+<h2 id="Decoder-Block"><a href="#Decoder-Block" class="headerlink" title="Decoder Block"></a>Decoder Block</h2><p>Transformer 解码器模块由两个子层组成：<br>    1. 多头因果自注意力 （Multi-head causal self attention）<br>    2. 逐位置前馈神经网络（Position-wise feed forward neural network）</p>
+<figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">transformer_block</span>(<span class="params">x, mlp, attn, ln_1, ln_2, n_head</span>):  <span class="comment"># [n_seq, n_embd] -&gt; [n_seq, n_embd]</span></span><br><span class="line">    <span class="comment"># 多头因果自注意力</span></span><br><span class="line">    x = x + mha(layer_norm(x, **ln_1), **attn, n_head=n_head)  <span class="comment"># [n_seq, n_embd] -&gt; [n_seq, n_embd]</span></span><br><span class="line"></span><br><span class="line">    <span class="comment"># 逐位置前馈神经网络</span></span><br><span class="line">    x = x + ffn(layer_norm(x, **ln_2), **mlp)  <span class="comment"># [n_seq, n_embd] -&gt; [n_seq, n_embd]</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> x</span><br></pre></td></tr></table></figure>
+
+
+
+<p>每个子层都对其输入应用了层归一化以及残差连接（即：将子层的输入与子层的输出相加）。</p>
+<p>以下几点值得注意：</p>
+<ol>
+<li><p>通信的唯一途径 <code>mha</code>：多头因果自注意力是实现输入之间相互通信的机制。网络中没有任何其他地方允许输入之间“看到”彼此。嵌入层、逐位置前馈神经网络、层归一化以及到词汇表的投影，都是在输入上按位置独立操作的。建模输入之间的关系完全由注意力机制负责。</p>
+</li>
+<li><p>前馈网络 <code>ffn</code>：逐位置前馈神经网络就是一个普通的2层全连接网络。它的作用只是增加大量可学习的参数，让模型有更多容量来学习。</p>
+</li>
+<li><p>Pre-Norm 结构：在原始 Transformer 论文中，层归一化放在残差连接之后，即 layer_norm(x + sublayer(x))。而我们将层归一化放在输入上，即 x + sublayer(layer_norm(x))，这是为了匹配 GPT-2 的实现。这种被称为 Pre-Norm 的结构，已被证明对提升 Transformer 的性能非常重要。</p>
+</li>
+<li><p>残差连接的作用（由 ResNet 推广）：</p>
+<ul>
+<li><p>便于训练深层网络：其核心思想是为梯度提供“短路”路径，让梯度能更顺畅地反向传播，从而更容易优化网络中的浅层。</p>
+</li>
+<li><p>防止性能退化：没有残差连接时，简单地堆叠更多层反而会导致性能下降（很可能是因为梯度难以在深层网络中完整无损地传播回来）。残差连接似乎在深层网络中能带来一定的准确率提升。</p>
+</li>
+<li><p>缓解梯度消失&#x2F;爆炸：有助于缓解梯度消失或梯度爆炸问题。</p>
+</li>
+</ul>
+</li>
+</ol>
+<p>数据流向示例，假设输入 x 是形状 [3, 768] 的矩阵（3个词，768维嵌入）：</p>
+<table>
+<thead>
+<tr>
+<th>步骤</th>
+<th>操作</th>
+<th>形状变化</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>0</td>
+<td>输入 <code>x</code></td>
+<td><code>[3, 768]</code></td>
+<td>词嵌入 + 位置嵌入</td>
+</tr>
+<tr>
+<td>1</td>
+<td><code>layer_norm</code></td>
+<td><code>[3, 768]</code></td>
+<td>归一化，数值更稳定</td>
+</tr>
+<tr>
+<td>2</td>
+<td><code>mha</code></td>
+<td><code>[3, 768]</code></td>
+<td>每个词看到了所有前面的词</td>
+</tr>
+<tr>
+<td>3</td>
+<td><code>x + mha</code></td>
+<td><code>[3, 768]</code></td>
+<td>残差连接，保留原始信息</td>
+</tr>
+<tr>
+<td>4</td>
+<td><code>layer_norm</code></td>
+<td><code>[3, 768]</code></td>
+<td>第二次归一化</td>
+</tr>
+<tr>
+<td>5</td>
+<td><code>ffn</code></td>
+<td><code>[3, 768]</code></td>
+<td>增强表示能力（通常维度会先扩大4倍再缩小）</td>
+</tr>
+<tr>
+<td>6</td>
+<td><code>x + ffn</code></td>
+<td><code>[3, 768]</code></td>
+<td>第二个残差连接，输出</td>
+</tr>
+</tbody></table>
+<h2 id="Position-wise-Feed-Forward-Network"><a href="#Position-wise-Feed-Forward-Network" class="headerlink" title="Position-wise Feed Forward Network"></a>Position-wise Feed Forward Network</h2><p>这是一个简单的多层感知机，包含2个层： </p>
+<figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">ffn</span>(<span class="params">x, c_fc, c_proj</span>):  <span class="comment"># [n_seq, n_embd] -&gt; [n_seq, n_embd]</span></span><br><span class="line">    <span class="comment"># 升维投影</span></span><br><span class="line">    a = gelu(linear(x, **c_fc))  <span class="comment"># [n_seq, n_embd] -&gt; [n_seq, 4*n_embd]</span></span><br><span class="line"></span><br><span class="line">    <span class="comment"># 降维投影</span></span><br><span class="line">    x = linear(a, **c_proj)  <span class="comment"># [n_seq, 4*n_embd] -&gt; [n_seq, n_embd]</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> x</span><br></pre></td></tr></table></figure>
+
+<p>这里没什么特别花哨的，我们只是从 n_embd 维度投影到一个更高的维度 4*n_embd，然后再投影回 n_embd 维度。</p>
+<p>回顾一下，从我们的参数字典中可以看到，mlp 参数是这样的：</p>
+<figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="string">&quot;mlp&quot;</span>: &#123;</span><br><span class="line">    <span class="string">&quot;c_fc&quot;</span>: &#123;<span class="string">&quot;b&quot;</span>: [<span class="number">4</span>*n_embd], <span class="string">&quot;w&quot;</span>: [n_embd, <span class="number">4</span>*n_embd]&#125;,</span><br><span class="line">    <span class="string">&quot;c_proj&quot;</span>: &#123;<span class="string">&quot;b&quot;</span>: [n_embd], <span class="string">&quot;w&quot;</span>: [<span class="number">4</span>*n_embd, n_embd]&#125;,</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>FFN 起到了“存储知识”的作用，大量的参数量（约占模型总参数的 2&#x2F;3）都集中在这里，是模型学习复杂模式的关键。自注意力让不同位置的词“交流”，获取上下文信息，而FFN对每个位置的表示（Position-wise）进行独立变换，增强模型的表达能力和容量。</p>
+<h2 id="Multi-Head-Causal-Self-Attention"><a href="#Multi-Head-Causal-Self-Attention" class="headerlink" title="Multi-Head Causal Self Attention"></a>Multi-Head Causal Self Attention</h2><p>这一章节可能是 Transformer 中最难理解的部分。因此，让我们通过将“多头因果自注意力”（Multi-Head Causal Self Attention）这个短语中的每个词拆解成独立的小节，来逐步理解它：</p>
+<ul>
+<li><p>Attention（注意力）</p>
+</li>
+<li><p>Self（自）</p>
+</li>
+<li><p>Causal（因果）</p>
+</li>
+<li><p>Multi-Head（多头）</p>
+</li>
+</ul>
+<h3 id="Attention"><a href="#Attention" class="headerlink" title="Attention"></a>Attention</h3><p>关于这个主题，原作者另一篇博客文章<a target="_blank" rel="noopener" href="https://jaykmody.com/blog/attention-intuition/">An Intuition for Attention</a>，其中从头推导了原始 Transformer 论文中提出的缩放点积方程：</p>
+<!--  $...$ 是行内公式，  $$...$$ 是行间公式（居中） -->
+
+<p>$$<br>\text{attention}(Q, K, V) &#x3D; \text{softmax}\left(\frac{QK^T}{\sqrt{d_k}}\right)V<br>$$</p>
+<p>因此，在此处将跳过对注意力机制的解释。你也可以参考 Lilian Weng 的<a target="_blank" rel="noopener" href="https://lilianweng.github.io/posts/2018-06-24-attention/">Attention? Attention!</a>和 Jay Alammar 的<a target="_blank" rel="noopener" href="https://jalammar.github.io/visualizing-neural-machine-translation-mechanics-of-seq2seq-models-with-attention/">Visualizing A Neural Machine Translation Model</a>，这两篇文章也是对注意力机制的精彩讲解。</p>
+<figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">attention</span>(<span class="params">q, k, v</span>):  <span class="comment"># [n_q, d_k], [n_k, d_k], [n_k, d_v] -&gt; [n_q, d_v]</span></span><br><span class="line">    <span class="keyword">return</span> softmax(q @ k.T / np.sqrt(q.shape[-<span class="number">1</span>])) @ v</span><br></pre></td></tr></table></figure>
+
+
+<h3 id="Self"><a href="#Self" class="headerlink" title="Self"></a>Self</h3><p>当 q（查询）、k（键）和 v（值）都来自同一个源时，我们执行的就是自注意力（self-attention），即让输入序列自己与自己进行注意力计算。</p>
+<figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">self_attention</span>(<span class="params">x</span>): <span class="comment"># [n_seq, n_embd] -&gt; [n_seq, n_embd]</span></span><br><span class="line">    <span class="keyword">return</span> attention(q=x, k=x, v=x)</span><br></pre></td></tr></table></figure>
+<p>例如，如果我们的输入是“Jay went to the store, he bought 10 apples.”（杰伊去了商店，他买了10个苹果。），我们会让“he”（他）这个词关注所有其他词，包括“Jay”（杰伊），这意味着模型可以学会识别出“he”指的是“Jay”。</p>
+<p>我们可以通过引入针对 q、k、v 以及注意力输出的投影来增强自注意力：</p>
+<figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">self_attention</span>(<span class="params">x, w_k, w_q, w_v, w_proj</span>): <span class="comment"># [n_seq, n_embd] -&gt; [n_seq, n_embd]</span></span><br><span class="line">    <span class="comment"># qkv projections</span></span><br><span class="line">    q = x @ w_q <span class="comment"># [n_seq, n_embd] @ [n_embd, n_embd] -&gt; [n_seq, n_embd]</span></span><br><span class="line">    k = x @ w_k <span class="comment"># [n_seq, n_embd] @ [n_embd, n_embd] -&gt; [n_seq, n_embd]</span></span><br><span class="line">    v = x @ w_v <span class="comment"># [n_seq, n_embd] @ [n_embd, n_embd] -&gt; [n_seq, n_embd]</span></span><br><span class="line"></span><br><span class="line">    <span class="comment"># perform self attention</span></span><br><span class="line">    x = attention(q, k, v) <span class="comment"># [n_seq, n_embd] -&gt; [n_seq, n_embd]</span></span><br><span class="line"></span><br><span class="line">    <span class="comment"># out projection</span></span><br><span class="line">    x = x @ w_proj <span class="comment"># [n_seq, n_embd] @ [n_embd, n_embd] -&gt; [n_seq, n_embd]</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> x</span><br></pre></td></tr></table></figure>
+
+<p>这使得我们的模型能够学习针对 q、k 和 v 的映射函数，从而最好地帮助注意力机制区分输入之间的关系。</p>
+<p>如果将 w_q、w_k 和 w_v 合并成一个单独的矩阵 w_fc，先执行投影，然后再将结果拆分开，我们就可以将矩阵乘法的次数从 4 次减少到仅 2 次：</p>
+<figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">self_attention</span>(<span class="params">x, w_fc, w_proj</span>): <span class="comment"># [n_seq, n_embd] -&gt; [n_seq, n_embd]</span></span><br><span class="line">    <span class="comment"># qkv projections</span></span><br><span class="line">    x = x @ w_fc <span class="comment"># [n_seq, n_embd] @ [n_embd, 3*n_embd] -&gt; [n_seq, 3*n_embd]</span></span><br><span class="line"></span><br><span class="line">    <span class="comment"># split into qkv</span></span><br><span class="line">    q, k, v = np.split(x, <span class="number">3</span>, axis=-<span class="number">1</span>) <span class="comment"># [n_seq, 3*n_embd] -&gt; 3 of [n_seq, n_embd]</span></span><br><span class="line"></span><br><span class="line">    <span class="comment"># perform self attention</span></span><br><span class="line">    x = attention(q, k, v) <span class="comment"># [n_seq, n_embd] -&gt; [n_seq, n_embd]</span></span><br><span class="line"></span><br><span class="line">    <span class="comment"># out projection</span></span><br><span class="line">    x = x @ w_proj <span class="comment"># [n_seq, n_embd] @ [n_embd, n_embd] = [n_seq, n_embd]</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> x</span><br><span class="line">    </span><br></pre></td></tr></table></figure>
+
+<p>回顾一下，从我们的参数字典中可以看到，attn 参数的结构如下：</p>
+<figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="string">&quot;attn&quot;</span>: &#123;</span><br><span class="line">    <span class="string">&quot;c_attn&quot;</span>: &#123;<span class="string">&quot;b&quot;</span>: [<span class="number">3</span>*n_embd], <span class="string">&quot;w&quot;</span>: [n_embd, <span class="number">3</span>*n_embd]&#125;,</span><br><span class="line">    <span class="string">&quot;c_proj&quot;</span>: &#123;<span class="string">&quot;b&quot;</span>: [n_embd], <span class="string">&quot;w&quot;</span>: [n_embd, n_embd]&#125;,</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+
+<h3 id="Causal"><a href="#Causal" class="headerlink" title="Causal"></a>Causal</h3><p>我们当前的自注意力设置有一个问题：我们的输入可以“看到未来”的信息！</p>
+<p>例如，如果输入是 [“not”, “all”, “heroes”, “wear”, “capes”]，在自注意力计算中，“wear”（位置 3）能够看到“capes”（位置 4）。这意味着模型在预测“wear”这个词时，输出概率会产生偏差，因为它已经提前知道了正确答案是“capes”。</p>
+<p>这样做显然不行——模型会简单地学会：对于第 i 个位置的输入，正确答案可以直接从第 i+1 个位置复制过来。<br>解决方案：因果掩码（Causal Masking）。为了防止这种情况，我们需要修改注意力矩阵，隐藏或屏蔽掉“未来”的信息，让每个位置只能看到当前及之前的位置，不能看到之后的位置。</p>
+<p>假设我们的注意力矩阵（未掩码时）如下，每一行代表查询（Q），每一列代表键（K），矩阵中的值表示注意力权重：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">         not  all  heroes  wear  capes</span><br><span class="line">not      0.2  0.1   0.3    0.2   0.2</span><br><span class="line">all      0.1  0.3   0.2    0.2   0.2</span><br><span class="line">heroes   0.2  0.1   0.4    0.1   0.2</span><br><span class="line">wear     0.1  0.2   0.1    0.3   0.3   ← 这里看到了 capes（未来）</span><br><span class="line">capes    0.1  0.1   0.2    0.2   0.4</span><br></pre></td></tr></table></figure>
+<p>应用因果掩码后，我们将屏蔽掉上三角部分（未来信息）：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">         not  all  heroes  wear  capes</span><br><span class="line">not      0.6  0     0      0     0</span><br><span class="line">all      0.3  0.7   0      0     0</span><br><span class="line">heroes   0.2  0.2   0.6    0     0</span><br><span class="line">wear     0.1  0.2   0.2    0.5   0      ← capes 列被屏蔽</span><br><span class="line">capes    0.1  0.1   0.2    0.2   0.4</span><br></pre></td></tr></table></figure>
+
+<p>上述掩码方法有一个问题：在应用 softmax 之后将某些位置设置为 0，会导致每一行的和不再为 1。为了确保各行之和仍然为 1，我们需要在 softmax 之前 修改注意力矩阵。</p>
+<p>这可以通过将需要掩码的条目在 softmax 之前设置为 -∞（负无穷）来实现。这样，在 softmax 计算中，这些位置的指数就会变为 0，既起到了屏蔽作用，又保证了概率分布的正常归一化。</p>
+<figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">attention</span>(<span class="params">q, k, v, mask</span>):  <span class="comment"># [n_q, d_k], [n_k, d_k], [n_k, d_v], [n_q, n_k] -&gt; [n_q, d_v]</span></span><br><span class="line">    <span class="keyword">return</span> softmax(q @ k.T / np.sqrt(q.shape[-<span class="number">1</span>]) + mask) @ v</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">causal_self_attention</span>(<span class="params">x, c_attn, c_proj</span>):  <span class="comment"># [n_seq, n_embd] -&gt; [n_seq, n_embd]</span></span><br><span class="line">    <span class="comment"># QKV 投影</span></span><br><span class="line">    x = linear(x, **c_attn)  <span class="comment"># [n_seq, n_embd] -&gt; [n_seq, 3*n_embd]</span></span><br><span class="line"></span><br><span class="line">    <span class="comment"># 拆分为 Q、K、V</span></span><br><span class="line">    q, k, v = np.split(x, <span class="number">3</span>, axis=-<span class="number">1</span>)  <span class="comment"># [n_seq, 3*n_embd] -&gt; 3 个 [n_seq, n_embd]</span></span><br><span class="line"></span><br><span class="line">    <span class="comment"># 因果掩码：屏蔽未来输入，防止当前 Token 看到后面的 Token</span></span><br><span class="line">    causal_mask = (<span class="number">1</span> - np.tri(x.shape[<span class="number">0</span>], dtype=x.dtype)) * -<span class="number">1e10</span>  <span class="comment"># [n_seq, n_seq]</span></span><br><span class="line"></span><br><span class="line">    <span class="comment"># 执行因果自注意力</span></span><br><span class="line">    x = attention(q, k, v, causal_mask)  <span class="comment"># [n_seq, n_embd] -&gt; [n_seq, n_embd]</span></span><br><span class="line"></span><br><span class="line">    <span class="comment"># 输出投影</span></span><br><span class="line">    x = linear(x, **c_proj)  <span class="comment"># [n_seq, n_embd] -&gt; [n_seq, n_embd]</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> x</span><br></pre></td></tr></table></figure>
+
+<p>其中，causal_mask内容如下：</p>
+<figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">[[<span class="number">0</span>, -inf, -inf, -inf, -inf],</span><br><span class="line"> [<span class="number">0</span>, <span class="number">0</span>,   -inf, -inf, -inf],</span><br><span class="line"> [<span class="number">0</span>, <span class="number">0</span>,   <span class="number">0</span>,   -inf, -inf],</span><br><span class="line"> [<span class="number">0</span>, <span class="number">0</span>,   <span class="number">0</span>,   <span class="number">0</span>,   -inf],</span><br><span class="line"> [<span class="number">0</span>, <span class="number">0</span>,   <span class="number">0</span>,   <span class="number">0</span>,   <span class="number">0</span>]]</span><br></pre></td></tr></table></figure>
+
+
+
+
+<h3 id="Multi-Head"><a href="#Multi-Head" class="headerlink" title="Multi-Head"></a>Multi-Head</h3><p>我们可以通过执行 n_head 个独立的注意力计算来进一步改进实现，也就是将查询（queries）、键（keys）和值（values）拆分成多个头：</p>
+<figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">mha</span>(<span class="params">x, c_attn, c_proj, n_head</span>):  <span class="comment"># [n_seq, n_embd] -&gt; [n_seq, n_embd]</span></span><br><span class="line">    <span class="comment"># QKV 投影</span></span><br><span class="line">    x = linear(x, **c_attn)  <span class="comment"># [n_seq, n_embd] -&gt; [n_seq, 3*n_embd]</span></span><br><span class="line"></span><br><span class="line">    <span class="comment"># 拆分为 Q、K、V</span></span><br><span class="line">    qkv = np.split(x, <span class="number">3</span>, axis=-<span class="number">1</span>)  <span class="comment"># [n_seq, 3*n_embd] -&gt; [3, n_seq, n_embd]</span></span><br><span class="line"></span><br><span class="line">    <span class="comment"># 拆分为多个头</span></span><br><span class="line">    qkv_heads = <span class="built_in">list</span>(<span class="built_in">map</span>(<span class="keyword">lambda</span> x: np.split(x, n_head, axis=-<span class="number">1</span>), qkv))  <span class="comment"># [3, n_seq, n_embd] -&gt; [3, n_head, n_seq, n_embd/n_head]</span></span><br><span class="line"></span><br><span class="line">    <span class="comment"># 因果掩码：屏蔽未来输入，防止当前 Token 看到后面的 Token</span></span><br><span class="line">    causal_mask = (<span class="number">1</span> - np.tri(x.shape[<span class="number">0</span>], dtype=x.dtype)) * -<span class="number">1e10</span>  <span class="comment"># [n_seq, n_seq]</span></span><br><span class="line"></span><br><span class="line">    <span class="comment"># 对每个头分别执行注意力计算</span></span><br><span class="line">    out_heads = [attention(q, k, v, causal_mask) <span class="keyword">for</span> q, k, v <span class="keyword">in</span> <span class="built_in">zip</span>(*qkv_heads)]  <span class="comment"># [3, n_head, n_seq, n_embd/n_head] -&gt; [n_head, n_seq, n_embd/n_head]</span></span><br><span class="line"></span><br><span class="line">    <span class="comment"># 合并所有头的输出</span></span><br><span class="line">    x = np.hstack(out_heads)  <span class="comment"># [n_head, n_seq, n_embd/n_head] -&gt; [n_seq, n_embd]</span></span><br><span class="line"></span><br><span class="line">    <span class="comment"># 输出投影</span></span><br><span class="line">    x = linear(x, **c_proj)  <span class="comment"># [n_seq, n_embd] -&gt; [n_seq, n_embd]</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> x</span><br><span class="line">    </span><br></pre></td></tr></table></figure>
+
+<p>请注意，这样会将每个注意力计算的维度从 n_embd 降低到 n_embd &#x2F; n_head。这是一个权衡。在维度降低的情况下，我们的模型在进行注意力关系建模时，获得了额外的子空间。例如，也许一个注意力头负责将代词与其所指代的人连接起来；另一个头可能负责按句号对句子进行分组；还有一个头可能仅仅用于识别哪些词是实体、哪些不是。不过，这很可能只是另一个神经网络的黑箱而已。</p>
+<p>我们编写的代码是通过循环（一次一个）按顺序对每个头执行注意力计算，这样效率不是很高。在实践中，你应该希望这些计算是并行进行的。为了简单起见，我们这里就保持顺序执行。</p>
+<table>
+<thead>
+<tr>
+<th>概念</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>为什么拆分成多个头</td>
+<td>让模型从不同的表示子空间中学习信息，每个头关注不同的特征关系</td>
+</tr>
+<tr>
+<td>头数 <code>n_head</code></td>
+<td>超参数，例如 GPT-2 使用 12 个头，GPT-3 使用 96 个头</td>
+</tr>
+<tr>
+<td>每个头的维度</td>
+<td><code>n_embd / n_head</code>，保证总计算量不变</td>
+</tr>
+</tbody></table>
+<p>多头注意力其实可以类比卷积神经网络中同一层的多个卷积核：</p>
+<ul>
+<li><p>CNN 中：32 个卷积核 → 输出 32 个通道 → 每个核检测不同的特征（边缘、纹理、颜色等）</p>
+</li>
+<li><p>Multi-Head Attention 中：12 个头 → 输出拼接成 12 × (n_embd&#x2F;12) &#x3D; n_embd → 每个头捕捉不同的关系（语法依赖、指代关系、局部上下文等）</p>
+</li>
+</ul>
+<p>总结</p>
+<h2 id="Putting-it-All-Together"><a href="#Putting-it-All-Together" class="headerlink" title="Putting it All Together"></a>Putting it All Together</h2><p>将所有内容整合在一起，我们得到了 gpt2.py，它的完整代码仅有 120 行（如果去掉注释和空白行，则只有 60 行）。</p>
+<figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">gelu</span>(<span class="params">x</span>):</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0.5</span> * x * (<span class="number">1</span> + np.tanh(np.sqrt(<span class="number">2</span> / np.pi) * (x + <span class="number">0.044715</span> * x**<span class="number">3</span>)))</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">softmax</span>(<span class="params">x</span>):</span><br><span class="line">    exp_x = np.exp(x - np.<span class="built_in">max</span>(x, axis=-<span class="number">1</span>, keepdims=<span class="literal">True</span>))</span><br><span class="line">    <span class="keyword">return</span> exp_x / np.<span class="built_in">sum</span>(exp_x, axis=-<span class="number">1</span>, keepdims=<span class="literal">True</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">layer_norm</span>(<span class="params">x, g, b, eps: <span class="built_in">float</span> = <span class="number">1e-5</span></span>):</span><br><span class="line">    mean = np.mean(x, axis=-<span class="number">1</span>, keepdims=<span class="literal">True</span>)</span><br><span class="line">    variance = np.var(x, axis=-<span class="number">1</span>, keepdims=<span class="literal">True</span>)</span><br><span class="line">    <span class="keyword">return</span> g * (x - mean) / np.sqrt(variance + eps) + b</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">linear</span>(<span class="params">x, w, b</span>):</span><br><span class="line">    <span class="keyword">return</span> x @ w + b</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">ffn</span>(<span class="params">x, c_fc, c_proj</span>):</span><br><span class="line">    <span class="keyword">return</span> linear(gelu(linear(x, **c_fc)), **c_proj)</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">attention</span>(<span class="params">q, k, v, mask</span>):</span><br><span class="line">    <span class="keyword">return</span> softmax(q @ k.T / np.sqrt(q.shape[-<span class="number">1</span>]) + mask) @ v</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">mha</span>(<span class="params">x, c_attn, c_proj, n_head</span>):</span><br><span class="line">    x = linear(x, **c_attn)</span><br><span class="line">    qkv_heads = <span class="built_in">list</span>(<span class="built_in">map</span>(<span class="keyword">lambda</span> x: np.split(x, n_head, axis=-<span class="number">1</span>), np.split(x, <span class="number">3</span>, axis=-<span class="number">1</span>)))</span><br><span class="line">    causal_mask = (<span class="number">1</span> - np.tri(x.shape[<span class="number">0</span>])) * -<span class="number">1e10</span></span><br><span class="line">    out_heads = [attention(q, k, v, causal_mask) <span class="keyword">for</span> q, k, v <span class="keyword">in</span> <span class="built_in">zip</span>(*qkv_heads)]</span><br><span class="line">    x = linear(np.hstack(out_heads), **c_proj)</span><br><span class="line">    <span class="keyword">return</span> x</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">transformer_block</span>(<span class="params">x, mlp, attn, ln_1, ln_2, n_head</span>):</span><br><span class="line">    x = x + mha(layer_norm(x, **ln_1), **attn, n_head=n_head)</span><br><span class="line">    x = x + ffn(layer_norm(x, **ln_2), **mlp)</span><br><span class="line">    <span class="keyword">return</span> x</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">gpt2</span>(<span class="params">inputs, wte, wpe, blocks, ln_f, n_head</span>):</span><br><span class="line">    x = wte[inputs] + wpe[<span class="built_in">range</span>(<span class="built_in">len</span>(inputs))]</span><br><span class="line">    <span class="keyword">for</span> block <span class="keyword">in</span> blocks:</span><br><span class="line">        x = transformer_block(x, **block, n_head=n_head)</span><br><span class="line">    <span class="keyword">return</span> layer_norm(x, **ln_f) @ wte.T</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">generate</span>(<span class="params">inputs, params, n_head, n_tokens_to_generate</span>):</span><br><span class="line">    <span class="keyword">from</span> tqdm <span class="keyword">import</span> tqdm</span><br><span class="line">    <span class="keyword">for</span> _ <span class="keyword">in</span> tqdm(<span class="built_in">range</span>(n_tokens_to_generate), <span class="string">&quot;generating&quot;</span>):</span><br><span class="line">        logits = gpt2(inputs, **params, n_head=n_head)</span><br><span class="line">        next_id = np.argmax(logits[-<span class="number">1</span>])</span><br><span class="line">        inputs = np.append(inputs, [next_id])</span><br><span class="line">    <span class="keyword">return</span> <span class="built_in">list</span>(inputs[<span class="built_in">len</span>(inputs) - n_tokens_to_generate :])</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">main</span>(<span class="params">prompt: <span class="built_in">str</span>, n_tokens_to_generate: <span class="built_in">int</span> = <span class="number">40</span>, model_size: <span class="built_in">str</span> = <span class="string">&quot;124M&quot;</span>, models_dir: <span class="built_in">str</span> = <span class="string">&quot;models&quot;</span></span>):</span><br><span class="line">    <span class="keyword">from</span> utils <span class="keyword">import</span> load_encoder_hparams_and_params</span><br><span class="line">    encoder, hparams, params = load_encoder_hparams_and_params(model_size, models_dir)</span><br><span class="line">    input_ids = encoder.encode(prompt)</span><br><span class="line">    <span class="keyword">assert</span> <span class="built_in">len</span>(input_ids) + n_tokens_to_generate &lt; hparams[<span class="string">&quot;n_ctx&quot;</span>]</span><br><span class="line">    output_ids = generate(input_ids, params, hparams[<span class="string">&quot;n_head&quot;</span>], n_tokens_to_generate)</span><br><span class="line">    output_text = encoder.decode(output_ids)</span><br><span class="line">    <span class="keyword">return</span> output_text</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">&quot;__main__&quot;</span>:</span><br><span class="line">    <span class="keyword">import</span> fire</span><br><span class="line">    fire.Fire(main)</span><br><span class="line">    </span><br></pre></td></tr></table></figure>
+<p>我们可以用以下代码测试我们的实现：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">python gpt2.py \</span><br><span class="line">    <span class="string">&quot;Alan Turing theorized that computers would one day become&quot;</span> \</span><br><span class="line">    --n_tokens_to_generate 8</span><br></pre></td></tr></table></figure>
+<p>将得到以下输出</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">the most powerful machines on the planet.</span><br></pre></td></tr></table></figure>
+
+<p>我们可以使用以下 Dockerfile 来测试我们的实现是否与 OpenAI 官方 GPT-2 代码库产生相同的结果（注意：由于 TensorFlow 的一些兼容性问题，这在 M1 芯片的 MacBook 上无法运行；另外需要提醒的是，它会下载全部 4 种 GPT-2 模型大小，下载量高达数 GB）：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">docker build -t <span class="string">&quot;openai-gpt-2&quot;</span> <span class="string">&quot;https://gist.githubusercontent.com/jaymody/9054ca64eeea7fad1b58a185696bb518/raw/Dockerfile&quot;</span></span><br><span class="line">docker run -dt <span class="string">&quot;openai-gpt-2&quot;</span> --name <span class="string">&quot;openai-gpt-2-app&quot;</span></span><br><span class="line">docker <span class="built_in">exec</span> -it <span class="string">&quot;openai-gpt-2-app&quot;</span> /bin/bash -c <span class="string">&#x27;python3 src/interactive_conditional_samples.py --length 8 --model_type 124M --top_k 1&#x27;</span></span><br><span class="line"><span class="comment"># paste &quot;Alan Turing theorized that computers would one day become&quot; when prompted</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="What-Next"><a href="#What-Next" class="headerlink" title="What Next?"></a>What Next?</h2><h3 id="GPU-TPU-Support"><a href="#GPU-TPU-Support" class="headerlink" title="GPU&#x2F;TPU Support"></a>GPU&#x2F;TPU Support</h3><h3 id="Backpropagation"><a href="#Backpropagation" class="headerlink" title="Backpropagation"></a>Backpropagation</h3><h3 id="Batching"><a href="#Batching" class="headerlink" title="Batching"></a>Batching</h3><h3 id="Inference-Optimization"><a href="#Inference-Optimization" class="headerlink" title="Inference Optimization"></a>Inference Optimization</h3><h3 id="Training"><a href="#Training" class="headerlink" title="Training"></a>Training</h3><h3 id="Evaluation"><a href="#Evaluation" class="headerlink" title="Evaluation"></a>Evaluation</h3><h3 id="Architecture-Improvements"><a href="#Architecture-Improvements" class="headerlink" title="Architecture Improvements"></a>Architecture Improvements</h3><h3 id="Stopping-Generation"><a href="#Stopping-Generation" class="headerlink" title="Stopping Generation"></a>Stopping Generation</h3><h3 id="Fine-tuning"><a href="#Fine-tuning" class="headerlink" title="Fine-tuning"></a>Fine-tuning</h3><h4 id="Classification-Fine-tuning"><a href="#Classification-Fine-tuning" class="headerlink" title="Classification Fine-tuning"></a>Classification Fine-tuning</h4><h4 id="Generative-Fine-tuning"><a href="#Generative-Fine-tuning" class="headerlink" title="Generative Fine-tuning"></a>Generative Fine-tuning</h4><h4 id="Instruction-Fine-tuning"><a href="#Instruction-Fine-tuning" class="headerlink" title="Instruction Fine-tuning"></a>Instruction Fine-tuning</h4><h4 id="Parameter-Efficient-Fine-tuning"><a href="#Parameter-Efficient-Fine-tuning" class="headerlink" title="Parameter Efficient Fine-tuning"></a>Parameter Efficient Fine-tuning</h4><h1 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h1><p id="ref-gpt1"><b>[GPT-1]</b> Radford et al. Improving Language Understanding by Generative Pre-Training. OpenAI, 2018.</p>
+
+<p id="ref-gpt2"><b>[GPT-2]</b> Radford et al. Language Models are Unsupervised Multitask Learners. OpenAI, 2019.</p>
+
+<p id="ref-gpt3"><b>[GPT-3]</b> Brown et al. Language Models are Few-Shot Learners. arXiv:2005.14165, 2020.</p>
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/LLM/" rel="tag"># LLM</a>
+          </div>
+
+        
+
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2026</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">Hans</span>
+  </div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/pisces/" rel="noopener" target="_blank">NexT.Pisces</a>
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="Back to top">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+</body>
+</html>
