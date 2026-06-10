@@ -25,23 +25,23 @@ Computer Vision, Large Language Models, Multi-Modal AI, Agent
 
 <table style="border:none; width:100%;">
   <tr>
-    <td style="border:none; padding:0 0 12px 0; vertical-align:middle;">
+    <td style="border:none; padding:0; vertical-align:top;">
       <strong>2021 – 2024</strong> &nbsp;&nbsp;
       <strong>University of Science and Technology of China</strong> (Hefei, China)<br>
       <em>Master of Engineering, Electronic Information</em>
     </td>
-    <td style="border:none; padding:0 0 12px 0; text-align:right; vertical-align:middle;">
-      <img src="/images/ustc.png" width="64" height="64" style="vertical-align:middle;">
+    <td style="border:none; padding:0; text-align:right; vertical-align:top;">
+      <img src="/images/ustc.png" width="90" height="90" style="vertical-align:top;">
     </td>
   </tr>
   <tr>
-    <td style="border:none; padding:0; vertical-align:middle;">
+    <td style="border:none; padding:0; vertical-align:top;">
       <strong>2017 – 2021</strong> &nbsp;&nbsp;
       <strong>China University of Mining and Technology</strong> (Xuzhou, China)<br>
       <em>Bachelor of Engineering, Electronic Information Engineering</em>
     </td>
-    <td style="border:none; padding:0; text-align:right; vertical-align:middle;">
-      <img src="/images/cumt.png" width="64" height="64" style="vertical-align:middle;">
+    <td style="border:none; padding:0; text-align:right; vertical-align:top;">
+      <img src="/images/cumt.png" width="90" height="90" style="vertical-align:top;">
     </td>
   </tr>
 </table>
