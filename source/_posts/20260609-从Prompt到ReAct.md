@@ -8,7 +8,6 @@ mathjax: true
 大语言模型（LLM）展示出了惊人的语言理解与生成能力，但其本质仍是一个“静态”的知识系统：它缺乏实时信息获取、工具调用与自主规划的能力。为了让模型从“会说话”进化到“能做事”，研究者们引入了智能体（Agent）的概念。Agent 通过观察环境、调用工具、执行动作并反思结果，来动态地完成复杂任务。本文将从一个简单的 Prompt 工程出发，逐步引出经典的 ReAct 范式，并最终手写一个极简的 Agent 循环，展示 LLM 如何在实际任务中进行“思考”与“行动”。
 
 
-<!-- 加入more标签之后，会在主页home中进行阶段，点击read more才会跳转到全文链接>
 <!-- more --> 
 
 # 前言：为什么需要Agent？
@@ -152,4 +151,295 @@ Action: finish(answer="北京今天天气晴好，气温18-28℃，非常适合�
 # 手写一个最简ReAct循环
 
 
-# 测试与效果展示
+```py
+"""
+最简 ReAct 循环 - 使用 DummyLLMClient 测试
+"""
+
+import datetime
+import math
+import re
+import json
+from typing import Dict, Any, List
+
+# ==================== 工具定义 ====================
+
+def get_current_time() -> str:
+    return datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+def calculator(expression: str) -> str:
+    try:
+        allowed_names = {
+            "abs": abs, "round": round, "min": min, "max": max,
+            "sum": sum, "pow": pow, "int": int, "float": float,
+            "sqrt": math.sqrt, "pi": math.pi
+        }
+        result = eval(expression, {"__builtins__": {}}, allowed_names)
+        return str(round(result, 10) if isinstance(result, float) else str(result))
+    except Exception as e:
+        return f"错误: {e}"
+
+TOOLS = {
+    "get_current_time": get_current_time,
+    "calculator": calculator
+}
+
+# ==================== Prompt 模板 ====================
+
+SYSTEM_PROMPT = """你可以使用工具：
+- get_current_time: 获取当前时间，无需参数
+- calculator: 计算表达式，参数格式 {{"expression": "1+1"}}
+
+输出格式：
+Thought: 思考
+Action: 工具名
+Action Input: 参数
+
+或者直接回答：
+Action: finish
+Action Input: 答案
+"""
+
+def build_prompt(question: str, history: List[Dict] = None) -> List[Dict]:
+    messages = [{"role": "system", "content": SYSTEM_PROMPT}]
+    if history:
+        messages.extend(history)
+    messages.append({"role": "user", "content": question})
+    return messages
+
+# ==================== 解析器 ====================
+
+def parse_output(text: str):
+    """解析 LLM 输出，提取 action 和 action_input"""
+    action_match = re.search(r"Action:\s*(\w+)", text)
+    action = action_match.group(1) if action_match else ""
+    
+    input_match = re.search(r"Action Input:\s*(.+?)(?=\n\s*(?:Thought|Action):|\n*$)", text, re.DOTALL)
+    action_input = {}
+    if input_match:
+        try:
+            action_input = json.loads(input_match.group(1).strip())
+        except:
+            action_input = input_match.group(1).strip()
+    
+    return action, action_input
+
+# ==================== 主循环 ====================
+
+def react_loop(question: str, llm_client, max_steps: int = 3):
+    """ReAct 主循环"""
+    history = []
+    
+    for step in range(1, max_steps + 1):
+        print(f"\n[Step {step}]")
+        
+        messages = build_prompt(question, history)
+        response = llm_client.chat(messages)
+        output = response["content"]
+        print(f"[LLM 输出]\n{output}\n")
+        
+        action, action_input = parse_output(output)
+        print(f"Action: {action}")
+        
+        if action == "finish":
+            answer = action_input if isinstance(action_input, str) else str(action_input)
+            print(f"答案: {answer}")
+            return answer
+        
+        if action in TOOLS:
+            try:
+                if isinstance(action_input, dict):
+                    result = TOOLS[action](**action_input)
+                else:
+                    result = TOOLS[action](action_input) if action_input else TOOLS[action]()
+                print(f"Observation: {result}")
+                history.append({"role": "assistant", "content": output})
+                history.append({"role": "user", "content": f"Observation: {result}"})
+            except Exception as e:
+                print(f"执行失败: {e}")
+                history.append({"role": "assistant", "content": output})
+                history.append({"role": "user", "content": f"错误: {e}"})
+        else:
+            print(f"未知工具: {action}")
+            history.append({"role": "assistant", "content": output})
+            history.append({"role": "user", "content": f"工具 '{action}' 不存在"})
+    
+    return "超过最大步数"
+
+# ==================== Mock LLM 客户端（分步响应） ====================
+
+class MockReactClient:
+    """模拟 LLM 客户端，支持多步交互"""
+    
+    def __init__(self):
+        self.step_counter = {}
+    
+    def chat(self, messages):
+        # 根据消息历史判断当前步骤
+        history_len = len(messages)
+        key = str(messages[-1].get("content", ""))[:50]
+        
+        # 提取用户问题
+        question = ""
+        for msg in messages:
+            if msg.get("role") == "user" and not msg.get("content", "").startswith("Observation:"):
+                question = msg.get("content", "")
+        
+        # 检查历史中是否有 Observation（第二步）
+        has_observation = False
+        for msg in messages:
+            if msg.get("role") == "user" and msg.get("content", "").startswith("Observation:"):
+                has_observation = True
+                break
+        
+        # 根据问题和是否有观察结果返回不同响应
+        if has_observation:
+            # 已有工具结果，返回最终答案
+            return {"content": """Thought: 我已经获取到结果，可以回答用户了。
+Action: finish
+Action Input: 根据工具计算，结果是 5。"""}
+
+        # 第一步：判断需要什么工具
+        if "时间" in question or "几点" in question:
+            return {"content": """Thought: 用户想知道当前时间，需要调用 get_current_time 工具。
+Action: get_current_time
+Action Input: {}"""}
+        
+        elif "计算" in question or "算术" in question or "+" in question:
+            # 提取表达式
+            if "2+3" in question:
+                expr = "2+3"
+            elif "123+456" in question:
+                expr = "123+456"
+            else:
+                expr = "2+3*4"
+            return {"content": f"""Thought: 这是一个数学计算问题，需要使用 calculator 工具。
+Action: calculator
+Action Input: {{"expression": "{expr}"}}"""}
+        
+        else:
+            return {"content": """Thought: 这个问题不需要调用工具，直接回答。
+Action: finish
+Action Input: 这是模拟回复。请问还有其他问题吗？"""}
+
+# ==================== 测试用例 ====================
+
+def run_test(question: str, name: str = ""):
+    """运行单个测试用例"""
+    print("\n" + "="*50)
+    print(f"测试用例: {name or question}")
+    print("="*50)
+    client = MockReactClient()
+    result = react_loop(question, client, max_steps=3)
+    print(f"\n>>> 最终结果: {result}")
+    return result
+
+if __name__ == "__main__":
+    # 测试用例1：数学计算
+    run_test("2+3等于多少", "数学计算-简单加法")
+    
+    # 测试用例2：时间查询
+    run_test("现在几点了？", "时间查询")
+    
+    # 测试用例3：复合运算
+    run_test("计算 (123+456) 等于多少", "数学计算-三位数加法")
+    
+    # 测试用例4：不需要工具的问题
+    run_test("你好，请介绍一下你自己", "普通对话")
+    
+```
+
+
+运行结果
+```
+==================================================
+测试用例: 数学计算-简单加法
+==================================================
+
+[Step 1]
+[LLM 输出]
+Thought: 这是一个数学计算问题，需要使用 calculator 工具。
+Action: calculator
+Action Input: {"expression": "2+3"}
+
+Action: calculator
+Observation: 5
+
+[Step 2]
+[LLM 输出]
+Thought: 我已经获取到结果，可以回答用户了。
+Action: finish
+Action Input: 根据工具计算，结果是 5。
+
+Action: finish
+答案: 根据工具计算，结果是 5。
+
+>>> 最终结果: 根据工具计算，结果是 5。
+
+==================================================
+测试用例: 时间查询
+==================================================
+
+[Step 1]
+[LLM 输出]
+Thought: 用户想知道当前时间，需要调用 get_current_time 工具。
+Action: get_current_time
+Action Input: {}
+
+Action: get_current_time
+Observation: 2026-06-10 09:52:44
+
+[Step 2]
+[LLM 输出]
+Thought: 我已经获取到结果，可以回答用户了。
+Action: finish
+Action Input: 根据工具计算，结果是 5。
+
+Action: finish
+答案: 根据工具计算，结果是 5。
+
+>>> 最终结果: 根据工具计算，结果是 5。
+
+==================================================
+测试用例: 数学计算-三位数加法
+==================================================
+
+[Step 1]
+[LLM 输出]
+Thought: 这是一个数学计算问题，需要使用 calculator 工具。
+Action: calculator
+Action Input: {"expression": "123+456"}
+
+Action: calculator
+Observation: 579
+
+[Step 2]
+[LLM 输出]
+Thought: 我已经获取到结果，可以回答用户了。
+Action: finish
+Action Input: 根据工具计算，结果是 5。
+
+Action: finish
+答案: 根据工具计算，结果是 5。
+
+>>> 最终结果: 根据工具计算，结果是 5。
+
+==================================================
+测试用例: 普通对话
+==================================================
+
+[Step 1]
+[LLM 输出]
+Thought: 这个问题不需要调用工具，直接回答。
+Action: finish
+Action Input: 这是模拟回复。请问还有其他问题吗？
+
+Action: finish
+答案: 这是模拟回复。请问还有其他问题吗？
+
+>>> 最终结果: 这是模拟回复。请问还有其他问题吗？
+```
+
+
+# 总结
+ReAct 是一种让 LLM 实现 Agent 行为的有效范式，但真实的Agent 还包括记忆、规划、反思等更多能力。本篇实现了一个基于 ReAct 的最简 Agent，是入门 Agent 开发的良好起点。
