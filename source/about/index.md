@@ -1,8 +1,8 @@
 ---
-title: null
+title: About Me
 ---
 
-# About Me
+# Personal Info
 
 - **Name**: Hans (Yixiong Liu)
 - **Job**: IT Engineer 
