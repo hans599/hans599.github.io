@@ -10,7 +10,7 @@ title: About Me
 - **GitHub**: [github.com/hans599](https://github.com/hans599)
 
 ## Skills
-- **Coding**: Python, C++, HTML, TypeScript, SQL
+- **Coding**: Python, C++, TypeScript, SQL
 - **Tools**: Git, Docker, Linux
 
 ## Research Interests
