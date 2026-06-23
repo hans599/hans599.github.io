@@ -15,7 +15,7 @@ title: About Me
 
 ## Research Interests
 
-Computer Vision, Large Language Models, Multi-Modal AI, Agent 
+Computer Vision, Large Language Models, AI Agent 
 
 
 ---
