@@ -1,7 +1,7 @@
 ---
 title: Multi-Agent
 date: 2026-06-25
-tags: Skills
+tags: Multi-Agent
 mathjax: true
 ---
 
