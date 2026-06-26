@@ -291,6 +291,8 @@ Instruct 后缀代表这个模型是经过指令微调（Instruction Tuning）�
 
  本项目是一个围绕开源大模型、针对国内初学者、基于 Linux 平台的中国宝宝专属大模型教程，针对各类开源大模型提供包括环境配置、本地部署、高效微调等技能在内的全流程指导，简化开源大模型的部署、使用和应用流程，让更多的普通学生、研究者更好地使用开源大模型，帮助开源、自由的大模型更快融入到普通学习者的生活中。
  
+**里面有很多主流模型的微调指南，非常推荐！**
+ 
 项目地址：[https://github.com/datawhalechina/self-llm](https://github.com/datawhalechina/self-llm)
 
 
