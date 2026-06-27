@@ -23,7 +23,7 @@
     <meta name="description" content="Personal website for research and blog">
 <meta property="og:type" content="website">
 <meta property="og:title" content="Hans&#39;s Homepage">
-<meta property="og:url" content="https://hans599.github.io/archives/2026/06/index.html">
+<meta property="og:url" content="https://hans599.github.io/page/2/index.html">
 <meta property="og:site_name" content="Hans&#39;s Homepage">
 <meta property="og:description" content="Personal website for research and blog">
 <meta property="og:locale" content="en_US">
@@ -31,13 +31,13 @@
 <meta name="twitter:card" content="summary">
 
 
-<link rel="canonical" href="https://hans599.github.io/archives/2026/06/">
+<link rel="canonical" href="https://hans599.github.io/page/2/">
 
 
-<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":false,"lang":"en","comments":"","permalink":"","path":"archives/2026/06/index.html","title":""}</script>
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":true,"isPost":false,"lang":"en","comments":"","permalink":"","path":"page/2/index.html","title":""}</script>
 
 <script class="next-config" data-name="calendar" type="application/json">""</script>
-<title>Archive | Hans's Homepage</title>
+<title>Hans's Homepage</title>
   
 
 
@@ -67,7 +67,7 @@
 
   
 
-  <script class="next-config" data-name="enableMath" type="application/json">false</script><script class="next-config" data-name="mathjax" type="application/json">{"enable":true,"tags":"none","js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-mml-chtml.js","integrity":"sha256-MASABpB4tYktI2Oitl4t+78w/lyA+D7b/s9GEP0JOGI="}}</script>
+  <script class="next-config" data-name="enableMath" type="application/json">true</script><script class="next-config" data-name="mathjax" type="application/json">{"enable":true,"tags":"none","js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-mml-chtml.js","integrity":"sha256-MASABpB4tYktI2Oitl4t+78w/lyA+D7b/s9GEP0JOGI="}}</script>
 <script src="/js/third-party/math/mathjax.js" defer></script>
 
 
@@ -195,231 +195,101 @@
 
     </div>
 
-    <div class="main-inner archive posts-collapse">
+    <div class="main-inner index posts-expand">
+
+    
 
 
+<div class="post-block">
   
   
-  
-  <div class="post-block">
-    <div class="post-content">
-      <div class="collection-title">
-        <span class="collection-header">Um..! 11 posts in total. Keep on posting.</span>
-      </div>
 
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+    <link itemprop="mainEntityOfPage" href="https://hans599.github.io/2026/06/09/20260610-LangGraph%E5%AE%9E%E6%88%98/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Hans">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Hans's Homepage">
+      <meta itemprop="description" content="Personal website for research and blog">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content=" | Hans's Homepage">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/2026/06/09/20260610-LangGraph%E5%AE%9E%E6%88%98/" class="post-title-link" itemprop="url">LangGraph实战</a>
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+
+      <time title="Created: 2026-06-09 00:00:00" itemprop="dateCreated datePublished" datetime="2026-06-09T00:00:00+08:00">2026-06-09</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">Edited on</span>
+      <time title="Modified: 2026-06-20 15:50:29" itemprop="dateModified" datetime="2026-06-20T15:50:29+08:00">2026-06-20</time>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <h1 id="前言：为什么需要LangGraph？"><a href="#前言：为什么需要LangGraph？" class="headerlink" title="前言：为什么需要LangGraph？"></a>前言：为什么需要LangGraph？</h1><h2 id="手写ReAct的问题"><a href="#手写ReAct的问题" class="headerlink" title="手写ReAct的问题"></a>手写ReAct的问题</h2><p>实现一个简单的“思考-行动-观察”（ReAct）循环似乎并不难，但随着业务复杂度的提升，手写方式会暴露三个核心痛点：</p>
+<ul>
+<li><p>状态管理混乱：在多轮工具调用和推理步骤中，消息历史、中间结果、上下文等信息散落在各处，难以统一管理和持久化。</p>
+</li>
+<li><p>复杂流程难以维护：当需要引入循环、条件分支、并行执行或人工介入时，手写的 while 循环和 if-else 会迅速演变成难以调试的“意大利面式”代码。</p>
+</li>
+<li><p>没有现成的调试工具：Agent 的执行过程像一个“黑盒”，你很难清晰地看到它在每一步的思考、工具调用和状态变化，问题排查非常痛苦。</p>
+</li>
+</ul>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2026/06/09/20260610-LangGraph%E5%AE%9E%E6%88%98/#more" rel="contents">
+                Read more &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
       
-    <div class="collection-year">
-      <span class="collection-header">2026<span class="collection-year-count">11</span></span>
     </div>
 
-  <article itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-      <div class="post-meta-container">
-        <time itemprop="dateCreated"
-              datetime="2026-06-26T00:00:00+08:00"
-              content="2026-06-26">
-          06-26
-        </time>
-      </div>
+    
+    
+    
 
-      <div class="post-title">
-          <a class="post-title-link" href="/2026/06/26/20260626-LoRA-QLoRA/" itemprop="url">
-            <span itemprop="name">LoRA && QLoRA</span>
-          </a>
-      </div>
-
+    <footer class="post-footer">
+        <div class="post-eof"></div>
       
-    </header>
+    </footer>
   </article>
-
-  <article itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-      <div class="post-meta-container">
-        <time itemprop="dateCreated"
-              datetime="2026-06-26T00:00:00+08:00"
-              content="2026-06-26">
-          06-26
-        </time>
-      </div>
-
-      <div class="post-title">
-          <a class="post-title-link" href="/2026/06/26/20260626-SFT/" itemprop="url">
-            <span itemprop="name">Supervised fine-tuning (SFT)</span>
-          </a>
-      </div>
-
-      
-    </header>
-  </article>
-
-  <article itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-      <div class="post-meta-container">
-        <time itemprop="dateCreated"
-              datetime="2026-06-25T00:00:00+08:00"
-              content="2026-06-25">
-          06-25
-        </time>
-      </div>
-
-      <div class="post-title">
-          <a class="post-title-link" href="/2026/06/25/20260625-Multi-Agent/" itemprop="url">
-            <span itemprop="name">Multi-Agent</span>
-          </a>
-      </div>
-
-      
-    </header>
-  </article>
-
-  <article itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-      <div class="post-meta-container">
-        <time itemprop="dateCreated"
-              datetime="2026-06-24T00:00:00+08:00"
-              content="2026-06-24">
-          06-24
-        </time>
-      </div>
-
-      <div class="post-title">
-          <a class="post-title-link" href="/2026/06/24/20260624-Agent-Skills/" itemprop="url">
-            <span itemprop="name">Agent Skills</span>
-          </a>
-      </div>
-
-      
-    </header>
-  </article>
-
-  <article itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-      <div class="post-meta-container">
-        <time itemprop="dateCreated"
-              datetime="2026-06-22T00:00:00+08:00"
-              content="2026-06-22">
-          06-22
-        </time>
-      </div>
-
-      <div class="post-title">
-          <a class="post-title-link" href="/2026/06/22/20260622-MCP%E5%8D%8F%E8%AE%AE/" itemprop="url">
-            <span itemprop="name">MCP（Model Context Protocol）</span>
-          </a>
-      </div>
-
-      
-    </header>
-  </article>
-
-  <article itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-      <div class="post-meta-container">
-        <time itemprop="dateCreated"
-              datetime="2026-06-18T00:00:00+08:00"
-              content="2026-06-18">
-          06-18
-        </time>
-      </div>
-
-      <div class="post-title">
-          <a class="post-title-link" href="/2026/06/18/20260618-%E5%B8%A6%E8%A7%84%E5%88%92%E8%83%BD%E5%8A%9B%E7%9A%84Agent/" itemprop="url">
-            <span itemprop="name">带规划能力的Agent</span>
-          </a>
-      </div>
-
-      
-    </header>
-  </article>
-
-  <article itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-      <div class="post-meta-container">
-        <time itemprop="dateCreated"
-              datetime="2026-06-18T00:00:00+08:00"
-              content="2026-06-18">
-          06-18
-        </time>
-      </div>
-
-      <div class="post-title">
-          <a class="post-title-link" href="/2026/06/18/20260627-DPO%E4%B8%8EGRPO/" itemprop="url">
-            <span itemprop="name">DPO与GRPO</span>
-          </a>
-      </div>
-
-      
-    </header>
-  </article>
-
-  <article itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-      <div class="post-meta-container">
-        <time itemprop="dateCreated"
-              datetime="2026-06-13T21:14:14+08:00"
-              content="2026-06-13">
-          06-13
-        </time>
-      </div>
-
-      <div class="post-title">
-          <a class="post-title-link" href="/2026/06/13/20260601-GPT%E5%85%A5%E9%97%A8/" itemprop="url">
-            <span itemprop="name">GPT入门</span>
-          </a>
-      </div>
-
-      
-    </header>
-  </article>
-
-  <article itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-      <div class="post-meta-container">
-        <time itemprop="dateCreated"
-              datetime="2026-06-11T00:00:00+08:00"
-              content="2026-06-11">
-          06-11
-        </time>
-      </div>
-
-      <div class="post-title">
-          <a class="post-title-link" href="/2026/06/11/20260611-RAG%E4%B8%8E%E5%90%91%E9%87%8F%E6%95%B0%E6%8D%AE%E5%BA%93/" itemprop="url">
-            <span itemprop="name">RAG与向量数据库</span>
-          </a>
-      </div>
-
-      
-    </header>
-  </article>
-
-  <article itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-      <div class="post-meta-container">
-        <time itemprop="dateCreated"
-              datetime="2026-06-09T00:00:00+08:00"
-              content="2026-06-09">
-          06-09
-        </time>
-      </div>
-
-      <div class="post-title">
-          <a class="post-title-link" href="/2026/06/09/20260609-%E4%BB%8EPrompt%E5%88%B0ReAct/" itemprop="url">
-            <span itemprop="name">从Prompt到ReAct</span>
-          </a>
-      </div>
-
-      
-    </header>
-  </article>
+</div>
 
 
-    </div>
-  </div>
-  
-  
-  
+
+
   <nav class="pagination">
-    <span class="page-number current">1</span><a class="page-number" href="/archives/2026/06/page/2/">2</a><a class="extend next" rel="next" title="Next page" aria-label="Next page" href="/archives/2026/06/page/2/"><i class="fa fa-angle-right"></i></a>
+    <a class="extend prev" rel="prev" title="Previous page" aria-label="Previous page" href="/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/">1</a><span class="page-number current">2</span>
   </nav>
 
 </div>

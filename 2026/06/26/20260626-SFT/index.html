@@ -1,0 +1,575 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#222" media="(prefers-color-scheme: dark)"><meta name="generator" content="Hexo 8.1.2">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css" integrity="sha256-VHqXKFhhMxcpubYf9xiWdCiojEbY9NexQ4jh8AxbvcM=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"hans599.github.io","root":"/","images":"/images","scheme":"Pisces","darkmode":true,"version":"8.27.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"codeblock":{"theme":{"light":"default","dark":"stackoverflow-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"language":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"},"path":"/search.xml","localsearch":{"enable":true,"top_n_per_article":1,"unescape":false,"preload":true,"trigger":"auto"}}</script><script src="/js/config.js" defer></script>
+
+    <meta name="description" content="SFT监督微调（Supervised Fine-Tuning, SFT） 的核心，就是使用预先验证过的、带标签的数据，来让一个已经预训练好的大语言模型（LLM）适应特定的下游任务。 简单来说，SFT就是在预训练模型的基础上，用标注好的“问题-答案”数据，进行一次有监督的训练。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Supervised fine-tuning (SFT)">
+<meta property="og:url" content="https://hans599.github.io/2026/06/26/20260626-SFT/index.html">
+<meta property="og:site_name" content="Hans&#39;s Homepage">
+<meta property="og:description" content="SFT监督微调（Supervised Fine-Tuning, SFT） 的核心，就是使用预先验证过的、带标签的数据，来让一个已经预训练好的大语言模型（LLM）适应特定的下游任务。 简单来说，SFT就是在预训练模型的基础上，用标注好的“问题-答案”数据，进行一次有监督的训练。">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2026-06-25T16:00:00.000Z">
+<meta property="article:modified_time" content="2026-06-27T02:42:28.016Z">
+<meta property="article:author" content="Hans">
+<meta property="article:tag" content="SFT">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="https://hans599.github.io/2026/06/26/20260626-SFT/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"en","comments":true,"permalink":"https://hans599.github.io/2026/06/26/20260626-SFT/","path":"2026/06/26/20260626-SFT/","title":"Supervised fine-tuning (SFT)"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>Supervised fine-tuning (SFT) | Hans's Homepage</title>
+  
+
+
+
+
+
+
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous" defer></script>
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.5.0/search.js" integrity="sha256-xFC6PJ82SL9b3WkGjFavNiA9gm5z6UBxWPiu4CYjptg=" crossorigin="anonymous" defer></script>
+<script src="/js/third-party/search/local-search.js" defer></script>
+
+
+
+
+
+
+
+  
+
+
+
+
+  
+
+  <script class="next-config" data-name="enableMath" type="application/json">true</script><script class="next-config" data-name="mathjax" type="application/json">{"enable":true,"tags":"none","js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-mml-chtml.js","integrity":"sha256-MASABpB4tYktI2Oitl4t+78w/lyA+D7b/s9GEP0JOGI="}}</script>
+<script src="/js/third-party/math/mathjax.js" defer></script>
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">Hans's Homepage</p>
+      <i class="logo-line"></i>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="Search" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>About</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>Search
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+      <div class="search-header">
+        <span class="search-icon">
+          <i class="fa fa-search"></i>
+        </span>
+        <div class="search-input-container">
+          <input autocomplete="off" autocapitalize="off" maxlength="80"
+                placeholder="Searching..." spellcheck="false"
+                type="search" class="search-input">
+        </div>
+        <span class="popup-btn-close" role="button">
+          <i class="fa fa-times-circle"></i>
+        </span>
+      </div>
+      <div class="search-result-container">
+        <div class="search-result-icon">
+          <i class="fa fa-spinner fa-pulse fa-5x"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#SFT"><span class="nav-number">1.</span> <span class="nav-text">SFT</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%8E%E9%A2%84%E8%AE%AD%E7%BB%83%E6%9C%89%E4%BB%80%E4%B9%88%E5%8C%BA%E5%88%AB%EF%BC%9F"><span class="nav-number">1.1.</span> <span class="nav-text">与预训练有什么区别？</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%8ECV%E9%A2%86%E5%9F%9F%E5%BE%AE%E8%B0%83%E7%9A%84%E5%B7%AE%E5%BC%82"><span class="nav-number">1.2.</span> <span class="nav-text">与CV领域微调的差异</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%85%A8%E9%87%8F%E5%BE%AE%E8%B0%83%EF%BC%88FFT%EF%BC%89%E4%B8%8E%E5%8F%82%E6%95%B0%E9%AB%98%E6%95%88%E5%BE%AE%E8%B0%83%EF%BC%88PEFT%EF%BC%89"><span class="nav-number">1.3.</span> <span class="nav-text">全量微调（FFT）与参数高效微调（PEFT）</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#SFT%E7%9A%84%E5%85%B3%E9%94%AE%E7%8E%AF%E8%8A%82"><span class="nav-number">2.</span> <span class="nav-text">SFT的关键环节</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%B8%B8%E8%A7%81%E6%8C%91%E6%88%98%E4%B8%8E%E5%BA%94%E5%AF%B9"><span class="nav-number">3.</span> <span class="nav-text">常见挑战与应对</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%B9%BB%E8%A7%89%E9%97%AE%E9%A2%98"><span class="nav-number">3.1.</span> <span class="nav-text">幻觉问题</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%BF%87%E6%8B%9F%E5%90%88"><span class="nav-number">3.2.</span> <span class="nav-text">过拟合</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%80%BB%E7%BB%93"><span class="nav-number">4.</span> <span class="nav-text">总结</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%8E%A8%E8%8D%90%E9%98%85%E8%AF%BB"><span class="nav-number">5.</span> <span class="nav-text">推荐阅读</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Hans</p>
+  <div class="site-description" itemprop="description">Personal website for research and blog</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">11</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">11</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="en">
+    <link itemprop="mainEntityOfPage" href="https://hans599.github.io/2026/06/26/20260626-SFT/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Hans">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Hans's Homepage">
+      <meta itemprop="description" content="Personal website for research and blog">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="Supervised fine-tuning (SFT) | Hans's Homepage">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Supervised fine-tuning (SFT)
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+
+      <time title="Created: 2026-06-26 00:00:00" itemprop="dateCreated datePublished" datetime="2026-06-26T00:00:00+08:00">2026-06-26</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">Edited on</span>
+      <time title="Modified: 2026-06-27 10:42:28" itemprop="dateModified" datetime="2026-06-27T10:42:28+08:00">2026-06-27</time>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><h1 id="SFT"><a href="#SFT" class="headerlink" title="SFT"></a>SFT</h1><p>监督微调（Supervised Fine-Tuning, SFT） 的核心，就是使用预先验证过的、带标签的数据，来让一个已经预训练好的大语言模型（LLM）适应特定的下游任务。</p>
+<p>简单来说，SFT就是在预训练模型的基础上，用标注好的“问题-答案”数据，进行一次有监督的训练。</p>
+<span id="more"></span> 
+
+
+<p>SFT的核心目标是让模型掌握指令遵循能力——用户问什么，它就回答什么，而不是天马行空地自由发挥。</p>
+<h2 id="与预训练有什么区别？"><a href="#与预训练有什么区别？" class="headerlink" title="与预训练有什么区别？"></a>与预训练有什么区别？</h2><table>
+<thead>
+<tr>
+<th align="left">对比维度</th>
+<th align="left">预训练 (Pre-training)</th>
+<th align="left">监督微调 (SFT)</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">训练数据</td>
+<td align="left">海量无标注文本</td>
+<td align="left">少量高质量标注数据</td>
+</tr>
+<tr>
+<td align="left">数据特点</td>
+<td align="left">每条数据长度尽量填满</td>
+<td align="left">数据保持原始长度</td>
+</tr>
+<tr>
+<td align="left">学习目标</td>
+<td align="left">学习语言通用知识</td>
+<td align="left">学习特定任务和对话格式</td>
+</tr>
+<tr>
+<td align="left">角色区分</td>
+<td align="left">没有角色概念</td>
+<td align="left">引入 system、user、assistant 等角色</td>
+</tr>
+<tr>
+<td align="left">输出控制</td>
+<td align="left">不会停止生成</td>
+<td align="left">学习用 eos_token 结束回答</td>
+</tr>
+</tbody></table>
+<h2 id="与CV领域微调的差异"><a href="#与CV领域微调的差异" class="headerlink" title="与CV领域微调的差异"></a>与CV领域微调的差异</h2><p>SFT跟以往计算机视觉中的微调并无本质区别，都是将一个与训练好的模型，用特定的数据集再进行训练。</p>
+<ul>
+<li><p>在 CV 中：我们在 ImageNet 上预训练 ResNet，然后用猫狗数据集微调最后几层，让它学会区分猫和狗。</p>
+</li>
+<li><p>在 NLP (SFT) 中：我们在海量文本上预训练 GPT，然后用客服对话数据集微调整个模型，让它学会用客服的语气回答问题。</p>
+</li>
+</ul>
+<p>它们的数学原理和训练流程完全一致：加载预训练权重 → 定义损失函数 → 在新数据上反向传播 → 更新参数。所以，从技术实现上看，它们没有本质区别。</p>
+<table>
+<thead>
+<tr>
+<th align="left">维度</th>
+<th align="left">CV 微调（传统）</th>
+<th align="left">NLP SFT（大语言模型）</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">模型规模</td>
+<td align="left">通常较小（百万至亿级参数）</td>
+<td align="left">规模巨大（数十亿至万亿级参数）</td>
+</tr>
+<tr>
+<td align="left">数据形式</td>
+<td align="left">图像分类、目标检测的标注图片</td>
+<td align="left">对话、指令的问题-答案对</td>
+</tr>
+<tr>
+<td align="left">训练方式</td>
+<td align="left">常冻结主干网络，只微调最后几层或分类头</td>
+<td align="left">全量微调所有层，或使用 LoRA 等参数高效微调</td>
+</tr>
+<tr>
+<td align="left">核心目的</td>
+<td align="left">特征迁移：学习特定领域的视觉特征</td>
+<td align="left">行为对齐：学习“遵循指令”的交互方式，让模型输出更符合人类偏好</td>
+</tr>
+<tr>
+<td align="left">数据规模</td>
+<td align="left">数千到数十万张图片</td>
+<td align="left">通常需要数千到数十万条高质量指令数据</td>
+</tr>
+</tbody></table>
+<p>两者的边界正在模糊。在视觉-语言大模型（如 LLaVA）中，SFT 已经被用于微调多模态模型以遵循指令，这使得 SFT 的定义从“纯语言”扩展到了“多模态”。</p>
+<h2 id="全量微调（FFT）与参数高效微调（PEFT）"><a href="#全量微调（FFT）与参数高效微调（PEFT）" class="headerlink" title="全量微调（FFT）与参数高效微调（PEFT）"></a>全量微调（FFT）与参数高效微调（PEFT）</h2><p>全量微调： Full Fine-Tuning<br>参数高效微调：Parameter-Efficient Fine-Tuning</p>
+<table>
+<thead>
+<tr>
+<th align="left">方式</th>
+<th align="left">更新参数</th>
+<th align="left">资源需求</th>
+<th align="left">适用场景</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">全量微调</td>
+<td align="left">所有参数</td>
+<td align="left">高</td>
+<td align="left">数据充足、追求最优效果</td>
+</tr>
+<tr>
+<td align="left">LoRA</td>
+<td align="left">仅低秩矩阵</td>
+<td align="left">低</td>
+<td align="left">资源受限、快速适配</td>
+</tr>
+<tr>
+<td align="left">QLoRA</td>
+<td align="left">量化+LoRA</td>
+<td align="left">极低</td>
+<td align="left">GPU 显存极其有限</td>
+</tr>
+</tbody></table>
+<p>SFT, FFT, PEFT的关系</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">监督微调 (SFT) —— 核心理念：用标注数据让模型学任务</span><br><span class="line">            │</span><br><span class="line">            ├── 全量微调 (FFT) —— 方法：更新所有参数</span><br><span class="line">            │</span><br><span class="line">            └── 参数高效微调 (PEFT) —— 方法：只更新部分参数</span><br><span class="line">                          │</span><br><span class="line">                          ├── LoRA</span><br><span class="line">                          ├── QLoRA</span><br><span class="line">                          └── Adapter, Prefix-Tuning...</span><br><span class="line">                          </span><br></pre></td></tr></table></figure>
+
+
+<h1 id="SFT的关键环节"><a href="#SFT的关键环节" class="headerlink" title="SFT的关键环节"></a>SFT的关键环节</h1><p>数据质量直接决定微调效果，需要从以下几个维度精心设计</p>
+<table>
+<thead>
+<tr>
+<th align="left">维度</th>
+<th align="left">说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">多样性</td>
+<td align="left">覆盖翻译、问答、写作、推理等多种任务类型</td>
+</tr>
+<tr>
+<td align="left">Prompt多样性</td>
+<td align="left">同一意图用不同方式表达，避免过拟合关键词</td>
+</tr>
+<tr>
+<td align="left">长度均衡</td>
+<td align="left">短数据与长数据搭配，防止注意力退化</td>
+</tr>
+<tr>
+<td align="left">Answer多样性</td>
+<td align="left">避免大量数据输出同一句话，防止模型学偏</td>
+</tr>
+<tr>
+<td align="left">多轮对话能力</td>
+<td align="left">学会判断新问题是否与历史对话相关</td>
+</tr>
+</tbody></table>
+<p>高质量数据从哪来？</p>
+<ul>
+<li><p>顶级模型生成：GPT-4、Claude 3 等，质量有保障</p>
+</li>
+<li><p>开源模型生成：Qwen-72B、DeepSeek-MoE 等，可本地部署</p>
+</li>
+<li><p>业务定制数据：针对特定场景（如对联、猜灯谜）专门构造</p>
+</li>
+</ul>
+<p>一些推荐的高质量数据集：</p>
+<table>
+<thead>
+<tr>
+<th align="left">数据集名称</th>
+<th align="left">特点与规模</th>
+<th align="left">适用场景</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">GPT-4all</td>
+<td align="left">约 40 万条英文配对数据，结合了 OIG、P3 和 Stackoverflow 的子集</td>
+<td align="left">通用问答、创意问答</td>
+</tr>
+<tr>
+<td align="left">RedPajama-Data-1T</td>
+<td align="left">约 1.2 万亿 Token，完全开源，遵循 LLaMA 方法</td>
+<td align="left">预训练（非微调）</td>
+</tr>
+<tr>
+<td align="left">OASST1</td>
+<td align="left">高质量、人工编写和标注的多语言对话树（约 6.6 万棵）</td>
+<td align="left">改进对话和回复质量</td>
+</tr>
+<tr>
+<td align="left">databricks-dolly-15k</td>
+<td align="left">约 1.5 万条人工编写的提示-回复对</td>
+<td align="left">问答、文本总结等任务</td>
+</tr>
+<tr>
+<td align="left">AlpacaDataCleaned</td>
+<td align="left">清理后的 Alpaca、GPT_LLM 和 GPTeacher 数据</td>
+<td align="left">指令遵循</td>
+</tr>
+<tr>
+<td align="left">GPT-4-LLM</td>
+<td align="left">GPT-4 生成，含英文&#x2F;中文指令数据（共约 6.1 万条）</td>
+<td align="left">指令微调、RLHF</td>
+</tr>
+<tr>
+<td align="left">GPTeacher</td>
+<td align="left">GPT-4 生成，约 2 万条，含角色扮演等新任务</td>
+<td align="left">多样化指令微调</td>
+</tr>
+<tr>
+<td align="left">Alpaca</td>
+<td align="left">text-davinci-003 生成，约 5.2 万条英文指令数据</td>
+<td align="left">增强模型指令跟随能力</td>
+</tr>
+</tbody></table>
+<p>训练配置<br>关键超参数包括：</p>
+<ul>
+<li>学习率（Learning Rate）：SFT 的学习率通常远低于预训练阶段</li>
+<li>Epoch 数量：通常 1-3 轮即可，过多容易过拟合</li>
+<li>Global Batch Size：影响训练稳定性和收敛速度</li>
+</ul>
+<h1 id="常见挑战与应对"><a href="#常见挑战与应对" class="headerlink" title="常见挑战与应对"></a>常见挑战与应对</h1><h2 id="幻觉问题"><a href="#幻觉问题" class="headerlink" title="幻觉问题"></a>幻觉问题</h2><p>表现：模型编造事实。</p>
+<p>应对：</p>
+<ul>
+<li>狭义幻觉（事实性错误）：通过调参和数据清洗缓解</li>
+<li>广义幻觉（事实与编造混合）：更依赖 RAG、工具调用等外部知识注入</li>
+</ul>
+<h2 id="过拟合"><a href="#过拟合" class="headerlink" title="过拟合"></a>过拟合</h2><p>表现：模型只认识训练数据中的特定表述，泛化能力差。</p>
+<p>应对：</p>
+<ul>
+<li>保证数据多样性</li>
+<li>控制训练轮数</li>
+<li>用验证集监控训练状态</li>
+</ul>
+<h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><p>SFT的核心价值在于，它以极低的成本将预训练模型的通用语言能力，引导到特定的任务场景。</p>
+<p>预训练给了模型“语文能力”，SFT则教会它“如何回答问题”。没有SFT，大模型再庞大也只是个高成本的胡言乱语机器；有了SFT，它才能真正服务于我们的需求。</p>
+<h1 id="推荐阅读"><a href="#推荐阅读" class="headerlink" title="推荐阅读"></a>推荐阅读</h1><ul>
+<li><p><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/715250294">监督式微调(SFT) &amp; 偏好对齐(DPO)：From Zero To Hero</a></p>
+<ul>
+<li>配套：<a target="_blank" rel="noopener" href="https://github.com/Paul33333/SFT-and-DPO">https://github.com/Paul33333/SFT-and-DPO</a></li>
+</ul>
+</li>
+<li><p><a target="_blank" rel="noopener" href="https://nebius.com/blog/posts/fine-tuning/supervised-fine-tuning">What is supervised fine-tuning in LLMs? Unveiling the process</a></p>
+</li>
+<li><p><a target="_blank" rel="noopener" href="https://klu.ai/glossary/supervised-fine-tuning">Supervised fine-tuning (SFT)</a></p>
+</li>
+<li><p><a target="_blank" rel="noopener" href="https://docs.nvidia.com/nemo-framework/user-guide/25.02/modelalignment/knowledge-distillation.html">https://docs.nvidia.com/nemo-framework/user-guide/25.02/modelalignment/knowledge-distillation.html</a></p>
+</li>
+<li><p><a target="_blank" rel="noopener" href="https://medium.com/mantisnlp/supervised-fine-tuning-customizing-llms-a2c1edbf22c3">Supervised Fine-tuning: customizing LLMs</a>，有插图，代码和数据集。推荐阅读</p>
+</li>
+<li><p><a target="_blank" rel="noopener" href="https://hub.baai.ac.cn/view/42934">一文详尽之SFT（监督微调）！</a>，会讲述SFT的实际工作流程，怎么造数据，怎么造prompt的，以及一些实际的工作体检。推荐阅读。</p>
+</li>
+</ul>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/SFT/" rel="tag"># SFT</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2026/06/25/20260625-Multi-Agent/" rel="prev" title="Multi-Agent">
+                  <i class="fa fa-angle-left"></i> Multi-Agent
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2026/06/26/20260626-LoRA-QLoRA/" rel="next" title="LoRA &amp;&amp; QLoRA">
+                  LoRA && QLoRA <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2026</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">Hans</span>
+  </div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/pisces/" rel="noopener" target="_blank">NexT.Pisces</a>
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="Back to top">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+</body>
+</html>

@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#222" media="(prefers-color-scheme: dark)"><meta name="generator" content="Hexo 8.1.2">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css" integrity="sha256-VHqXKFhhMxcpubYf9xiWdCiojEbY9NexQ4jh8AxbvcM=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"hans599.github.io","root":"/","images":"/images","scheme":"Pisces","darkmode":true,"version":"8.27.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"codeblock":{"theme":{"light":"default","dark":"stackoverflow-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"language":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"},"path":"/search.xml","localsearch":{"enable":true,"top_n_per_article":1,"unescape":false,"preload":true,"trigger":"auto"}}</script><script src="/js/config.js" defer></script>
+
+    <meta name="description" content="Mutli-Agent的定义多智能体系统是一种配置，其中两个或以上的 LLM 驱动型智能体协同工作，每个智能体拥有独立的角色、工具和记忆，以完成单个智能体无法独立处理的任务。这些智能体通过明确的交接、共享状态或群组聊天协调器（决定由谁发言）进行协调。每个智能体拥有独立的子追踪、交接跨度，并产生一个联合结果。像 CrewAI、AutoGen、Google ADK、LangGraph、OpenAI A">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Multi-Agent">
+<meta property="og:url" content="https://hans599.github.io/2026/06/25/20260625-Multi-Agent/index.html">
+<meta property="og:site_name" content="Hans&#39;s Homepage">
+<meta property="og:description" content="Mutli-Agent的定义多智能体系统是一种配置，其中两个或以上的 LLM 驱动型智能体协同工作，每个智能体拥有独立的角色、工具和记忆，以完成单个智能体无法独立处理的任务。这些智能体通过明确的交接、共享状态或群组聊天协调器（决定由谁发言）进行协调。每个智能体拥有独立的子追踪、交接跨度，并产生一个联合结果。像 CrewAI、AutoGen、Google ADK、LangGraph、OpenAI A">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2026-06-24T16:00:00.000Z">
+<meta property="article:modified_time" content="2026-06-27T00:31:08.937Z">
+<meta property="article:author" content="Hans">
+<meta property="article:tag" content="Multi-Agent">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="https://hans599.github.io/2026/06/25/20260625-Multi-Agent/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"en","comments":true,"permalink":"https://hans599.github.io/2026/06/25/20260625-Multi-Agent/","path":"2026/06/25/20260625-Multi-Agent/","title":"Multi-Agent"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>Multi-Agent | Hans's Homepage</title>
+  
+
+
+
+
+
+
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous" defer></script>
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.5.0/search.js" integrity="sha256-xFC6PJ82SL9b3WkGjFavNiA9gm5z6UBxWPiu4CYjptg=" crossorigin="anonymous" defer></script>
+<script src="/js/third-party/search/local-search.js" defer></script>
+
+
+
+
+
+
+
+  
+
+
+
+
+  
+
+  <script class="next-config" data-name="enableMath" type="application/json">true</script><script class="next-config" data-name="mathjax" type="application/json">{"enable":true,"tags":"none","js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-mml-chtml.js","integrity":"sha256-MASABpB4tYktI2Oitl4t+78w/lyA+D7b/s9GEP0JOGI="}}</script>
+<script src="/js/third-party/math/mathjax.js" defer></script>
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">Hans's Homepage</p>
+      <i class="logo-line"></i>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="Search" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>About</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>Search
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+      <div class="search-header">
+        <span class="search-icon">
+          <i class="fa fa-search"></i>
+        </span>
+        <div class="search-input-container">
+          <input autocomplete="off" autocapitalize="off" maxlength="80"
+                placeholder="Searching..." spellcheck="false"
+                type="search" class="search-input">
+        </div>
+        <span class="popup-btn-close" role="button">
+          <i class="fa fa-times-circle"></i>
+        </span>
+      </div>
+      <div class="search-result-container">
+        <div class="search-result-icon">
+          <i class="fa fa-spinner fa-pulse fa-5x"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Mutli-Agent%E7%9A%84%E5%AE%9A%E4%B9%89"><span class="nav-number">1.</span> <span class="nav-text">Mutli-Agent的定义</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8D%95-Agent-%E7%9A%84%E7%93%B6%E9%A2%88"><span class="nav-number">1.1.</span> <span class="nav-text">单 Agent 的瓶颈</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%89%E8%82%A1%E5%8A%9B%E9%87%8F%E7%9A%84%E6%8E%A8%E5%8A%A8"><span class="nav-number">1.2.</span> <span class="nav-text">三股力量的推动</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Multi-Agent-%E7%B3%BB%E7%BB%9F%E7%9A%84%E5%B8%B8%E8%A7%81%E5%8D%8F%E4%BD%9C%E6%A8%A1%E5%BC%8F"><span class="nav-number">2.</span> <span class="nav-text">Multi-Agent 系统的常见协作模式</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%B8%BB%E6%B5%81%E6%A1%86%E6%9E%B6%E5%AF%B9%E6%AF%94"><span class="nav-number">3.</span> <span class="nav-text">主流框架对比</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Multi-Agent-%E7%B3%BB%E7%BB%9F%E9%9D%A2%E4%B8%B4%E7%9A%84%E6%8C%91%E6%88%98"><span class="nav-number">4.</span> <span class="nav-text">Multi-Agent 系统面临的挑战</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%BB%A3%E7%A0%81%E7%A4%BA%E4%BE%8B-AutoGen"><span class="nav-number">5.</span> <span class="nav-text">代码示例 - AutoGen</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%8E%A8%E8%8D%90%E8%B5%84%E6%BA%90"><span class="nav-number">6.</span> <span class="nav-text">推荐资源</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Hans</p>
+  <div class="site-description" itemprop="description">Personal website for research and blog</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">11</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">11</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="en">
+    <link itemprop="mainEntityOfPage" href="https://hans599.github.io/2026/06/25/20260625-Multi-Agent/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Hans">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Hans's Homepage">
+      <meta itemprop="description" content="Personal website for research and blog">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="Multi-Agent | Hans's Homepage">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Multi-Agent
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+
+      <time title="Created: 2026-06-25 00:00:00" itemprop="dateCreated datePublished" datetime="2026-06-25T00:00:00+08:00">2026-06-25</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">Edited on</span>
+      <time title="Modified: 2026-06-27 08:31:08" itemprop="dateModified" datetime="2026-06-27T08:31:08+08:00">2026-06-27</time>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><h1 id="Mutli-Agent的定义"><a href="#Mutli-Agent的定义" class="headerlink" title="Mutli-Agent的定义"></a>Mutli-Agent的定义</h1><p>多智能体系统是一种配置，其中两个或以上的 LLM 驱动型智能体协同工作，每个智能体拥有独立的角色、工具和记忆，以完成单个智能体无法独立处理的任务。这些智能体通过明确的交接、共享状态或群组聊天协调器（决定由谁发言）进行协调。每个智能体拥有独立的子追踪、交接跨度，并产生一个联合结果。像 CrewAI、AutoGen、Google ADK、LangGraph、OpenAI Agents SDK、Mastra、Strands、Pydantic-AI 和 Microsoft AutoGen Studio 等框架以不同的方式实现了这一模式。</p>
+<span id="more"></span> 
+
+<p>目前，多智能体架构已成为智能体产品的默认选择。有趣的问题不再是“我是否应该构建多智能体系统？”，而是“如何追踪跨越四个角色的 40 个跨度的运行？”、“如何在评估单个智能体和联合结果时兼顾两者？”以及“当在已有的三智能体团队中添加第四个智能体时，如何防止成本和延迟失控？”等等…</p>
+<p>参考：<a target="_blank" rel="noopener" href="https://futureagi.com/glossary/multi-agent-system/">https://futureagi.com/glossary/multi-agent-system/</a></p>
+<h2 id="单-Agent-的瓶颈"><a href="#单-Agent-的瓶颈" class="headerlink" title="单 Agent 的瓶颈"></a>单 Agent 的瓶颈</h2><p>一个单体 Agent 带着二十个工具和十项职责，最终会面临：</p>
+<ul>
+<li>系统提示词臃肿：所有工具定义和规则塞进一个上下文</li>
+<li>工具选择脆弱：模型在大量工具中做出正确选择的概率下降</li>
+<li>上下文溢出：长对话轨迹中，上下文窗口很快被撑爆<br>将工作拆分给多个专家——研究员、写作者、审查员——通常在准确性上优于单体，且调试难度大大降低</li>
+</ul>
+<h2 id="三股力量的推动"><a href="#三股力量的推动" class="headerlink" title="三股力量的推动"></a>三股力量的推动</h2><p>第一，推理模型的成本压力。推理模型（如 o-series、Claude 的 extended thinking）每轮输出 10-40K Token。让一个模型同时做规划、编码、审查，既浪费上下文也浪费成本。专业化分工——小模型做规划，推理模型只做难点——显著降低开销。</p>
+<p>第二，MCP 标准化了工具访问。MCP 协议让一个五 Agent 团队共享十个 MCP Server 变得容易，而不是一个季度的工程。</p>
+<p>第三，基准测试验证了多 Agent 的有效性。Agent 基准（τ-bench、SWE-Bench Verified、GAIA L3）奖励”规划 + 执行 + 审查”的拆分模式，而Multi-Agent 系统恰好能完美地落地这个流程。</p>
+<h1 id="Multi-Agent-系统的常见协作模式"><a href="#Multi-Agent-系统的常见协作模式" class="headerlink" title="Multi-Agent 系统的常见协作模式"></a>Multi-Agent 系统的常见协作模式</h1><p>业界实践中，有五种协作模式反复出现：</p>
+<ul>
+<li>管理者-工作者模式（Manager-Worker）</li>
+</ul>
+<p>一个 Orchestrator（编排者）将任务分解并委托给多个 Specialist Agent（专家智能体）。这是客户支持和研究产品中最常见的模式。</p>
+<p>典型应用：客服系统（分流 Agent + 解决 Agent）、研究工具（OpenAI Deep Research、Perplexity Pro 每查询运行 5+ 个专家 Agent）</p>
+<ul>
+<li>流水线模式（Assembly-Line）</li>
+</ul>
+<p>Agent 按顺序传递中间产物，形成流水线。常见于内容生产和文档分析。</p>
+<p>典型应用：研究员 → 写作者 → 审查员（CrewAI 的典型模式）</p>
+<ul>
+<li>辩论模式（Debate）</li>
+</ul>
+<p>两个 Agent 争论，一个裁判 Agent 做最终决定。常见于安全关键型工作流。</p>
+<p>典型应用：法律审查、安全决策</p>
+<ul>
+<li>规划-执行-审查三元组（Planner-Executor-Critic）</li>
+</ul>
+<p>这是 ReAct 的扩展版本，编码 Agent 的典型模式。</p>
+<p>典型应用：Cursor、Claude Code、Aider 等编码 Agent</p>
+<ul>
+<li>群体模式（Swarm）</li>
+</ul>
+<p>多个 Agent 并行工作，一个 Reducer（归约器）聚合结果。常见于研究和分析任务。</p>
+<h1 id="主流框架对比"><a href="#主流框架对比" class="headerlink" title="主流框架对比"></a>主流框架对比</h1><table>
+<thead>
+<tr>
+<th align="left">框架</th>
+<th align="left">协调形态</th>
+<th align="left">最佳场景</th>
+<th align="left">特点</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left"><strong>LangGraph</strong></td>
+<td align="left">显式图 + 状态管理</td>
+<td align="left">复杂条件控制流</td>
+<td align="left">图结构，状态由框架管理</td>
+</tr>
+<tr>
+<td align="left"><strong>CrewAI</strong></td>
+<td align="left">命名角色 + 顺序任务</td>
+<td align="left">流水线（研究→写→审查）</td>
+<td align="left">任务中心，角色分明</td>
+</tr>
+<tr>
+<td align="left"><strong>AutoGen</strong></td>
+<td align="left">群聊 + 管理者</td>
+<td align="left">分支式讨论</td>
+<td align="left">自由对话，管理者决定谁发言</td>
+</tr>
+<tr>
+<td align="left"><strong>OpenAI Agents SDK</strong></td>
+<td align="left">交接优先</td>
+<td align="left">OpenAI 模型间的专家委托</td>
+<td align="left">面向 SDK，第一类子 Agent 分发</td>
+</tr>
+<tr>
+<td align="left"><strong>Microsoft Agent Framework (MAF)</strong></td>
+<td align="left">工作流 + 图编排</td>
+<td align="left">生产级、企业级多智能体系统</td>
+<td align="left">AutoGen + Semantic Kernel 官方继任者，统一了研究灵活性与企业级可靠性</td>
+</tr>
+</tbody></table>
+<p>补充说明：AutoGen 已于 2025 年底进入维护模式，不再接收新功能，官方推荐新用户和项目转向 MAF。MAF 继承了 AutoGen 的对话式多智能体协作模式，并补齐了工程化短板，如内置检查点、可观测性、对 MCP 的原生支持等，专为生产环境设计。<br>教程可以看：<a target="_blank" rel="noopener" href="https://github.com/microsoft/agent-framework/tree/main/python/samples/01-get-started">https://github.com/microsoft/agent-framework/tree/main/python/samples/01-get-started</a></p>
+<h1 id="Multi-Agent-系统面临的挑战"><a href="#Multi-Agent-系统面临的挑战" class="headerlink" title="Multi-Agent 系统面临的挑战"></a>Multi-Agent 系统面临的挑战</h1><p>Multi-Agent 在工程层面已经成熟，但学界揭示了一些更深层的问题。</p>
+<ul>
+<li>外部组织病<br>当 Agent 被成批放出去干活时，会出现资源竞争和协调失效。</li>
+</ul>
+<p>Cursor 的长程编码 Agent 研究发现：20 个 Agent 同时工作时，吞吐量会下降到相当于 1 到 3 个 Agent。Agent 会持有锁太久、忘记释放锁、在不必加锁时加锁。更麻烦的是，Agent 会开始挑”安全的活”——不愿碰大型、复杂、易冲突的任务，而是去改注释、补边角、整理格式。</p>
+<p>解法：Cursor 后来改成层级结构——root planner 理解全局、拆解任务，sub-planner 管理子任务，worker 只负责局部任务，完成后写交接报告。外部系统要管的不是谁去干活，而是信息流如何组织。</p>
+<ul>
+<li>群体认知病<br>Agent 不只是并发执行系统，它们还是交流系统。</li>
+</ul>
+<p>信息隐藏问题：Yuxuan Li 等人的研究发现，在分布式信息条件下，Multi-Agent 的推理准确率仅为 30.1%。但如果把完整信息直接给单个 Agent，准确率是 80.7%。讨论只围着已经摆到桌面上的信息转，每个人手里的关键碎片没有被逼出来。</p>
+<p>从众压力：MAEBE 研究发现，Agent 在群体中会改变判断。Claude 中有 62.8% 的收敛被归因为”同伴压力”——Agent 明确说”考虑到其他人的观点””基于多数意见”而改变了答案。</p>
+<p>旁观者效应：Shehata 和 Li 的研究发现，多 Agent 场景下，单个 Agent 会降低自己的认知投入——默认”别人会补上””群体会修正”。这不是被说服，而是在多 Agent 场景里卸下了自己的推理责任。</p>
+<ul>
+<li>如何应对？</li>
+</ul>
+<p>Harness（外部协调系统）能约束 Agent 的手——权限、上下文、文件、日志——但难以约束 Agent 的”胆”和”判断”。</p>
+<p>可行的策略：</p>
+<ol>
+<li><p>信息显式化：让每个 Agent 显式汇报自己知道什么、不知道什么、和别人不同在哪里</p>
+</li>
+<li><p>隔离决策：关键判断由独立 Agent 做出，避免群体偏见</p>
+</li>
+<li><p>人工兜底：在关键节点保留人工干预和审查的能力</p>
+</li>
+</ol>
+<ul>
+<li>进阶方向</li>
+</ul>
+<ol>
+<li><p>可观测性：为每个 Agent 的轨迹独立追踪，评估每个角色的成功率</p>
+</li>
+<li><p>成本管控：设置硬步数上限（如 max_steps &#x3D; 12），用语义缓存处理幂等的子 Agent 调用</p>
+</li>
+<li><p>跨框架追踪：当你的系统横跨 Mastra TypeScript 编排器和 Python LangGraph 子 Agent 时，保持统一的追踪轨迹</p>
+</li>
+</ol>
+<h1 id="代码示例-AutoGen"><a href="#代码示例-AutoGen" class="headerlink" title="代码示例 - AutoGen"></a>代码示例 - AutoGen</h1><ul>
+<li>框架</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">用户问题</span><br><span class="line">    │</span><br><span class="line">    ▼</span><br><span class="line">┌─────────────────────────────────────────────────────────────────┐</span><br><span class="line">│                    通用助手 (中转站)                             │</span><br><span class="line">│  1. 理解用户意图                                                │</span><br><span class="line">│  2. 判断问题类型                                                │</span><br><span class="line">│  3. 选择合适的专家工具并调用                                     │</span><br><span class="line">└─────────────────────────────────────────────────────────────────┘</span><br><span class="line">    │                    │                    │</span><br><span class="line">    ▼                    ▼                    ▼</span><br><span class="line">┌─────────┐      ┌─────────┐      ┌─────────┐</span><br><span class="line">│数学专家  │      │化学专家  │      │(可扩展) │</span><br><span class="line">│(工具)    │      │(工具)    │      │         │</span><br><span class="line">└─────────┘      └─────────┘      └─────────┘</span><br><span class="line">    │                    │                    │</span><br><span class="line">    └────────────────────┼────────────────────┘</span><br><span class="line">                         ▼</span><br><span class="line">               ┌─────────────────┐</span><br><span class="line">               │  整合结果返回用户 │</span><br><span class="line">               └─────────────────┘</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>代码</li>
+<li></li>
+</ul>
+<figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 参考源码： https://github.com/microsoft/autogen</span></span><br><span class="line"><span class="keyword">import</span> asyncio</span><br><span class="line"></span><br><span class="line"><span class="keyword">from</span> autogen_agentchat.agents <span class="keyword">import</span> AssistantAgent</span><br><span class="line"><span class="keyword">from</span> autogen_agentchat.tools <span class="keyword">import</span> AgentTool</span><br><span class="line"><span class="keyword">from</span> autogen_agentchat.ui <span class="keyword">import</span> Console</span><br><span class="line"><span class="keyword">from</span> autogen_ext.models.openai <span class="keyword">import</span> OpenAIChatCompletionClient</span><br><span class="line"><span class="keyword">from</span> autogen_ext.models.openai._model_info <span class="keyword">import</span> ModelFamily</span><br><span class="line"></span><br><span class="line"><span class="comment"># ========== 禁用代理（解决 502） ==========</span></span><br><span class="line"><span class="keyword">import</span> os</span><br><span class="line">os.environ[<span class="string">&quot;NO_PROXY&quot;</span>] = <span class="string">&quot;localhost,127.0.0.1&quot;</span></span><br><span class="line">os.environ[<span class="string">&quot;no_proxy&quot;</span>] = <span class="string">&quot;localhost,127.0.0.1&quot;</span></span><br><span class="line"><span class="keyword">for</span> key <span class="keyword">in</span> [<span class="string">&quot;HTTP_PROXY&quot;</span>, <span class="string">&quot;HTTPS_PROXY&quot;</span>, <span class="string">&quot;http_proxy&quot;</span>, <span class="string">&quot;https_proxy&quot;</span>]:</span><br><span class="line">    os.environ.pop(key, <span class="literal">None</span>)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">async</span> <span class="keyword">def</span> <span class="title function_">main</span>() -&gt; <span class="literal">None</span>:</span><br><span class="line">    <span class="comment"># ========== 使用本地 Ollama ==========</span></span><br><span class="line">    model_client = OpenAIChatCompletionClient(</span><br><span class="line">    model=<span class="string">&quot;qwen3.5:4b&quot;</span>,                <span class="comment"># 确保与 `ollama list` 中的名称完全一致</span></span><br><span class="line">    base_url=<span class="string">&quot;http://localhost:11434/v1&quot;</span>,</span><br><span class="line">    api_key=<span class="string">&quot;ollama&quot;</span>,</span><br><span class="line">    model_info=&#123;</span><br><span class="line">        <span class="string">&quot;vision&quot;</span>: <span class="literal">False</span>,               <span class="comment"># 纯文本模型设为 False</span></span><br><span class="line">        <span class="string">&quot;function_calling&quot;</span>: <span class="literal">True</span>,      <span class="comment"># 核心：开启工具调用，否则 AgentTool 无法工作</span></span><br><span class="line">        <span class="string">&quot;json_output&quot;</span>: <span class="literal">True</span>,           <span class="comment"># Qwen 支持结构化 JSON 输出</span></span><br><span class="line">        <span class="string">&quot;family&quot;</span>: ModelFamily.UNKNOWN,    <span class="comment"># 指定模型家族为 Qwen</span></span><br><span class="line">    &#125;,</span><br><span class="line">)</span><br><span class="line"></span><br><span class="line">    <span class="comment"># model_client = OpenAIChatCompletionClient(</span></span><br><span class="line">    <span class="comment">#             model=&quot;deepseek-r1:1.5b&quot;,</span></span><br><span class="line">    <span class="comment">#             base_url=&quot;http://localhost:11434/v1&quot;,</span></span><br><span class="line">    <span class="comment">#             api_key=&quot;placeholder&quot;,</span></span><br><span class="line">    <span class="comment">#             model_info=&#123;</span></span><br><span class="line">    <span class="comment">#                 &quot;vision&quot;: False,</span></span><br><span class="line">    <span class="comment">#                 &quot;function_calling&quot;: False,  # The model does not support function calling.</span></span><br><span class="line">    <span class="comment">#                 &quot;json_output&quot;: False,</span></span><br><span class="line">    <span class="comment">#                 &quot;family&quot;: ModelFamily.R1,</span></span><br><span class="line">    <span class="comment">#                 &quot;structured_output&quot;: True,</span></span><br><span class="line">    <span class="comment">#             &#125;,</span></span><br><span class="line">    <span class="comment">#         )</span></span><br><span class="line"></span><br><span class="line">    <span class="comment"># ---------- 数学专家 Agent ----------</span></span><br><span class="line">    math_agent = AssistantAgent(</span><br><span class="line">        <span class="string">&quot;math_expert&quot;</span>,</span><br><span class="line">        model_client=model_client,</span><br><span class="line">        system_message=<span class="string">&quot;你是一个数学专家，擅长解决数学问题。&quot;</span>,</span><br><span class="line">        description=<span class="string">&quot;数学专家助手&quot;</span>,</span><br><span class="line">        model_client_stream=<span class="literal">True</span>,</span><br><span class="line">    )</span><br><span class="line">    math_agent_tool = AgentTool(math_agent, return_value_as_last_message=<span class="literal">True</span>)</span><br><span class="line"></span><br><span class="line">    <span class="comment"># ---------- 化学专家 Agent ----------</span></span><br><span class="line">    chemistry_agent = AssistantAgent(</span><br><span class="line">        <span class="string">&quot;chemistry_expert&quot;</span>,</span><br><span class="line">        model_client=model_client,</span><br><span class="line">        system_message=<span class="string">&quot;你是一个化学专家，擅长解决化学问题。&quot;</span>,</span><br><span class="line">        description=<span class="string">&quot;化学专家助手&quot;</span>,</span><br><span class="line">        model_client_stream=<span class="literal">True</span>,</span><br><span class="line">    )</span><br><span class="line">    chemistry_agent_tool = AgentTool(chemistry_agent, return_value_as_last_message=<span class="literal">True</span>)</span><br><span class="line"></span><br><span class="line">    <span class="comment"># ---------- 通用助理 Agent（带工具） ----------</span></span><br><span class="line">    agent = AssistantAgent(</span><br><span class="line">        <span class="string">&quot;assistant&quot;</span>,</span><br><span class="line">        system_message=<span class="string">&quot;你是一个通用助理。当需要数学或化学知识时，请使用相应的专家工具。&quot;</span>,  <span class="comment">#  由规则</span></span><br><span class="line">        model_client=model_client,</span><br><span class="line">        model_client_stream=<span class="literal">True</span>,</span><br><span class="line">        tools=[math_agent_tool, chemistry_agent_tool],</span><br><span class="line">        max_tool_iterations=<span class="number">10</span>,</span><br><span class="line">    )</span><br><span class="line"></span><br><span class="line">    <span class="comment"># ---------- 运行 ----------</span></span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;\n&quot;</span> + <span class="string">&quot;=&quot;</span> * <span class="number">60</span>)</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;🔬 多专家 Agent 系统 (基于 AutoGen + Ollama)&quot;</span>)</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;   - 数学专家: qwen3.5:4b&quot;</span>)</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;   - 化学专家: qwen3.5:4b&quot;</span>)</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;   - 通用助理: qwen3.5:4b&quot;</span>)</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;=&quot;</span> * <span class="number">60</span> + <span class="string">&quot;\n&quot;</span>)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">await</span> Console(agent.run_stream(task=<span class="string">&quot;∫ x² dx 的不定积分结果是什么？&quot;</span>))</span><br><span class="line">    <span class="keyword">await</span> Console(agent.run_stream(task=<span class="string">&quot;水的分子量是多少？&quot;</span>))</span><br><span class="line">    <span class="keyword">await</span> Console(agent.run_stream(task=<span class="string">&quot;中国古代四大发明有哪些？&quot;</span>))</span><br><span class="line">    </span><br><span class="line">    </span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">&quot;__main__&quot;</span>:</span><br><span class="line">    asyncio.run(main())</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>运行结果</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br><span class="line">158</span><br><span class="line">159</span><br><span class="line">160</span><br><span class="line">161</span><br><span class="line">162</span><br><span class="line">163</span><br><span class="line">164</span><br><span class="line">165</span><br><span class="line">166</span><br><span class="line">167</span><br><span class="line">168</span><br><span class="line">169</span><br><span class="line">170</span><br><span class="line">171</span><br><span class="line">172</span><br><span class="line">173</span><br><span class="line">174</span><br><span class="line">175</span><br></pre></td><td class="code"><pre><span class="line">============================================================</span><br><span class="line">🔬 多专家 Agent 系统 (基于 AutoGen + Ollama)</span><br><span class="line">   - 数学专家: qwen3.5:4b</span><br><span class="line">   - 化学专家: qwen3.5:4b</span><br><span class="line">   - 通用助理: qwen3.5:4b</span><br><span class="line">============================================================</span><br><span class="line"></span><br><span class="line">---------- TextMessage (user) ----------</span><br><span class="line">∫ x² dx 的不定积分结果是什么？</span><br><span class="line">---------- ToolCallRequestEvent (assistant) ----------</span><br><span class="line">[FunctionCall(id=&#x27;call_u95subrs&#x27;, arguments=&#x27;&#123;&quot;task&quot;:&quot;请计算不定积分 ∫ x² dx 的结果。我需要用幂函数的积分公式来解决这个问题。x的指数是多少？应该应用什么样的公式？最终的求解结果是什么，并且不要忘记加上积分常数C吗？&quot;&#125;&#x27;, name=&#x27;math_expert&#x27;)]</span><br><span class="line">---------- TextMessage (user) ----------</span><br><span class="line">请计算不定积分 ∫ x² dx 的结果。我需要用幂函数的积分公式来解决这个问题。x的指数是多少？应该应用什么样的公式？最终的求解结果是什么，并且不要忘记加上积分常数C吗？</span><br><span class="line">---------- ModelClientStreamingChunkEvent (math_expert) ----------</span><br><span class="line">你好！作为一名数学专家，我很乐意为你解答这个问题。计算不定积分 $\int x^2 \, dx$ 的过程如下：</span><br><span class="line"></span><br><span class="line">### 1. 确定指数 ($x$ 的指数是多少？)</span><br><span class="line">在待积函数 $f(x) = x^2$ 中，变量 $x$ 的底数是常数项为 **2**。因此，这里的 $n=2$。由于 $n \neq -1$，可以应用幂函数的积分公式。</span><br><span class="line"></span><br><span class="line">### 2. 应用的公式 (应该应用什么样的公式？)</span><br><span class="line">你需要使用**不定积分的幂函数公式**（Power Rule for Integration）。该通用表达为：</span><br><span class="line">$$ \int x^n \, dx = \frac&#123;x^&#123;n+1&#125;&#125;&#123;n+1&#125; + C $$</span><br><span class="line">其中 $n$ 是常数且 $n \neq -1$。</span><br><span class="line"></span><br><span class="line">### 3. 具体计算步骤 (最终的求解结果是什么？)</span><br><span class="line">根据上述公式，我们将 $x^2$ 对应到 $x^n$：</span><br><span class="line">*   **代入** $n = 2$；</span><br><span class="line">*   **应用规则**：将指数加 1（即 $2 + 1 = 3$），然后将整体除以新增加的整数数。</span><br><span class="line"></span><br><span class="line">计算过程如下：</span><br><span class="line">$$ \int x^2 \, dx = \frac&#123;x^&#123;2+1&#125;&#125;&#123;2+1&#125; + C $$</span><br><span class="line">$$ = \frac&#123;x^3&#125;&#123;3&#125; + C $$</span><br><span class="line"></span><br><span class="line">### 4. 最终结果 (不要忘记加上积分常数 $C$)</span><br><span class="line">是的，必须记住不定积分的结果包含一个任意常数 **$C$**。因此：</span><br><span class="line"></span><br><span class="line">**最终答案：**</span><br><span class="line">$$ \int x^2 \, dx = \frac&#123;1&#125;&#123;3&#125;x^3 + C $$</span><br><span class="line">---------- ToolCallExecutionEvent (assistant) ----------</span><br><span class="line">[FunctionExecutionResult(content=&#x27;你好！作为一名数学专家，我很乐意为你解答这个问题。计算不定积分 $\\int x^2 \\, dx$ 的过程如下：\n\n### 1. 确定指数 ($x$ 的指数是多少？)\n在待积函数 $f(x) = x^2$ 中，变量 $x$ 的底数是常数项为 **2**。因此，这里的 $n=2$。由于 $n \\neq -1$，可以应用幂函数的积分公式。\n\n### 2. 应用的公式 (应该应用什么样的公式？)\n你需要使用**不定积分的幂函数公式**（Power Rule for Integration）。该通用表达为：\n$$ \\int x^n \\, dx = \\frac&#123;x^&#123;n+1&#125;&#125;&#123;n+1&#125; + C $$\n其中 $n$ 是常数且 $n \\neq -1$。\n\n### 3. 具体计算步骤 (最终的求解结果是什么？)\n根据上述公式，我们将 $x^2$ 对应到 $x^n$：\n*   **代入** $n = 2$；\n*   **应用规则**：将指数加 1（即 $2 + 1 = 3$），然后将整体除以新增加的整数数。\n\n计算过程如下：\n$$ \\int x^2 \\, dx = \\frac&#123;x^&#123;2+1&#125;&#125;&#123;2+1&#125; + C $$\n$$ = \\frac&#123;x^3&#125;&#123;3&#125; + C $$\n\n### 4. 最终结果 (不要忘记加上积分常数 $C$)\n是的，必须记住不定积分的结果包含一个任意常数 **$C$**。因此：\n\n**最终答案：**\n$$ \\int x^2 \\, dx = \\frac&#123;1&#125;&#123;3&#125;x^3 + C $$&#x27;, name=&#x27;math_expert&#x27;, call_id=&#x27;call_u95subrs&#x27;, is_error=False)]</span><br><span class="line">---------- ModelClientStreamingChunkEvent (assistant) ----------</span><br><span class="line">你好！关于不定积分 ∫ x² dx，我已经帮你计算好了详细的步骤：</span><br><span class="line"></span><br><span class="line">### 🔗 **应用公式**（幂函数积分规则）</span><br><span class="line">对于 $\int x^n \, dx = \frac&#123;x^&#123;n+1&#125;&#125;&#123;n+1&#125; + C$ </span><br><span class="line"></span><br><span class="line">在这里 $n=2$ 且满足条件。</span><br><span class="line"></span><br><span class="line">---</span><br><span class="line"></span><br><span class="line">### 🧮 **具体计算过程：**</span><br><span class="line">$$\int x^2 \, dx = \frac&#123;x^&#123;2+1&#125;&#125;&#123;2+1&#125; + C$$  </span><br><span class="line">$$ </span><br><span class="line">= \frac&#123;x^3&#125;&#123;3&#125; + C</span><br><span class="line"> $$</span><br><span class="line"></span><br><span class="line">✅**最终答案：** $\displaystyle \int x^2 \, dx = \boxed&#123;\frac&#123;1&#125;&#123;3&#125;x^3 + C&#125;$  </span><br><span class="line"></span><br><span class="line">记得别忘了积分常数 $C$ 哦！如有其他数学题目，随时告诉我 😊</span><br><span class="line">---------- TextMessage (user) ----------</span><br><span class="line">水的分子量是多少？</span><br><span class="line">---------- ToolCallRequestEvent (assistant) ----------</span><br><span class="line">[FunctionCall(id=&#x27;call_hsecqm7h&#x27;, arguments=&#x27;&#123;&quot;task&quot;:&quot;请计算水的分子量（摩尔质量）。已知组成水分子的元素是氢(H)和氧(O)，我需要知道它们的相对原子质量和分子结构，然后进行计算得出结果是多少克每摩尔？&quot;&#125;&#x27;, name=&#x27;chemistry_expert&#x27;)]</span><br><span class="line">---------- TextMessage (user) ----------</span><br><span class="line">请计算水的分子量（摩尔质量）。已知组成水分子的元素是氢(H)和氧(O)，我需要知道它们的相对原子质量和分子结构，然后进行计算得出结果是多少克每摩尔？</span><br><span class="line">---------- ModelClientStreamingChunkEvent (chemistry_expert) ----------</span><br><span class="line">你好！我是化学专家。很高兴能为你解答关于水（$H_2O$）的分子量及摩尔质量的计算问题。</span><br><span class="line"></span><br><span class="line">以下是详细的分析过程、分子结构描述以及最终的数值推导：</span><br><span class="line"></span><br><span class="line">### 1. 确定元素的相对原子质量 (Relative Atomic Mass)</span><br><span class="line">在进行计算之前，我们需要查阅元素周期表或相关科学常数标准来获取氢（Hydrogen, H）和氧（Oxygen, O）的近似相对原子质量。根据 IUPAC（国际纯粹与应用化学联合会）的标准数据：</span><br><span class="line"></span><br><span class="line">*   **氢 (H)** 的平均相对原子质量约为：**1.008**</span><br><span class="line">    *   （在许多基础教学环境中，为了计算简便常取整数 `1`）</span><br><span class="line">*   **氧 (O)** 的平均相对原子质量约为：**15.999**（通常简化为 **16**）</span><br><span class="line"></span><br><span class="line">### 2. 水的分子结构描述</span><br><span class="line">了解了组成元素后，我们来看水分子的微观结构和化学式：</span><br><span class="line"></span><br><span class="line">*   **化学式**: $H_2O$</span><br><span class="line">    *   这意味着一个水分子由 **2个氢原子** 和 **1个氧原子** 构成。</span><br><span class="line">*   **空间构型 (Spatial Geometry)**:</span><br><span class="line">    *   根据VSEPR理论（价层电子对互斥模型），氧原子的中心结构呈现出 **“V”形或弯曲状**。氧气分子中的碳氧键角约为 $104.5^\circ$。这是因为氧原子周围有2个成键电子对和2个孤对电子，为了最小化排斥力而采取这种构型（通常被认为是 $\sp^3\text&#123;杂化&#125;$）。</span><br><span class="line">*   **化学键**:</span><br><span class="line">    *   氢与氧之间通过**共价键 (Covalent Bond)** 结合。由于电负性的差异，水分子是一个极性很强的溶剂结构。</span><br><span class="line"></span><br><span class="line">### 3. 计算过程 (Calculation)</span><br><span class="line"></span><br><span class="line">水的分子量（相对分子质量，$M_r$）在数值上等于各原子的相对原子质量之和。摩尔质量 ($m(M)$) 的数值与 $M_r$ 相等，但单位不同为 $\text&#123;g/mol&#125;$。</span><br><span class="line"></span><br><span class="line">**公式：**</span><br><span class="line">$$ M(\text&#123;H&#125;_2\text&#123;O&#125;) = [ n \times m(\text&#123;H&#125;) ] + [ p \times m(\text&#123;O&#125;) ] $$</span><br><span class="line"></span><br><span class="line">其中：</span><br><span class="line">*   $n$ 和 $p$ 分别为氢原子和氧原子的数量。</span><br><span class="line"></span><br><span class="line">**分步计算：**</span><br><span class="line"></span><br><span class="line">1.  **氢部分贡献** ($2 \times H$):</span><br><span class="line">    $$ 2 \times 1.008 = 2.016 $$</span><br><span class="line">2.  **氧部分贡献** ($1 \times O$):</span><br><span class="line">    $$ 1 \times 15.999 \approx 16.00$$</span><br><span class="line">*   *(注：若使用简化整数 $H=1, O=16$，则氢的部分为 $2$, 总加和部分仍非常接近)*</span><br><span class="line"></span><br><span class="line">**总计：**</span><br><span class="line">$$ M(\text&#123;H&#125;_2\text&#123;O&#125;) = 2.016 + 15.999 \approx 18.015 $$</span><br><span class="line"></span><br><span class="line">### 4. 最终结果 (Final Result)</span><br><span class="line"></span><br><span class="line">根据国际标准数据，水的摩尔质量为：</span><br><span class="line"></span><br><span class="line">*   **数值**: $\quad$ 约为 $18.015\text&#123; g/mol&#125;$</span><br><span class="line">    *   （在大多数通用物理化学计算中，为了方便常近似为 **$\mathbf&#123;18 \, \text&#123;g/mol&#125;&#125;$**）</span><br><span class="line"></span><br><span class="line">***</span><br><span class="line"></span><br><span class="line">### 专家总结：</span><br><span class="line">水的分子量（摩尔质量）**是 18.015 克/每摩尔 ($\text&#123;g/mol&#125;$)**。如果你是在初高中化学练习中，通常会直接使用简化数值 **$18\text&#123; g/mol&#125;$**。</span><br><span class="line">---------- ToolCallExecutionEvent (assistant) ----------</span><br><span class="line">[FunctionExecutionResult(content=&#x27;你好！我是化学专家。很高兴能为你解答关于水（$H_2O$）的分子量及摩尔质量的计算问题。\n\n以下是详细的分析过程、分子结构描述以及最终的数值推导：\n\n### 1. 确定元素的相对原子质量 (Relative Atomic Mass)\n在进行计算之前，我们需要查阅元素周期表或相关科学常数标准来获取氢（Hydrogen, H）和氧（Oxygen, O）的近似相对原子质量。根据 IUPAC（国际纯粹与应用化学联合会）的标准数据：\n\n*   **氢 (H)** 的平均相对原子质量约为：**1.008**\n    *   （在许多基础教学环境中，为了计算简便常取整数 `1`）\n*   **氧 (O)** 的平均相对原子质量约为：**15.999**（通常简化为 **16**）\n\n### 2. 水的分子结构描述\n了解了组成元素后，我们来看水分子的微观结构和化学式：\n\n*   **化学式**: $H_2O$\n    *   这意味着一个水分子由 **2个氢原子** 和 **1个氧原子** 构成。\n*   **空间构型 (Spatial Geometry)**:\n    *   根据VSEPR理论（价层电子对互斥模型），氧原子的中心结构呈现出 **“V”形或弯曲状**。氧气分子中的碳氧键角约为 $104.5^\\circ$。这是因为氧原子周围有2个成键电子对和2个孤对电子，为了最小化排斥力而采取这种构型（通常被认为是 $\\sp^3\\text&#123;杂化&#125;$）。\n*   **化学键**:\n    *   氢与氧之间通过**共价键 (Covalent Bond)** 结合。由于电负性的差异，水分子是一个极性很强的溶剂结构。\n\n### 3. 计算过程 (Calculation)\n\n水的分子量（相对分子质量，$M_r$）在数值上等于各原子的相对原子质量之和。摩尔质量 ($m(M)$) 的数值与 $M_r$ 相等，但单位不同为 $\\text&#123;g/mol&#125;$。\n\n**公式：**\n$$ M(\\text&#123;H&#125;_2\\text&#123;O&#125;) = [ n \\times m(\\text&#123;H&#125;) ] + [ p \\times m(\\text&#123;O&#125;) ] $$\n\n其中：\n*   $n$ 和 $p$ 分别为氢原子和氧原子的数量。\n\n**分步计算：**\n\n1.  **氢部分贡献** ($2 \\times H$):\n    $$ 2 \\times 1.008 = 2.016 $$\n2.  **氧部分贡献** ($1 \\times O$):\n    $$ 1 \\times 15.999 \\approx 16.00$$\n*   *(注：若使用简化整数 $H=1, O=16$，则氢的部分为 $2$, 总加和部分仍非常接近)*\n\n**总计：**\n$$ M(\\text&#123;H&#125;_2\\text&#123;O&#125;) = 2.016 + 15.999 \\approx 18.015 $$\n\n### 4. 最终结果 (Final Result)\n\n根据国际标准数据，水的摩尔质量为：\n\n*   **数值**: $\\quad$ 约为 $18.015\\text&#123; g/mol&#125;$\n    *   （在大多数通用物理化学计算中，为了方便常近似为 **$\\mathbf&#123;18 \\, \\text&#123;g/mol&#125;&#125;$**）\n\n***\n\n### 专家总结：\n水的分子量（摩尔质量）**是 18.015 克/每摩尔 ($\\text&#123;g/mol&#125;$)**。如果你是在初高中化学练习中，通常会直接使用简化数值 **$18\\text&#123; g/mol&#125;$**。&#x27;, name=&#x27;chemistry_expert&#x27;, call_id=&#x27;call_hsecqm7h&#x27;, is_error=False)]</span><br><span class="line">---------- ModelClientStreamingChunkEvent (assistant) ----------</span><br><span class="line">好的！根据计算结果：</span><br><span class="line"></span><br><span class="line">### 💧 **水的分子量** </span><br><span class="line"></span><br><span class="line">- **标准值：** 水分子的摩尔质量约为 **$18.015 \text&#123; g/mol&#125;$**（g/mol） </span><br><span class="line">- **常用近似值：** $18 \text&#123; g/mol&#125;$ （在普通化学练习中经常使用此简化数值）</span><br><span class="line"></span><br><span class="line">---</span><br><span class="line"></span><br><span class="line">### ✨ **拆解计算方式：**</span><br><span class="line">| 元素 | 相对原子质量 | 数量/系数 | 总贡献质量 ($\approx$) |</span><br><span class="line">| :----------- | :----------: | --- | :---------------------: |</span><br><span class="line">| 氢 (H)      | ≈ $1.008 \text&#123; g/mol&#125;$   | ×2    | $\mathbf&#123;\approx&#125; \phantom&#123;x x&#125;&#123;2.016\,\text&#123;g/mol&#125;&#125;$ |</span><br><span class="line">| 氧 (O)       | ≈ $15.999 \text&#123; g/mol&#125;$          | ×1     | **$\approx \;\;15.999\dots&#123;\mathbf g&#125;\dots/\mathsf&#123;mol&#125;$**   |</span><br><span class="line"></span><br><span class="line">将两者相加：$M(\mathrm&#123;H&#125;_2\mathrm&#123;O&#125;) = 2.016 + 15.999 ≈ 18.015 \text&#123; g/mol&#125;$。</span><br><span class="line">---------- TextMessage (user) ----------</span><br><span class="line">中国古代四大发明有哪些？</span><br><span class="line">---------- ModelClientStreamingChunkEvent (assistant) ----------</span><br><span class="line">中国古代**四大发明**是指对中国和世界产生重大影响的四项技术成就，它们分别是：</span><br><span class="line"></span><br><span class="line">### 📜 **1. 造纸术（纸张的制作）**</span><br><span class="line">- **改进者：** 东汉时期蔡伦改进了传统的麻纸制作方法</span><br><span class="line">- **意义：** 使文字记录更便捷、成本更低，促进了文化的传播和知识的积累</span><br><span class="line"></span><br><span class="line">---</span><br><span class="line"></span><br><span class="line">### 🔮 **2. 指南针**  </span><br><span class="line">- **起源：** 战国时期的“司南”是最早的磁性指南北装置</span><br><span class="line">- **发展：** 唐宋时期制成能定向的磁罗盘，用于航海</span><br><span class="line">- **意义：** 为远洋航行提供了重要导航技术，推动大航海时代的到来</span><br><span class="line"></span><br><span class="line">---</span><br><span class="line"></span><br><span class="line">### 💥 **3. 火药**  </span><br><span class="line">- **发明者：** 唐代炼丹家在炼药过程中意外发现其特性并加以应用</span><br><span class="line">- **发展：** 唐末五代时期开始用于军事战争（如火箭、火炮）</span><br><span class="line">- **影响：** 改变了战争形式，对世界历史进程产生深远冲击</span><br><span class="line"></span><br><span class="line">---</span><br><span class="line"></span><br><span class="line">### 🖨️ **4. 印刷术**  </span><br><span class="line">- **雕版印刷：** 隋唐时期由王仁昫等人在敦煌等地发明并开始推广</span><br><span class="line">- **活字印刷：** 北宋时期的毕昇首创泥巴活字印刷方式（《梦溪笔谈》中曾有记载）</span><br><span class="line">- **影响：** 大大提高了信息传播效率，对知识普及和文明进程有革命性作用</span><br><span class="line"></span><br><span class="line">---</span><br><span class="line"></span><br><span class="line">### 🌏 **历史评价**  </span><br><span class="line">这四大发明对中国古代社会产生了巨大推动作用。17世纪德国大哲学家恩格斯曾评价：火药、指南针和对数这三种伟大的发明确定了世界三大发现（如地理大发现和科学进步），是&quot;现代文明的基础和里程碑”。它们也对外传播，深刻影响了人类文明的进程！</span><br><span class="line"></span><br><span class="line">如果你对其中某一项发明想了解更详细的历史背景或应用案例，欢迎继续提问 😊</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>解析</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th align="left">角色</th>
+<th align="left">职责</th>
+<th align="left">在你的代码中</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">通用助手 (中转站)</td>
+<td align="left">接收用户问题 → 判断类型 → 调用对应专家 → 整合结果</td>
+<td align="left"><code>agent = AssistantAgent(&quot;assistant&quot;, ...)</code></td>
+</tr>
+<tr>
+<td align="left">数学专家</td>
+<td align="left">专门处理数学问题</td>
+<td align="left"><code>math_agent</code> 被包装为 <code>math_agent_tool</code></td>
+</tr>
+<tr>
+<td align="left">化学专家</td>
+<td align="left">专门处理化学问题</td>
+<td align="left"><code>chemistry_agent</code> 被包装为 <code>chemistry_agent_tool</code></td>
+</tr>
+</tbody></table>
+<figure class="highlight txt"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">用户: ∫ x² dx 的不定积分结果是什么？</span><br><span class="line">    │</span><br><span class="line">    ▼</span><br><span class="line">中转站 (assistant): 判断这是数学问题</span><br><span class="line">    │</span><br><span class="line">    ▼</span><br><span class="line">中转站: 调用 math_expert 工具</span><br><span class="line">    │</span><br><span class="line">    ▼</span><br><span class="line">数学专家: 计算积分 → 返回结果</span><br><span class="line">    │</span><br><span class="line">    ▼</span><br><span class="line">中转站: 整合结果 → 返回用户</span><br></pre></td></tr></table></figure>
+
+<p>化学问题也是类似的步骤。</p>
+<ul>
+<li>总结</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th align="left">概念</th>
+<th align="left">角色</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">通用助手</td>
+<td align="left">路由器&#x2F;调度器&#x2F;结果整合器</td>
+</tr>
+<tr>
+<td align="left">专家工具</td>
+<td align="left">具体业务执行者</td>
+</tr>
+<tr>
+<td align="left">tools 列表</td>
+<td align="left">中转站可用的专家清单</td>
+</tr>
+<tr>
+<td align="left">system_message</td>
+<td align="left">路由规则（告诉中转站什么时候用什么专家）</td>
+</tr>
+<tr>
+<td align="left">max_tool_iterations</td>
+<td align="left">限制中转站最多调用几轮（防止死循环）</td>
+</tr>
+</tbody></table>
+<h1 id="推荐资源"><a href="#推荐资源" class="headerlink" title="推荐资源"></a>推荐资源</h1><p>框架：LangGraph (Python)、CrewAI、AutoGen  (github有教程)</p>
+<p>可观测性：traceAI (多 Agent 专用)  <a target="_blank" rel="noopener" href="https://github.com/future-agi/traceAI">https://github.com/future-agi/traceAI</a></p>
+<p>阅读：FutureAGI 的 Multi-Agent 指南<a target="_blank" rel="noopener" href="https://futureagi.com/glossary/multi-agent-system/">multi-agent-system</a></p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/Multi-Agent/" rel="tag"># Multi-Agent</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2026/06/24/20260624-Agent-Skills/" rel="prev" title="Agent Skills">
+                  <i class="fa fa-angle-left"></i> Agent Skills
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2026/06/26/20260626-SFT/" rel="next" title="Supervised fine-tuning (SFT)">
+                  Supervised fine-tuning (SFT) <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2026</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">Hans</span>
+  </div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/pisces/" rel="noopener" target="_blank">NexT.Pisces</a>
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="Back to top">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+</body>
+</html>
