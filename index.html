@@ -241,7 +241,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">Edited on</span>
-      <time title="Modified: 2026-06-27 10:46:28" itemprop="dateModified" datetime="2026-06-27T10:46:28+08:00">2026-06-27</time>
+      <time title="Modified: 2026-06-28 12:03:26" itemprop="dateModified" datetime="2026-06-28T12:03:26+08:00">2026-06-28</time>
     </span>
 
   
@@ -256,271 +256,14 @@
     <div class="post-body" itemprop="articleBody">
           <h1 id="参数高效微调（PEFT）"><a href="#参数高效微调（PEFT）" class="headerlink" title="参数高效微调（PEFT）"></a>参数高效微调（PEFT）</h1><p>大语言模型（如 LLaMA、GPT）动辄数十亿甚至千亿参数，全量微调的成本极高。以 65B 模型为例，仅以 FP16 精度加载就需要约 130GB 显存，顶配硬件跑个几天几周是常有的事。</p>
 <p>参数高效微调（PEFT）方法应运而生——只更新一小部分参数，效果却不输全量微调。LoRA 和 QLoRA 正是其中的代表。</p>
-<h1 id="LoRA（Low-Rank-Adaptation）原理"><a href="#LoRA（Low-Rank-Adaptation）原理" class="headerlink" title="LoRA（Low-Rank Adaptation）原理"></a>LoRA（Low-Rank Adaptation）原理</h1><ul>
-<li>核心思想</li>
-</ul>
-<p>LoRA 的核心思想是：在微调过程中，<strong>冻结预训练权重矩阵 $W$</strong>，不直接更新它，而是学习一个<strong>低秩的增量矩阵 $\Delta W$</strong> 来模拟全量微调的效果。</p>
-<ul>
-<li>低秩分解</li>
-</ul>
-<p>重要线性知识回顾 - 矩阵的秩：</p>
-<ol>
-<li>行秩（Row Rank）：矩阵中线性无关的行向量的最大数目。</li>
-<li>列秩（Column Rank）：矩阵中线性无关的列向量的最大数目。</li>
-</ol>
-<p>重要定理：对于任何矩阵，其行秩和列秩总是相等的，这个相等的数值就是矩阵的 秩，记作 rank(A)。在行阶梯形矩阵中，每行第一个非零元素（称为主元&#x2F;pivot）的个数，就等于原矩阵的秩。</p>
-<p>几何意义：一个 n 维向量空间的维度：一个矩阵的秩，等于它所张成的列空间（或行空间）的维度。</p>
-<p>回到模型的训练中：</p>
-<p>对于原始权重矩阵 $W \in \mathbb{R}^{d \times k}$，LoRA 将其更新量 $\Delta W$ 分解为两个低秩矩阵的乘积：</p>
-<p>$$<br>\Delta W &#x3D; B \cdot A<br>$$</p>
-<p>其中：</p>
-<ul>
-<li>$A \in \mathbb{R}^{r \times k}$</li>
-<li>$B \in \mathbb{R}^{d \times r}$</li>
-<li>秩 $r \ll \min(d, k)$</li>
-</ul>
-<p><strong>直观理解</strong>：原本需要学习 $d \times k$ 个参数，现在只需要学习 $A$ 和 $B$ 这两个小矩阵，参数量大幅减少。</p>
-<ul>
-<li>修改后的前向传播</li>
-</ul>
-<p>标准线性层的前向传播为：</p>
-<p>$$<br>Y &#x3D; X \cdot W<br>$$</p>
-<p>引入 LoRA 后，实际使用的权重变为：</p>
-<p>$$<br>W’ &#x3D; W + \Delta W &#x3D; W + B \cdot A<br>$$</p>
-<p>因此前向传播变为：</p>
-<p>$$<br>Y &#x3D; X \cdot W’ &#x3D; X \cdot (W + B \cdot A)<br>$$</p>
-<p>展开得到：</p>
-<p>$$<br>Y &#x3D; X \cdot W + X \cdot B \cdot A<br>$$</p>
-<p>引入缩放因子 $\alpha$ 控制 LoRA 分支的强度：</p>
-<p>$$<br>Y &#x3D; X \cdot W + \alpha \cdot X \cdot B \cdot A<br>$$</p>
-<p>其中：</p>
-<ul>
-<li><p>$X \cdot W$：原始预训练路径（<strong>冻结，不更新</strong>）</p>
-</li>
-<li><p>$\alpha \cdot X \cdot B \cdot A$：LoRA 旁路路径（<strong>仅训练 $A$ 和 $B$</strong>）</p>
-</li>
-<li><p>参数量对比</p>
-</li>
-</ul>
-<p><strong>原始权重矩阵参数量：</strong></p>
-<p>$$<br>\text{Params}_{W} &#x3D; d \times k<br>$$</p>
-<p><strong>LoRA 新增参数量：</strong></p>
-<p>$$<br>\text{Params}_{LoRA} &#x3D; r \times k + d \times r &#x3D; r \times (d + k)<br>$$</p>
-<p><strong>参数量减少比例：</strong></p>
-<p>$$<br>\text{减少比例} &#x3D; 1 - \frac{r \times (d + k)}{d \times k}<br>$$</p>
-<ul>
-<li>具体示例（GPT-2 为例）</li>
-</ul>
-<table>
-<thead>
-<tr>
-<th align="left">项目</th>
-<th align="left">计算</th>
-<th align="left">结果</th>
-</tr>
-</thead>
-<tbody><tr>
-<td align="left">原始参数量</td>
-<td align="left">$768 \times 768$</td>
-<td align="left">589,824</td>
-</tr>
-<tr>
-<td align="left">LoRA 参数量</td>
-<td align="left">$4 \times (768 + 768)$</td>
-<td align="left">6,144</td>
-</tr>
-<tr>
-<td align="left">减少比例</td>
-<td align="left">$1 - \frac{6,144}{589,824}$</td>
-<td align="left">$\approx 98.96%$</td>
-</tr>
-</tbody></table>
-<p><strong>结论</strong>：LoRA 仅需训练约 <strong>$1.04%$</strong> 的参数，即可达到接近全量微调的效果。</p>
-<ul>
-<li>图示结构</li>
-</ul>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">原始路径：</span><br><span class="line">X ──────► W ──────► Y (参数冻结，不更新)</span><br><span class="line"></span><br><span class="line">LoRA 旁路：</span><br><span class="line">X ──────► A ──────► B ────► α (可训练，初始为 0)</span><br><span class="line">↑</span><br><span class="line">低秩分解</span><br><span class="line"></span><br><span class="line">最终输出 = 原始路径输出 + 旁路路径输出</span><br></pre></td></tr></table></figure>
-
-<ul>
-<li>优势</li>
-</ul>
-<table>
-<thead>
-<tr>
-<th align="left">优势</th>
-<th align="left">说明</th>
-</tr>
-</thead>
-<tbody><tr>
-<td align="left"><strong>显存节省</strong></td>
-<td align="left">无需存储大模型的梯度，只需存储 $A$ 和 $B$</td>
-</tr>
-<tr>
-<td align="left"><strong>快速切换</strong></td>
-<td align="left">不同任务只需替换 $A$ 和 $B$，基座模型保持不变</td>
-</tr>
-<tr>
-<td align="left"><strong>可插拔</strong></td>
-<td align="left">训练完成后，$B \cdot A$ 可以合并回 $W$，推理无额外开销</td>
-</tr>
-<tr>
-<td align="left"><strong>性能接近</strong></td>
-<td align="left">在多数任务上，LoRA 效果接近全量微调</td>
-</tr>
-</tbody></table>
-<h1 id="QLoRA（Quantized-Low-Rank-Adaptation）原理"><a href="#QLoRA（Quantized-Low-Rank-Adaptation）原理" class="headerlink" title="QLoRA（Quantized Low-Rank Adaptation）原理"></a>QLoRA（Quantized Low-Rank Adaptation）原理</h1><ul>
-<li>科普，模型的“精度”与“量化”</li>
-</ul>
-<ol>
-<li>模型精度（Precision）即参数的模型参数的存储类型，例如FP32就代表32位浮点数，占用显存4字节；    INT8代表8位的整型，占用1个字节的显存。</li>
-<li>量化（Quantization）本质上就是将高精度格式（如 FP32）的模型权重，映射和存储为低精度格式（如 INT8、NF4），以达到压缩模型、加速计算的目的。</li>
-</ol>
-<ul>
-<li>QLoRA</li>
-</ul>
-<p>QLoRA 是 LoRA 的量化增强版本，核心思路是：将基座模型量化到 4-bit，然后在量化后的模型上挂载 LoRA 适配器进行微调。它解决了 LoRA 的一个主要局限——基座模型本身仍然以 16-bit 精度加载，显存占用依然较大。</p>
-<p>简单来说：QLoRA &#x3D; 4-bit 量化基座 + LoRA 微调</p>
-<p>显存占用 ≈ 参数量 × 每个参数的字节数，以7B模型为例，全量训练需要的显存大小约为: 7,000,000,000 × 2 &#x3D; 14,000,000,000 字节 （1 KB &#x3D; 1024 bytes），约等于 14GB。</p>
-<p>所以，如果使用量化，理论上可以大幅度减少显存占用。</p>
-<table>
-<thead>
-<tr>
-<th align="left">方法</th>
-<th align="left">基座模型精度</th>
-<th align="left">基座模型加载显存</th>
-<th align="left">梯度与优化器显存</th>
-<th align="left">总显存（约）</th>
-<th align="left">可训练参数</th>
-</tr>
-</thead>
-<tbody><tr>
-<td align="left">全量微调</td>
-<td align="left">FP16</td>
-<td align="left">~14GB</td>
-<td align="left">~28-42GB</td>
-<td align="left">~42-56GB</td>
-<td align="left">100%</td>
-</tr>
-<tr>
-<td align="left">LoRA</td>
-<td align="left">FP16</td>
-<td align="left">~14GB</td>
-<td align="left">~1-2GB</td>
-<td align="left">~15-16GB</td>
-<td align="left">~0.1-1%</td>
-</tr>
-<tr>
-<td align="left">QLoRA</td>
-<td align="left">4-bit</td>
-<td align="left">~3.5GB</td>
-<td align="left">~1-2GB</td>
-<td align="left">~5-6GB</td>
-<td align="left">~0.1-1%</td>
-</tr>
-</tbody></table>
-<p>（LoRA 并没有减少加载基座模型所需的显存，它节省的是训练过程中产生的中间数据。）</p>
-<ul>
-<li>QLoRA 的核心技术：NF4 量化</li>
-</ul>
-<p>QLoRA 使用了一种专门为神经网络权重分布设计的 4-bit 量化格式——NF4（NormalFloat 4-bit）。</p>
-<p>标准 4-bit 整数量化（INT4）会均匀分割数值范围，但神经网络权重通常服从正态分布，大量权重集中在 0 附近(-1 到 1 之间)，远离 0 的值很少。</p>
-<p>NF4 通过信息论优化，让量化点更密集地分布在权重集中的区域，从而用 4-bit 保留更多有效信息，精度损失远小于标准 INT4。</p>
-<ul>
-<li>双重量化（Double Quantization）</li>
-</ul>
-<p>QLoRA 的另一个关键技术是双重量化：对量化过程中产生的缩放因子（scale factors） 再进行一次量化。</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">标准量化流程：</span><br><span class="line">    原始权重 (FP32) → 除以 scale → 量化到 INT4</span><br><span class="line">                    ↑ scale 本身是 FP32</span><br><span class="line"></span><br><span class="line">双重量化流程：</span><br><span class="line">    原始权重 (FP32) → 除以 scale → 量化到 INT4</span><br><span class="line">                    ↑ scale → 再量化到 INT8（进一步压缩）</span><br></pre></td></tr></table></figure>
-
-<p>每 64 个参数共享一个缩放因子，这些缩放因子再被量化到 8-bit，平均每个参数额外节省约 0.5 bit。</p>
-<ul>
-<li>QLoRA 的前向传播</li>
-</ul>
-<p>QLoRA 的前向传播与 LoRA 类似，但多了量化和反量化步骤：</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">训练时前向传播：</span><br><span class="line"></span><br><span class="line">    输入 X</span><br><span class="line">       │</span><br><span class="line">       ▼</span><br><span class="line">   基座模型（4-bit 存储）</span><br><span class="line">       │</span><br><span class="line">       ├──► 反量化到 BF16 ──► 计算 ──► 输出</span><br><span class="line">       │</span><br><span class="line">       └──► LoRA 旁路（BF16）──► 计算 ──► 输出</span><br><span class="line"></span><br><span class="line">    最终输出 = 基座输出（BF16）+ LoRA 输出（BF16）</span><br><span class="line"></span><br><span class="line">训练时反向传播：</span><br><span class="line"></span><br><span class="line">    梯度只更新 LoRA 参数（BF16）</span><br><span class="line">    基座模型保持 4-bit 冻结，不更新</span><br></pre></td></tr></table></figure>
-
-
-<p>其中：</p>
-<ul>
-<li><p>前向传播：将 4-bit 的基座权重反量化到 BF16 进行计算</p>
-</li>
-<li><p>反向传播：梯度只更新 LoRA 的 A 和 B  矩阵，基座参数不更新</p>
-</li>
-<li><p>存储状态：基座权重始终以 4-bit 存储，极大节省显存</p>
-</li>
-<li><p>总结</p>
-</li>
-</ul>
-<table>
-<thead>
-<tr>
-<th align="left">对比维度</th>
-<th align="left">LoRA</th>
-<th align="left">QLoRA</th>
-</tr>
-</thead>
-<tbody><tr>
-<td align="left">基座模型精度</td>
-<td align="left">FP16 &#x2F; BF16</td>
-<td align="left">4-bit（NF4）</td>
-</tr>
-<tr>
-<td align="left">基座模型显存（7B）</td>
-<td align="left">~14GB</td>
-<td align="left">~3.5GB</td>
-</tr>
-<tr>
-<td align="left">LoRA 精度</td>
-<td align="left">FP16</td>
-<td align="left">FP16</td>
-</tr>
-<tr>
-<td align="left">梯度存储</td>
-<td align="left">LoRA 参数（FP16）</td>
-<td align="left">LoRA 参数（FP16）</td>
-</tr>
-<tr>
-<td align="left">训练后保存</td>
-<td align="left">LoRA 权重（几 MB）</td>
-<td align="left">LoRA 权重（几 MB）</td>
-</tr>
-<tr>
-<td align="left">适用 GPU</td>
-<td align="left">16GB+ 显存</td>
-<td align="left">8GB+ 显存</td>
-</tr>
-</tbody></table>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">QLoRA = 4-bit 基座（NF4 量化 + 双重量化）+ LoRA 适配器（BF16）</span><br><span class="line"></span><br><span class="line">核心创新：</span><br><span class="line">    ├── NF4 量化：针对权重正态分布优化的 4-bit 格式</span><br><span class="line">    ├── 双重量化：量化缩放因子，进一步压缩</span><br><span class="line">    └── 分页优化器：防止 OOM，支持长序列训练</span><br></pre></td></tr></table></figure>
-
-
-
-<h1 id="推荐阅读"><a href="#推荐阅读" class="headerlink" title="推荐阅读"></a>推荐阅读</h1><p><a target="_blank" rel="noopener" href="https://arxiv.org/pdf/2106.09685">LoRA: Low-Rank Adaptation of Large Language Models</a></p>
-<p><a target="_blank" rel="noopener" href="https://arxiv.org/pdf/2305.14314">QLoRA: Efficient Finetuning of Quantized LLMs</a></p>
-<h1 id="实战项目推荐"><a href="#实战项目推荐" class="headerlink" title="实战项目推荐"></a>实战项目推荐</h1><ul>
-<li>Qwen2.5-0.5B 医疗 LoRA 微调学习项目</li>
-</ul>
-<p>用 Qwen2.5-0.5B-<strong>Instruct</strong>（498M 参数），在 640 条中文医疗问答数据上做 LoRA SFT 微调，然后对比微调前后的效果。</p>
-<p>Instruct 后缀代表这个模型是经过指令微调（Instruction Tuning）的版本，专门为对话、问答和执行用户指令等交互场景优化过。如果需要的是能直接聊天的AI，几乎总是应该选择带 Instruct 的版本。</p>
-<p>项目地址：<a target="_blank" rel="noopener" href="https://github.com/yitao-wei/MiniLoRA_beginner">Qwen2.5-0.5B Medical LoRA Fine-Tuning Tutorial</a></p>
-<ul>
-<li>AI 研发提效研究：自己动手训练 LoRA</li>
-</ul>
-<p>用轻量 LoRA 微调开源大模型（LLaMA、ChatGLM），打造专用 AI 工具，覆盖需求、编码、测试、SQL 全研发流程，降低企业私有化 AI 编码的训练门槛。</p>
-<p>项目地址：<a target="_blank" rel="noopener" href="https://github.com/unit-mesh/unit-minions">https://github.com/unit-mesh/unit-minions</a></p>
-<ul>
-<li>《开源大模型食用指南》针对中国宝宝量身打造的基于Linux环境快速微调（全参数&#x2F;Lora）、部署国内外开源大模型（LLM）&#x2F;多模态大模型（MLLM）教程</li>
-</ul>
-<p> 本项目是一个围绕开源大模型、针对国内初学者、基于 Linux 平台的中国宝宝专属大模型教程，针对各类开源大模型提供包括环境配置、本地部署、高效微调等技能在内的全流程指导，简化开源大模型的部署、使用和应用流程，让更多的普通学生、研究者更好地使用开源大模型，帮助开源、自由的大模型更快融入到普通学习者的生活中。<br> <br><strong>里面有很多主流模型的微调指南，非常推荐！</strong><br> <br>项目地址：<a target="_blank" rel="noopener" href="https://github.com/datawhalechina/self-llm">https://github.com/datawhalechina/self-llm</a></p>
-<ul>
-<li>LoRAX。LoRAX 全称 LoRA eXchange，是 Predibase 开源、基于 Apache 2.0 商用免费协议的多 LoRA 动态推理服务框架。</li>
-</ul>
-<p>适用场景与优势</p>
-<ol>
-<li>企业多业务微调模型统一部署：客服、代码、金融、法律等多领域 LoRA 共用一张 GPU，不用为每个微调模型单独配卡；</li>
-<li>模型服务平台：动态上架新微调 LoRA，无需停机重启；</li>
-<li>私有化推理：本地 &#x2F; 私有 HuggingFace 仓库加载自有训练适配器，数据不出内网。</li>
-</ol>
-<p>项目地址：<a target="_blank" rel="noopener" href="https://github.com/predibase/lorax">https://github.com/predibase/lorax</a></p>
-
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2026/06/26/20260626-LoRA-QLoRA/#more" rel="contents">
+                Read more &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
       
     </div>
 
@@ -1139,89 +882,6 @@
   
 
   <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
-    <link itemprop="mainEntityOfPage" href="https://hans599.github.io/2026/06/09/20260609-%E4%BB%8EPrompt%E5%88%B0ReAct/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Hans">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Hans's Homepage">
-      <meta itemprop="description" content="Personal website for research and blog">
-    </span>
-
-    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
-      <meta itemprop="name" content=" | Hans's Homepage">
-      <meta itemprop="description" content="">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          <a href="/2026/06/09/20260609-%E4%BB%8EPrompt%E5%88%B0ReAct/" class="post-title-link" itemprop="url">从Prompt到ReAct</a>
-        </h2>
-
-        <div class="post-meta-container">
-          <div class="post-meta">
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar"></i>
-      </span>
-      <span class="post-meta-item-text">Posted on</span>
-
-      <time title="Created: 2026-06-09 00:00:00" itemprop="dateCreated datePublished" datetime="2026-06-09T00:00:00+08:00">2026-06-09</time>
-    </span>
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar-check"></i>
-      </span>
-      <span class="post-meta-item-text">Edited on</span>
-      <time title="Modified: 2026-06-13 21:14:14" itemprop="dateModified" datetime="2026-06-13T21:14:14+08:00">2026-06-13</time>
-    </span>
-
-  
-</div>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-          <p>大语言模型（LLM）展示出了惊人的语言理解与生成能力，但其本质仍是一个“静态”的知识系统：它缺乏实时信息获取、工具调用与自主规划的能力。为了让模型从“会说话”进化到“能做事”，研究者们引入了智能体（Agent）的概念。Agent 通过观察环境、调用工具、执行动作并反思结果，来动态地完成复杂任务。本文将从一个简单的 Prompt 工程出发，逐步引出经典的 ReAct 范式，并最终手写一个极简的 Agent 循环，展示 LLM 如何在实际任务中进行“思考”与“行动”。</p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2026/06/09/20260609-%E4%BB%8EPrompt%E5%88%B0ReAct/#more" rel="contents">
-                Read more &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-
-    <footer class="post-footer">
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-</div>
-
-
-
-
-    
-
-
-<div class="post-block">
-  
-  
-
-  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
     <link itemprop="mainEntityOfPage" href="https://hans599.github.io/2026/06/09/20260610-LangGraph%E5%AE%9E%E6%88%98/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1283,6 +943,89 @@
           <!--noindex-->
             <div class="post-button">
               <a class="btn" href="/2026/06/09/20260610-LangGraph%E5%AE%9E%E6%88%98/#more" rel="contents">
+                Read more &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+    <link itemprop="mainEntityOfPage" href="https://hans599.github.io/2026/06/09/20260609-%E4%BB%8EPrompt%E5%88%B0ReAct/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Hans">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Hans's Homepage">
+      <meta itemprop="description" content="Personal website for research and blog">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content=" | Hans's Homepage">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/2026/06/09/20260609-%E4%BB%8EPrompt%E5%88%B0ReAct/" class="post-title-link" itemprop="url">从Prompt到ReAct</a>
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+
+      <time title="Created: 2026-06-09 00:00:00" itemprop="dateCreated datePublished" datetime="2026-06-09T00:00:00+08:00">2026-06-09</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">Edited on</span>
+      <time title="Modified: 2026-06-13 21:14:14" itemprop="dateModified" datetime="2026-06-13T21:14:14+08:00">2026-06-13</time>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <p>大语言模型（LLM）展示出了惊人的语言理解与生成能力，但其本质仍是一个“静态”的知识系统：它缺乏实时信息获取、工具调用与自主规划的能力。为了让模型从“会说话”进化到“能做事”，研究者们引入了智能体（Agent）的概念。Agent 通过观察环境、调用工具、执行动作并反思结果，来动态地完成复杂任务。本文将从一个简单的 Prompt 工程出发，逐步引出经典的 ReAct 范式，并最终手写一个极简的 Agent 循环，展示 LLM 如何在实际任务中进行“思考”与“行动”。</p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2026/06/09/20260609-%E4%BB%8EPrompt%E5%88%B0ReAct/#more" rel="contents">
                 Read more &raquo;
               </a>
             </div>
