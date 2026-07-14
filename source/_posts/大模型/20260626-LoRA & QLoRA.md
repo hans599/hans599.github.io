@@ -15,6 +15,8 @@ mathjax: true
 参数高效微调（PEFT）方法应运而生——只更新一小部分参数，效果却不输全量微调。LoRA 和 QLoRA 正是其中的代表。
 
 
+<!-- more --> 
+
 # LoRA（Low-Rank Adaptation）原理
 
 
