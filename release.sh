@@ -33,7 +33,7 @@ git push origin source
 npx hexo clean && npx hexo generate && npx hexo deploy 
 
 # # 本体调试渲染
-# npx hexo server
+npx hexo server
 # # 如果报错 cannot find module 'hexo'  
 # # 那么先 npm install
 
