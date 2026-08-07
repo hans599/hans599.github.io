@@ -55,6 +55,8 @@
 <script src="/js/third-party/search/local-search.js" defer></script>
 
 
+  <script class="next-config" data-name="mermaid" type="application/json">{"enable":true,"theme":{"light":"default","dark":"dark"},"js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/mermaid/11.10.1/mermaid.min.js","integrity":"sha256-BmQmdWDS8X2OTbrwELWK366LV6escyWhHHe0XCTU/Hk="}}</script>
+  <script src="/js/third-party/tags/mermaid.js" defer></script>
 
 
 
@@ -110,7 +112,7 @@
 
 
 <nav class="site-nav">
-  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>About</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a></li>
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>About</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>Categories</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a></li>
       <li class="menu-item menu-item-search">
         <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>Search
         </a>
@@ -173,13 +175,18 @@
   <nav class="site-state">
       <div class="site-state-item site-state-posts">
         <a href="/archives/">
-          <span class="site-state-item-count">11</span>
+          <span class="site-state-item-count">19</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">2</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
       <div class="site-state-item site-state-tags">
           <a href="/tags/">
-        <span class="site-state-item-count">11</span>
+        <span class="site-state-item-count">25</span>
         <span class="site-state-item-name">tags</span></a>
       </div>
   </nav>
@@ -205,7 +212,7 @@
   
 
   <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
-    <link itemprop="mainEntityOfPage" href="https://hans599.github.io/2026/06/01/20260601-GPT%E5%85%A5%E9%97%A8/">
+    <link itemprop="mainEntityOfPage" href="https://hans599.github.io/2026/06/25/%E5%A4%A7%E6%A8%A1%E5%9E%8B-20260625-Multi-Agent/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.gif">
@@ -223,7 +230,690 @@
     </span>
       <header class="post-header">
         <h2 class="post-title" itemprop="name headline">
-          <a href="/2026/06/01/20260601-GPT%E5%85%A5%E9%97%A8/" class="post-title-link" itemprop="url">GPT入门</a>
+          <a href="/2026/06/25/%E5%A4%A7%E6%A8%A1%E5%9E%8B-20260625-Multi-Agent/" class="post-title-link" itemprop="url">Multi-Agent</a>
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+
+      <time title="Created: 2026-06-25 00:00:00" itemprop="dateCreated datePublished" datetime="2026-06-25T00:00:00+08:00">2026-06-25</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">Edited on</span>
+      <time title="Modified: 2026-08-07 18:49:58" itemprop="dateModified" datetime="2026-08-07T18:49:58+08:00">2026-08-07</time>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <h1 id="Mutli-Agent的定义"><a href="#Mutli-Agent的定义" class="headerlink" title="Mutli-Agent的定义"></a>Mutli-Agent的定义</h1><p>多智能体系统是一种配置，其中两个或以上的 LLM 驱动型智能体协同工作，每个智能体拥有独立的角色、工具和记忆，以完成单个智能体无法独立处理的任务。这些智能体通过明确的交接、共享状态或群组聊天协调器（决定由谁发言）进行协调。每个智能体拥有独立的子追踪、交接跨度，并产生一个联合结果。像 CrewAI、AutoGen、Google ADK、LangGraph、OpenAI Agents SDK、Mastra、Strands、Pydantic-AI 和 Microsoft AutoGen Studio 等框架以不同的方式实现了这一模式。</p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2026/06/25/%E5%A4%A7%E6%A8%A1%E5%9E%8B-20260625-Multi-Agent/#more" rel="contents">
+                Read more &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+    <link itemprop="mainEntityOfPage" href="https://hans599.github.io/2026/06/24/%E5%A4%A7%E6%A8%A1%E5%9E%8B-20260624-Agent-Skills/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Hans">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Hans's Homepage">
+      <meta itemprop="description" content="Personal website for research and blog">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content=" | Hans's Homepage">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/2026/06/24/%E5%A4%A7%E6%A8%A1%E5%9E%8B-20260624-Agent-Skills/" class="post-title-link" itemprop="url">Agent Skills</a>
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+
+      <time title="Created: 2026-06-24 00:00:00" itemprop="dateCreated datePublished" datetime="2026-06-24T00:00:00+08:00">2026-06-24</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">Edited on</span>
+      <time title="Modified: 2026-08-07 18:49:58" itemprop="dateModified" datetime="2026-08-07T18:49:58+08:00">2026-08-07</time>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <h1 id="什么是-Agent-Skills——从-MCP-到-Skill-的自然延伸"><a href="#什么是-Agent-Skills——从-MCP-到-Skill-的自然延伸" class="headerlink" title="什么是 Agent Skills——从 MCP 到 Skill 的自然延伸"></a>什么是 Agent Skills——从 MCP 到 Skill 的自然延伸</h1><p>学完 MCP 之后，你可能会思考一个问题：有了统一协议让 Agent 连接工具，但 Agent 怎么知道用这些工具完成复杂任务？</p>
+<p>MCP 解决的是“用什么工具”，Skill 解决的是“怎么用工具完成任务”。两者是互补关系，不是替代关系。</p>
+<p>Skill 的本质：一套结构化的指令和资源，教会 AI 完成特定任务，让 AI 按照标准规则干活。</p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2026/06/24/%E5%A4%A7%E6%A8%A1%E5%9E%8B-20260624-Agent-Skills/#more" rel="contents">
+                Read more &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+    <link itemprop="mainEntityOfPage" href="https://hans599.github.io/2026/06/22/%E5%A4%A7%E6%A8%A1%E5%9E%8B-20260622-MCP%E5%8D%8F%E8%AE%AE/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Hans">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Hans's Homepage">
+      <meta itemprop="description" content="Personal website for research and blog">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content=" | Hans's Homepage">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/2026/06/22/%E5%A4%A7%E6%A8%A1%E5%9E%8B-20260622-MCP%E5%8D%8F%E8%AE%AE/" class="post-title-link" itemprop="url">MCP（Model Context Protocol）</a>
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+
+      <time title="Created: 2026-06-22 00:00:00" itemprop="dateCreated datePublished" datetime="2026-06-22T00:00:00+08:00">2026-06-22</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">Edited on</span>
+      <time title="Modified: 2026-08-07 18:49:58" itemprop="dateModified" datetime="2026-08-07T18:49:58+08:00">2026-08-07</time>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <h1 id="为什么需要MCP？"><a href="#为什么需要MCP？" class="headerlink" title="为什么需要MCP？"></a>为什么需要MCP？</h1><p>在AI Agent开发中，一个反复出现的痛点是如何让大模型调用外部工具。传统方式下，每个工具都要单独写适配代码——模型A用一种Function Call格式，模型B用另一种，工具用Python写一套接口，用C++写又要重新封装。这种“碎片化”集成方式难以扩展。</p>
+<p>MCP（Model Context Protocol）正是为解决这一问题而生。它由Anthropic于2024年底提出并开源，被视作AI领域的“USB-C接口”——为AI助手连接任何数据源或服务提供了统一标准。</p>
+<p>MCP的核心理念：在LLM与外部世界之间建立标准化、双向的通信通道。过去M个模型对接N个工具需要M×N种适配，现在有了通用协议，不同模型与不同工具可以通过MCP这一“共同语言”无缝协作。</p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2026/06/22/%E5%A4%A7%E6%A8%A1%E5%9E%8B-20260622-MCP%E5%8D%8F%E8%AE%AE/#more" rel="contents">
+                Read more &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+    <link itemprop="mainEntityOfPage" href="https://hans599.github.io/2026/06/18/%E5%A4%A7%E6%A8%A1%E5%9E%8B-20260618-%E5%B8%A6%E8%A7%84%E5%88%92%E8%83%BD%E5%8A%9B%E7%9A%84Agent/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Hans">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Hans's Homepage">
+      <meta itemprop="description" content="Personal website for research and blog">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content=" | Hans's Homepage">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/2026/06/18/%E5%A4%A7%E6%A8%A1%E5%9E%8B-20260618-%E5%B8%A6%E8%A7%84%E5%88%92%E8%83%BD%E5%8A%9B%E7%9A%84Agent/" class="post-title-link" itemprop="url">带规划能力的Agent</a>
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+
+      <time title="Created: 2026-06-18 00:00:00" itemprop="dateCreated datePublished" datetime="2026-06-18T00:00:00+08:00">2026-06-18</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">Edited on</span>
+      <time title="Modified: 2026-08-07 18:49:58" itemprop="dateModified" datetime="2026-08-07T18:49:58+08:00">2026-08-07</time>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <h1 id="前言：为什么需要规划和多工具协同？"><a href="#前言：为什么需要规划和多工具协同？" class="headerlink" title="前言：为什么需要规划和多工具协同？"></a>前言：为什么需要规划和多工具协同？</h1><ul>
+<li><p>单工具Agent的局限性（只能一问一答，无法处理复杂任务）</p>
+</li>
+<li><p>复杂任务的典型特征：多步骤、有依赖关系、需要动态决策</p>
+</li>
+</ul>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2026/06/18/%E5%A4%A7%E6%A8%A1%E5%9E%8B-20260618-%E5%B8%A6%E8%A7%84%E5%88%92%E8%83%BD%E5%8A%9B%E7%9A%84Agent/#more" rel="contents">
+                Read more &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+    <link itemprop="mainEntityOfPage" href="https://hans599.github.io/2026/06/18/%E5%A4%A7%E6%A8%A1%E5%9E%8B-20260627-DPO%E4%B8%8EGRPO/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Hans">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Hans's Homepage">
+      <meta itemprop="description" content="Personal website for research and blog">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content=" | Hans's Homepage">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/2026/06/18/%E5%A4%A7%E6%A8%A1%E5%9E%8B-20260627-DPO%E4%B8%8EGRPO/" class="post-title-link" itemprop="url">DPO与GRPO</a>
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+
+      <time title="Created: 2026-06-18 00:00:00" itemprop="dateCreated datePublished" datetime="2026-06-18T00:00:00+08:00">2026-06-18</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">Edited on</span>
+      <time title="Modified: 2026-08-07 18:49:58" itemprop="dateModified" datetime="2026-08-07T18:49:58+08:00">2026-08-07</time>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <h1 id="RL后训练的演进路径"><a href="#RL后训练的演进路径" class="headerlink" title="RL后训练的演进路径"></a>RL后训练的演进路径</h1><p>在大型语言模型的开发流程中，SFT（监督微调）让模型学会“回答问题”，而RL（强化学习）后训练则让模型学会“更好地思考”。从RLHF到DPO，再到GRPO，这条技术演进路径的核心目标始终未变：让模型的输出更符合人类偏好，并具备更强的推理能力。</p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2026/06/18/%E5%A4%A7%E6%A8%A1%E5%9E%8B-20260627-DPO%E4%B8%8EGRPO/#more" rel="contents">
+                Read more &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+    <link itemprop="mainEntityOfPage" href="https://hans599.github.io/2026/06/11/%E5%A4%A7%E6%A8%A1%E5%9E%8B-20260611-RAG%E4%B8%8E%E5%90%91%E9%87%8F%E6%95%B0%E6%8D%AE%E5%BA%93/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Hans">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Hans's Homepage">
+      <meta itemprop="description" content="Personal website for research and blog">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content=" | Hans's Homepage">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/2026/06/11/%E5%A4%A7%E6%A8%A1%E5%9E%8B-20260611-RAG%E4%B8%8E%E5%90%91%E9%87%8F%E6%95%B0%E6%8D%AE%E5%BA%93/" class="post-title-link" itemprop="url">RAG与向量数据库</a>
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+
+      <time title="Created: 2026-06-11 00:00:00" itemprop="dateCreated datePublished" datetime="2026-06-11T00:00:00+08:00">2026-06-11</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">Edited on</span>
+      <time title="Modified: 2026-08-07 18:49:58" itemprop="dateModified" datetime="2026-08-07T18:49:58+08:00">2026-08-07</time>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <h1 id="前言：为什么需要RAG？"><a href="#前言：为什么需要RAG？" class="headerlink" title="前言：为什么需要RAG？"></a>前言：为什么需要RAG？</h1><ul>
+<li>RAG，检索增强生成（Retrieval-Augmented Generation），RAG 是一种将外部知识库检索与 LLM 生成相结合的技术架构，旨在解决大模型的知识截止、幻觉、无法访问私有数据等核心问题。</li>
+</ul>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2026/06/11/%E5%A4%A7%E6%A8%A1%E5%9E%8B-20260611-RAG%E4%B8%8E%E5%90%91%E9%87%8F%E6%95%B0%E6%8D%AE%E5%BA%93/#more" rel="contents">
+                Read more &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+    <link itemprop="mainEntityOfPage" href="https://hans599.github.io/2026/06/09/%E5%A4%A7%E6%A8%A1%E5%9E%8B-20260610-LangGraph%E5%AE%9E%E6%88%98/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Hans">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Hans's Homepage">
+      <meta itemprop="description" content="Personal website for research and blog">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content=" | Hans's Homepage">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/2026/06/09/%E5%A4%A7%E6%A8%A1%E5%9E%8B-20260610-LangGraph%E5%AE%9E%E6%88%98/" class="post-title-link" itemprop="url">LangGraph实战</a>
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+
+      <time title="Created: 2026-06-09 00:00:00" itemprop="dateCreated datePublished" datetime="2026-06-09T00:00:00+08:00">2026-06-09</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">Edited on</span>
+      <time title="Modified: 2026-08-07 18:49:58" itemprop="dateModified" datetime="2026-08-07T18:49:58+08:00">2026-08-07</time>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <h1 id="前言：为什么需要LangGraph？"><a href="#前言：为什么需要LangGraph？" class="headerlink" title="前言：为什么需要LangGraph？"></a>前言：为什么需要LangGraph？</h1><h2 id="手写ReAct的问题"><a href="#手写ReAct的问题" class="headerlink" title="手写ReAct的问题"></a>手写ReAct的问题</h2><p>实现一个简单的“思考-行动-观察”（ReAct）循环似乎并不难，但随着业务复杂度的提升，手写方式会暴露三个核心痛点：</p>
+<ul>
+<li><p>状态管理混乱：在多轮工具调用和推理步骤中，消息历史、中间结果、上下文等信息散落在各处，难以统一管理和持久化。</p>
+</li>
+<li><p>复杂流程难以维护：当需要引入循环、条件分支、并行执行或人工介入时，手写的 while 循环和 if-else 会迅速演变成难以调试的“意大利面式”代码。</p>
+</li>
+<li><p>没有现成的调试工具：Agent 的执行过程像一个“黑盒”，你很难清晰地看到它在每一步的思考、工具调用和状态变化，问题排查非常痛苦。</p>
+</li>
+</ul>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2026/06/09/%E5%A4%A7%E6%A8%A1%E5%9E%8B-20260610-LangGraph%E5%AE%9E%E6%88%98/#more" rel="contents">
+                Read more &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+    <link itemprop="mainEntityOfPage" href="https://hans599.github.io/2026/06/09/%E5%A4%A7%E6%A8%A1%E5%9E%8B-20260609-%E4%BB%8EPrompt%E5%88%B0ReAct/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Hans">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Hans's Homepage">
+      <meta itemprop="description" content="Personal website for research and blog">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content=" | Hans's Homepage">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/2026/06/09/%E5%A4%A7%E6%A8%A1%E5%9E%8B-20260609-%E4%BB%8EPrompt%E5%88%B0ReAct/" class="post-title-link" itemprop="url">从Prompt到ReAct</a>
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+
+      <time title="Created: 2026-06-09 00:00:00" itemprop="dateCreated datePublished" datetime="2026-06-09T00:00:00+08:00">2026-06-09</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">Edited on</span>
+      <time title="Modified: 2026-08-07 18:49:58" itemprop="dateModified" datetime="2026-08-07T18:49:58+08:00">2026-08-07</time>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <p>大语言模型（LLM）展示出了惊人的语言理解与生成能力，但其本质仍是一个“静态”的知识系统：它缺乏实时信息获取、工具调用与自主规划的能力。为了让模型从“会说话”进化到“能做事”，研究者们引入了智能体（Agent）的概念。Agent 通过观察环境、调用工具、执行动作并反思结果，来动态地完成复杂任务。本文将从一个简单的 Prompt 工程出发，逐步引出经典的 ReAct 范式，并最终手写一个极简的 Agent 循环，展示 LLM 如何在实际任务中进行“思考”与“行动”。</p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2026/06/09/%E5%A4%A7%E6%A8%A1%E5%9E%8B-20260609-%E4%BB%8EPrompt%E5%88%B0ReAct/#more" rel="contents">
+                Read more &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+    <link itemprop="mainEntityOfPage" href="https://hans599.github.io/2026/06/01/%E5%A4%A7%E6%A8%A1%E5%9E%8B-20260601-GPT%E5%85%A5%E9%97%A8/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Hans">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Hans's Homepage">
+      <meta itemprop="description" content="Personal website for research and blog">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content=" | Hans's Homepage">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/2026/06/01/%E5%A4%A7%E6%A8%A1%E5%9E%8B-20260601-GPT%E5%85%A5%E9%97%A8/" class="post-title-link" itemprop="url">GPT入门</a>
         </h2>
 
         <div class="post-meta-container">
@@ -241,7 +931,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">Edited on</span>
-      <time title="Modified: 2026-06-27 10:45:56" itemprop="dateModified" datetime="2026-06-27T10:45:56+08:00">2026-06-27</time>
+      <time title="Modified: 2026-08-07 18:49:58" itemprop="dateModified" datetime="2026-08-07T18:49:58+08:00">2026-08-07</time>
     </span>
 
   
@@ -258,7 +948,7 @@
 <!-- 加入more标签之后，会在主页home中进行阶段，点击read more才会跳转到全文链接>
           <!--noindex-->
             <div class="post-button">
-              <a class="btn" href="/2026/06/01/20260601-GPT%E5%85%A5%E9%97%A8/#more" rel="contents">
+              <a class="btn" href="/2026/06/01/%E5%A4%A7%E6%A8%A1%E5%9E%8B-20260601-GPT%E5%85%A5%E9%97%A8/#more" rel="contents">
                 Read more &raquo;
               </a>
             </div>

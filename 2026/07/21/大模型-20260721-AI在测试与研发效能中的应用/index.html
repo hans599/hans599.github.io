@@ -1,0 +1,636 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#222" media="(prefers-color-scheme: dark)"><meta name="generator" content="Hexo 8.1.2">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css" integrity="sha256-VHqXKFhhMxcpubYf9xiWdCiojEbY9NexQ4jh8AxbvcM=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"hans599.github.io","root":"/","images":"/images","scheme":"Pisces","darkmode":true,"version":"8.27.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"codeblock":{"theme":{"light":"default","dark":"stackoverflow-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"language":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"},"path":"/search.xml","localsearch":{"enable":true,"top_n_per_article":1,"unescape":false,"preload":true,"trigger":"auto"}}</script><script src="/js/config.js" defer></script>
+
+    <meta name="description" content="大模型在写代码、写文档上的能力已经被充分讨论，但在另一个高频场景——测试与研发效能上的应用，讨论还比较分散。这篇系统梳理 AI 如何介入测试用例生成、UI 自动化、接口测试，以及慢 API &#x2F; 慢 SQL 的发现与治理。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="AI在测试与研发效能中的应用">
+<meta property="og:url" content="https://hans599.github.io/2026/07/21/%E5%A4%A7%E6%A8%A1%E5%9E%8B-20260721-AI%E5%9C%A8%E6%B5%8B%E8%AF%95%E4%B8%8E%E7%A0%94%E5%8F%91%E6%95%88%E8%83%BD%E4%B8%AD%E7%9A%84%E5%BA%94%E7%94%A8/index.html">
+<meta property="og:site_name" content="Hans&#39;s Homepage">
+<meta property="og:description" content="大模型在写代码、写文档上的能力已经被充分讨论，但在另一个高频场景——测试与研发效能上的应用，讨论还比较分散。这篇系统梳理 AI 如何介入测试用例生成、UI 自动化、接口测试，以及慢 API &#x2F; 慢 SQL 的发现与治理。">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2026-07-20T16:00:00.000Z">
+<meta property="article:modified_time" content="2026-08-07T10:49:58.781Z">
+<meta property="article:author" content="Hans">
+<meta property="article:tag" content="AI">
+<meta property="article:tag" content="测试">
+<meta property="article:tag" content="研发效能">
+<meta property="article:tag" content="自动化测试">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="https://hans599.github.io/2026/07/21/%E5%A4%A7%E6%A8%A1%E5%9E%8B-20260721-AI%E5%9C%A8%E6%B5%8B%E8%AF%95%E4%B8%8E%E7%A0%94%E5%8F%91%E6%95%88%E8%83%BD%E4%B8%AD%E7%9A%84%E5%BA%94%E7%94%A8/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"en","comments":true,"permalink":"https://hans599.github.io/2026/07/21/%E5%A4%A7%E6%A8%A1%E5%9E%8B-20260721-AI%E5%9C%A8%E6%B5%8B%E8%AF%95%E4%B8%8E%E7%A0%94%E5%8F%91%E6%95%88%E8%83%BD%E4%B8%AD%E7%9A%84%E5%BA%94%E7%94%A8/","path":"2026/07/21/大模型-20260721-AI在测试与研发效能中的应用/","title":"AI在测试与研发效能中的应用"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>AI在测试与研发效能中的应用 | Hans's Homepage</title>
+  
+
+
+
+
+
+
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous" defer></script>
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.5.0/search.js" integrity="sha256-xFC6PJ82SL9b3WkGjFavNiA9gm5z6UBxWPiu4CYjptg=" crossorigin="anonymous" defer></script>
+<script src="/js/third-party/search/local-search.js" defer></script>
+
+
+  <script class="next-config" data-name="mermaid" type="application/json">{"enable":true,"theme":{"light":"default","dark":"dark"},"js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/mermaid/11.10.1/mermaid.min.js","integrity":"sha256-BmQmdWDS8X2OTbrwELWK366LV6escyWhHHe0XCTU/Hk="}}</script>
+  <script src="/js/third-party/tags/mermaid.js" defer></script>
+
+
+
+
+
+  
+
+
+
+
+  
+
+  <script class="next-config" data-name="enableMath" type="application/json">false</script><script class="next-config" data-name="mathjax" type="application/json">{"enable":true,"tags":"none","js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-mml-chtml.js","integrity":"sha256-MASABpB4tYktI2Oitl4t+78w/lyA+D7b/s9GEP0JOGI="}}</script>
+<script src="/js/third-party/math/mathjax.js" defer></script>
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">Hans's Homepage</p>
+      <i class="logo-line"></i>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="Search" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>About</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>Categories</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>Search
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+      <div class="search-header">
+        <span class="search-icon">
+          <i class="fa fa-search"></i>
+        </span>
+        <div class="search-input-container">
+          <input autocomplete="off" autocapitalize="off" maxlength="80"
+                placeholder="Searching..." spellcheck="false"
+                type="search" class="search-input">
+        </div>
+        <span class="popup-btn-close" role="button">
+          <i class="fa fa-times-circle"></i>
+        </span>
+      </div>
+      <div class="search-result-container">
+        <div class="search-result-icon">
+          <i class="fa fa-spinner fa-pulse fa-5x"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#AI-%E8%83%BD%E5%81%9A%E6%B5%8B%E8%AF%95%E7%9A%84%E4%BB%80%E4%B9%88%EF%BC%8C%E4%B8%8D%E8%83%BD%E5%81%9A%E4%BB%80%E4%B9%88"><span class="nav-number">1.</span> <span class="nav-text">AI 能做测试的什么，不能做什么</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%B5%8B%E8%AF%95%E7%94%A8%E4%BE%8B%E7%94%9F%E6%88%90"><span class="nav-number">2.</span> <span class="nav-text">测试用例生成</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BB%8E-PRD-%E6%8E%A5%E5%8F%A3%E6%96%87%E6%A1%A3%E7%94%9F%E6%88%90%E7%94%A8%E4%BE%8B"><span class="nav-number">2.1.</span> <span class="nav-text">从 PRD &#x2F; 接口文档生成用例</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BB%8E%E4%BB%A3%E7%A0%81%E7%94%9F%E6%88%90%E5%8D%95%E5%85%83%E6%B5%8B%E8%AF%95"><span class="nav-number">2.2.</span> <span class="nav-text">从代码生成单元测试</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#UI-%E8%87%AA%E5%8A%A8%E5%8C%96%E6%B5%8B%E8%AF%95"><span class="nav-number">3.</span> <span class="nav-text">UI 自动化测试</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BC%A0%E7%BB%9F%E6%96%B9%E5%BC%8F%E7%9A%84%E7%97%9B%E7%82%B9"><span class="nav-number">3.1.</span> <span class="nav-text">传统方式的痛点</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#AI-%E4%BB%8B%E5%85%A5%E7%9A%84%E4%B8%89%E4%B8%AA%E5%B1%82%E6%AC%A1"><span class="nav-number">3.2.</span> <span class="nav-text">AI 介入的三个层次</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Level-1%EF%BC%9AAI-%E7%94%9F%E6%88%90-UI-%E8%84%9A%E6%9C%AC"><span class="nav-number">3.2.1.</span> <span class="nav-text">Level 1：AI 生成 UI 脚本</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Level-2%EF%BC%9A%E8%87%AA%E7%84%B6%E8%AF%AD%E8%A8%80%E9%A9%B1%E5%8A%A8%E5%85%83%E7%B4%A0%E5%AE%9A%E4%BD%8D"><span class="nav-number">3.2.2.</span> <span class="nav-text">Level 2：自然语言驱动元素定位</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Level-3%EF%BC%9A%E8%87%AA%E4%B8%BB%E6%8E%A2%E7%B4%A2%E5%BC%8F%E6%B5%8B%E8%AF%95"><span class="nav-number">3.2.3.</span> <span class="nav-text">Level 3：自主探索式测试</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%8E%A5%E5%8F%A3%E8%87%AA%E5%8A%A8%E5%8C%96%E6%B5%8B%E8%AF%95"><span class="nav-number">4.</span> <span class="nav-text">接口自动化测试</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BB%8E%E6%8A%93%E5%8C%85%E6%95%B0%E6%8D%AE%E7%94%9F%E6%88%90%E6%B5%8B%E8%AF%95%E8%84%9A%E6%9C%AC"><span class="nav-number">4.1.</span> <span class="nav-text">从抓包数据生成测试脚本</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%99%BA%E8%83%BD%E6%96%AD%E8%A8%80"><span class="nav-number">4.2.</span> <span class="nav-text">智能断言</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9B%9E%E5%BD%92%E6%B5%8B%E8%AF%95%E7%9A%84%E6%99%BA%E8%83%BD%E7%AD%9B%E9%80%89"><span class="nav-number">4.3.</span> <span class="nav-text">回归测试的智能筛选</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%A0%94%E5%8F%91%E6%95%88%E8%83%BD%EF%BC%9A%E6%85%A2-API-%E4%B8%8E%E6%85%A2-SQL-%E6%B2%BB%E7%90%86"><span class="nav-number">5.</span> <span class="nav-text">研发效能：慢 API 与慢 SQL 治理</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%85%A2-API-%E7%9A%84%E5%8F%91%E7%8E%B0%E4%B8%8E%E5%BD%92%E5%9B%A0"><span class="nav-number">5.1.</span> <span class="nav-text">慢 API 的发现与归因</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%85%A2-SQL-%E7%9A%84%E8%87%AA%E5%8A%A8%E6%B2%BB%E7%90%86"><span class="nav-number">5.2.</span> <span class="nav-text">慢 SQL 的自动治理</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#AI-%E9%A9%B1%E5%8A%A8%E7%9A%84%E6%97%A5%E5%B8%B8%E6%95%88%E8%83%BD%E7%9C%8B%E6%9D%BF"><span class="nav-number">5.3.</span> <span class="nav-text">AI 驱动的日常效能看板</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%B7%A5%E5%85%B7%E4%B8%8E%E8%90%BD%E5%9C%B0%E8%B7%AF%E5%BE%84"><span class="nav-number">6.</span> <span class="nav-text">工具与落地路径</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%B0%8F%E7%BB%93"><span class="nav-number">7.</span> <span class="nav-text">小结</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Hans</p>
+  <div class="site-description" itemprop="description">Personal website for research and blog</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">19</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">2</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">25</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="en">
+    <link itemprop="mainEntityOfPage" href="https://hans599.github.io/2026/07/21/%E5%A4%A7%E6%A8%A1%E5%9E%8B-20260721-AI%E5%9C%A8%E6%B5%8B%E8%AF%95%E4%B8%8E%E7%A0%94%E5%8F%91%E6%95%88%E8%83%BD%E4%B8%AD%E7%9A%84%E5%BA%94%E7%94%A8/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Hans">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Hans's Homepage">
+      <meta itemprop="description" content="Personal website for research and blog">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="AI在测试与研发效能中的应用 | Hans's Homepage">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          AI在测试与研发效能中的应用
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+
+      <time title="Created: 2026-07-21 00:00:00" itemprop="dateCreated datePublished" datetime="2026-07-21T00:00:00+08:00">2026-07-21</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">Edited on</span>
+      <time title="Modified: 2026-08-07 18:49:58" itemprop="dateModified" datetime="2026-08-07T18:49:58+08:00">2026-08-07</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">In</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E5%A4%A7%E6%A8%A1%E5%9E%8B/" itemprop="url" rel="index"><span itemprop="name">大模型</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p>大模型在写代码、写文档上的能力已经被充分讨论，但在另一个高频场景——<strong>测试与研发效能</strong>上的应用，讨论还比较分散。这篇系统梳理 AI 如何介入测试用例生成、UI 自动化、接口测试，以及慢 API &#x2F; 慢 SQL 的发现与治理。</p>
+<span id="more"></span>
+
+<h1 id="AI-能做测试的什么，不能做什么"><a href="#AI-能做测试的什么，不能做什么" class="headerlink" title="AI 能做测试的什么，不能做什么"></a>AI 能做测试的什么，不能做什么</h1><p>先划清边界。大模型在测试领域的优势在于<strong>生成和理解</strong>：</p>
+<table>
+<thead>
+<tr>
+<th>能做</th>
+<th>举例</th>
+<th>不能做（至少现在还不行）</th>
+<th>举例</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>从需求文档生成测试用例</td>
+<td>把 PRD 转成结构化的 case</td>
+<td>替代人工判断用例是否有价值</td>
+<td>生成的冗余 case 需要人筛</td>
+</tr>
+<tr>
+<td>从页面截图理解 UI 结构</td>
+<td>识别按钮、输入框并生成操作序列</td>
+<td>在真实设备上稳定执行</td>
+<td>需要 Selenium&#x2F;Playwright 做执行层</td>
+</tr>
+<tr>
+<td>分析代码逻辑生成单元测试</td>
+<td>给函数自动写测试</td>
+<td>确保覆盖率有意义</td>
+<td>高覆盖率 ≠ 好测试</td>
+</tr>
+<tr>
+<td>解释失败的测试原因</td>
+<td>分析日志和 diff</td>
+<td>修复需要改代码的 bug</td>
+<td>只能改测试本身，改不了被测代码</td>
+</tr>
+</tbody></table>
+<p>一句话：<strong>AI 是测试的”加速器”，不是”自动驾驶”</strong>。它在生成、分析、解释这三个环节能大幅提效，但执行层的稳定性、判断层的价值取舍，仍然需要人。</p>
+<h1 id="测试用例生成"><a href="#测试用例生成" class="headerlink" title="测试用例生成"></a>测试用例生成</h1><h2 id="从-PRD-接口文档生成用例"><a href="#从-PRD-接口文档生成用例" class="headerlink" title="从 PRD &#x2F; 接口文档生成用例"></a>从 PRD &#x2F; 接口文档生成用例</h2><p>这是当前落地最成熟的场景。把需求文档或 API 文档喂给 LLM，让它输出结构化的测试用例：</p>
+<p><strong>Prompt 示例</strong>：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">你是一个资深测试工程师。请根据以下接口文档，生成完整的测试用例。</span><br><span class="line"></span><br><span class="line">接口：POST /api/order/create</span><br><span class="line">描述：创建订单</span><br><span class="line">请求体：</span><br><span class="line">&#123;</span><br><span class="line">  &quot;user_id&quot;: &quot;string (必填)&quot;,</span><br><span class="line">  &quot;items&quot;: [&#123; &quot;product_id&quot;: &quot;string&quot;, &quot;quantity&quot;: &quot;int&quot; &#125;],</span><br><span class="line">  &quot;coupon_code&quot;: &quot;string (可选)&quot;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">请用表格输出，包含：用例编号、测试场景、输入数据、预期结果、优先级。</span><br></pre></td></tr></table></figure>
+
+<p><strong>LLM 输出示例</strong>：</p>
+<table>
+<thead>
+<tr>
+<th>编号</th>
+<th>场景</th>
+<th>输入</th>
+<th>预期结果</th>
+<th>优先级</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>TC001</td>
+<td>正常创建</td>
+<td>合法 user_id + 1 件商品</td>
+<td>200, 返回 order_id</td>
+<td>P0</td>
+</tr>
+<tr>
+<td>TC002</td>
+<td>多件商品</td>
+<td>合法 user_id + 3 件商品</td>
+<td>200, total 正确</td>
+<td>P0</td>
+</tr>
+<tr>
+<td>TC003</td>
+<td>缺少 user_id</td>
+<td>不传 user_id</td>
+<td>400, “user_id required”</td>
+<td>P0</td>
+</tr>
+<tr>
+<td>TC004</td>
+<td>空商品列表</td>
+<td>items&#x3D;[]</td>
+<td>400, “items empty”</td>
+<td>P1</td>
+</tr>
+<tr>
+<td>TC005</td>
+<td>无效优惠券</td>
+<td>coupon_code&#x3D;”INVALID”</td>
+<td>400, “coupon not found”</td>
+<td>P1</td>
+</tr>
+<tr>
+<td>TC006</td>
+<td>数量为 0</td>
+<td>quantity&#x3D;0</td>
+<td>400, “quantity must &gt; 0”</td>
+<td>P1</td>
+</tr>
+<tr>
+<td>TC007</td>
+<td>超大数量</td>
+<td>quantity&#x3D;99999</td>
+<td>400 或降级处理</td>
+<td>P2</td>
+</tr>
+<tr>
+<td>TC008</td>
+<td>并发创建</td>
+<td>同一 user 同时发 5 个请求</td>
+<td>幂等，不重复扣款</td>
+<td>P0</td>
+</tr>
+<tr>
+<td>TC009</td>
+<td>user_id 不存在</td>
+<td>user_id&#x3D;”nonexistent”</td>
+<td>404</td>
+<td>P1</td>
+</tr>
+<tr>
+<td>TC010</td>
+<td>SQL 注入</td>
+<td>user_id&#x3D;”‘; DROP TABLE–”</td>
+<td>400，参数校验通过</td>
+<td>P0</td>
+</tr>
+</tbody></table>
+<p>一次 prompt 就能产出 10+ 条用例，覆盖正常路径、边界值、异常输入、安全攻击面。人工需要 20 分钟的事，模型 10 秒完成。</p>
+<h2 id="从代码生成单元测试"><a href="#从代码生成单元测试" class="headerlink" title="从代码生成单元测试"></a>从代码生成单元测试</h2><p>对于纯函数和工具类方法，LLM 生成单测的准确率已经很高：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 输入：被测函数</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">calculate_discount</span>(<span class="params">price: <span class="built_in">float</span>, user_level: <span class="built_in">str</span></span>) -&gt; <span class="built_in">float</span>:</span><br><span class="line">    <span class="string">&quot;&quot;&quot;根据用户等级计算折扣后价格&quot;&quot;&quot;</span></span><br><span class="line">    ...</span><br><span class="line"></span><br><span class="line"><span class="comment"># 让 LLM 生成 pytest 单测</span></span><br><span class="line"><span class="comment"># Prompt: &quot;为上面这个函数生成完整的 pytest 测试，覆盖正常、边界、异常情况&quot;</span></span><br></pre></td></tr></table></figure>
+
+<p><strong>关键实践</strong>：</p>
+<ol>
+<li><strong>给 LLM 看上下文</strong>——不只是函数签名，还要给它看相关的类型定义、常量、依赖接口</li>
+<li><strong>明确框架和风格</strong>——“用 pytest + parametrize” 比 “写单元测试” 产出质量高很多</li>
+<li><strong>增量生成</strong>——改了一个函数只让它生成这个函数的新增用例，而不是每次全量重新生成</li>
+<li><strong>覆盖率不是目标</strong>——LLM 容易生成大量”走过场”的用例（测了但没意义），人工 review 哪些场景真正有价值</li>
+</ol>
+<h1 id="UI-自动化测试"><a href="#UI-自动化测试" class="headerlink" title="UI 自动化测试"></a>UI 自动化测试</h1><h2 id="传统方式的痛点"><a href="#传统方式的痛点" class="headerlink" title="传统方式的痛点"></a>传统方式的痛点</h2><p>Selenium &#x2F; Playwright 脚本写起来有三痛：元素定位烦（CSS selector &#x2F; XPath 抄来抄去）、用例维护累（页面改版找元素全挂）、断言写不准确（”这个弹窗出现”该怎么判断）。</p>
+<h2 id="AI-介入的三个层次"><a href="#AI-介入的三个层次" class="headerlink" title="AI 介入的三个层次"></a>AI 介入的三个层次</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">flowchart TD</span><br><span class="line">    Level1[Level 1: AI 辅助生成脚本] --&gt; L1_desc[&quot;给 LLM 截图+需求→生成 Playwright 代码&quot;]</span><br><span class="line">    Level2[Level 2: AI 驱动定位] --&gt; L2_desc[&quot;自然语言描述目标元素→AI 自动找 DOM 节点&quot;]</span><br><span class="line">    Level3[Level 3: 自主探索] --&gt; L3_desc[&quot;给定目标→AI 自己操作页面→验证结果&quot;]</span><br><span class="line">    </span><br><span class="line">    Level1 --&gt;|当前主流| Done1[✅ 落地成熟]</span><br><span class="line">    Level2 --&gt;|快速发展中| Done2[✅ 部分可用]</span><br><span class="line">    Level3 --&gt;|实验阶段| WIP[⚠️ 不稳定]</span><br></pre></td></tr></table></figure>
+
+<h3 id="Level-1：AI-生成-UI-脚本"><a href="#Level-1：AI-生成-UI-脚本" class="headerlink" title="Level 1：AI 生成 UI 脚本"></a>Level 1：AI 生成 UI 脚本</h3><p>把页面截图和操作描述给 LLM，让它生成 Playwright 脚本：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">你是一个 UI 自动化工程师。以下是一个登录页面的 HTML 结构和截图描述。</span><br><span class="line"></span><br><span class="line">目标：用 Playwright 实现以下用例：</span><br><span class="line">1. 输入用户名 &quot;admin&quot;，密码 &quot;123456&quot;</span><br><span class="line">2. 点击&quot;登录&quot;按钮</span><br><span class="line">3. 验证跳转到首页，页面包含 &quot;欢迎回来&quot;</span><br><span class="line"></span><br><span class="line">请输出可直接运行的 Playwright Python 代码。</span><br></pre></td></tr></table></figure>
+
+<p>LLM 生成的脚本通常<strong>能跑但不够健壮</strong>。它倾向于用脆弱的 selector（<code>#login-btn</code>），而不考虑这个 ID 会不会变。需要人在生成后补充等待策略（<code>waitForSelector</code>）、添加 data-testid 等更稳定的定位方式。</p>
+<h3 id="Level-2：自然语言驱动元素定位"><a href="#Level-2：自然语言驱动元素定位" class="headerlink" title="Level 2：自然语言驱动元素定位"></a>Level 2：自然语言驱动元素定位</h3><p>传统写法：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">page.locator(<span class="string">&quot;#app &gt; div:nth-child(3) &gt; button.submit-btn&quot;</span>).click()</span><br></pre></td></tr></table></figure>
+
+<p>AI 驱动写法：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># LLM 理解 &quot;点击提交按钮&quot; → 分析 DOM → 找到最匹配的元素</span></span><br><span class="line">ai.click(<span class="string">&quot;点击页面底部的蓝色提交按钮&quot;</span>)</span><br></pre></td></tr></table></figure>
+
+<p>这层的核心是<strong>视觉+语义双重定位</strong>。实现方案：</p>
+<ul>
+<li>把 DOM 树（或截图）和用户的自然语言描述一起发给 LLM</li>
+<li>LLM 返回目标元素的定位策略（推荐用 data-testid 或稳定的 CSS path）</li>
+<li>Playwright 执行定位和操作</li>
+</ul>
+<p>Browserbase、Anthropic Computer Use 都在这层做尝试。可用的场景：目标元素有清晰的语义（”搜索框”、”登录按钮”），不可用的场景：界面复杂、存在多个相似元素。</p>
+<h3 id="Level-3：自主探索式测试"><a href="#Level-3：自主探索式测试" class="headerlink" title="Level 3：自主探索式测试"></a>Level 3：自主探索式测试</h3><p>目标是”给一个 URL 和一个目标，智能体自己操作页面直到目标达成”。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">任务：在电商网站搜索&quot;蓝牙耳机&quot;，加入购物车，验证购物车里有该商品。</span><br><span class="line"></span><br><span class="line">智能体自主执行：</span><br><span class="line">Step 1: 找到搜索框（视觉定位），输入&quot;蓝牙耳机&quot;</span><br><span class="line">Step 2: 找到搜索按钮，点击</span><br><span class="line">Step 3: 在结果列表中找到第一个商品，点击&quot;加入购物车&quot;</span><br><span class="line">Step 4: 跳转到购物车页面，验证商品存在</span><br></pre></td></tr></table></figure>
+
+<p>WebVoyager、OS-Copilot 等研究项目证明了这条路可行，但成功率和稳定性远达不到 CI&#x2F;CD 的要求。核心卡点：</p>
+<ul>
+<li>LLM 看截图容易”眼花”——把两个长得像的按钮搞混</li>
+<li>页面加载时机不可控——LLM 不知道什么时候该等</li>
+<li>成本——每一步都要调一次模型，一个复杂场景可能要 20~30 次调用</li>
+</ul>
+<p>目前的实用妥协是<strong>半自主</strong>：人定义关键步骤的检查点，AI 负责填充步骤间的操作细节。</p>
+<h1 id="接口自动化测试"><a href="#接口自动化测试" class="headerlink" title="接口自动化测试"></a>接口自动化测试</h1><p>接口测试是 AI 最容易发挥的场景——输入输出都是结构化的 JSON，没有 UI 的不确定因素。</p>
+<h2 id="从抓包数据生成测试脚本"><a href="#从抓包数据生成测试脚本" class="headerlink" title="从抓包数据生成测试脚本"></a>从抓包数据生成测试脚本</h2><p>把 Charles &#x2F; Fiddler 抓到的请求导出为 HAR 文件，让 AI 生成测试脚本：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">以下是一个 HAR 文件中的请求序列（用户下单流程）。</span><br><span class="line">请生成 pytest + requests 的接口测试脚本，包含：</span><br><span class="line">1. 正常流程串联</span><br><span class="line">2. 每个接口的异常参数测试</span><br><span class="line">3. 断言覆盖状态码、关键字段、数据库变更</span><br></pre></td></tr></table></figure>
+
+<h2 id="智能断言"><a href="#智能断言" class="headerlink" title="智能断言"></a>智能断言</h2><p>传统接口测试的断言很”死”——<code>assert response.status_code == 200</code>。AI 可以做到<strong>语义级断言</strong>：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 传统断言</span></span><br><span class="line"><span class="keyword">assert</span> response.json()[<span class="string">&quot;data&quot;</span>][<span class="string">&quot;status&quot;</span>] == <span class="string">&quot;success&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># AI 驱动断言</span></span><br><span class="line">ai_assert(response.json(), <span class="string">&quot;订单状态应该是待支付，且包含订单号和时间戳&quot;</span>)</span><br></pre></td></tr></table></figure>
+
+<p><code>ai_assert</code> 背后是让 LLM 判断”这个 JSON 是否满足这句自然语言描述的条件”，返回 True&#x2F;False + 解释。适合接口返回值结构复杂、字段含义需要业务理解的场景。代价是每次断言调一次模型，延迟和成本都比代码断言高 100 倍——所以只用在关键业务校验点，不要每条都用。</p>
+<h2 id="回归测试的智能筛选"><a href="#回归测试的智能筛选" class="headerlink" title="回归测试的智能筛选"></a>回归测试的智能筛选</h2><p>代码改了 10 个文件，应该跑哪些测试？传统做法要么全跑（慢），要么凭感觉选（漏）。AI 可以分析代码 diff，推荐受影响的测试用例：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># Prompt:</span></span><br><span class="line"><span class="comment"># 以下是一个 Git diff，请分析哪些测试用例需要重新运行。</span></span><br><span class="line"><span class="comment"># Diff: ...</span></span><br><span class="line"><span class="comment"># 可用的测试用例列表: ...</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># LLM 输出:</span></span><br><span class="line"><span class="comment"># 高风险: TC012 (修改了订单金额计算逻辑)</span></span><br><span class="line"><span class="comment"># 中风险: TC008, TC015 (修改了优惠券相关的工具函数)</span></span><br><span class="line"><span class="comment"># 低风险: TC001-TC007 (仅修改了日志格式，不涉及业务逻辑)</span></span><br></pre></td></tr></table></figure>
+
+<p>Google 的 TLM（Test Likelihood Model）和 Meta 的 Sapienz 都在探索这个方向。核心挑战是<strong>不遗漏</strong>——宁可多跑几个不必要的测试，也不能漏掉一个该跑的。所以 AI 的推荐通常偏保守（广撒网），真正的价值在于给高风险用例排优先级。</p>
+<h1 id="研发效能：慢-API-与慢-SQL-治理"><a href="#研发效能：慢-API-与慢-SQL-治理" class="headerlink" title="研发效能：慢 API 与慢 SQL 治理"></a>研发效能：慢 API 与慢 SQL 治理</h1><p>测试之外，研发效能的另一个大块头是<strong>线上质量的可观测性和治理</strong>。慢 API 和慢 SQL 是两大最常见但也最容易”视而不见”的问题。</p>
+<h2 id="慢-API-的发现与归因"><a href="#慢-API-的发现与归因" class="headerlink" title="慢 API 的发现与归因"></a>慢 API 的发现与归因</h2><p>日志系统（ELK &#x2F; Splunk &#x2F; Datadog）每秒钟产生大量 API 调用记录。人工排查慢 API 的方式是”看到一个告警 → 手动翻日志 → 凭经验猜原因”。AI 可以把这条链路自动化：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">flowchart LR</span><br><span class="line">    A[API 响应时间 &gt; 阈值] --&gt; B[AI 自动抓取该接口&lt;br/&gt;近 1 小时的所有日志]</span><br><span class="line">    B --&gt; C[分析响应时间的分布&lt;br/&gt;P50/P95/P99 + 时间轴]</span><br><span class="line">    C --&gt; D&#123;是否有明显特征？&#125;</span><br><span class="line">    D --&gt;|某时间段集中变慢| E[关联该时间段的&lt;br/&gt;发布记录/流量变化/DB 慢查询]</span><br><span class="line">    D --&gt;|特定参数组合慢| F[提取慢请求的共同参数&lt;br/&gt;推荐针对性优化]</span><br><span class="line">    D --&gt;|下游依赖超时| G[关联调用链&lt;br/&gt;定位到具体的下游服务/SQL]</span><br></pre></td></tr></table></figure>
+
+<p><strong>实现方式</strong>：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">你是一个 SRE 工程师。以下是一个 API 在过去 1 小时的调用日志。</span><br><span class="line"></span><br><span class="line">API: GET /api/products/search</span><br><span class="line">正常 P95: 200ms</span><br><span class="line">当前 P95: 3500ms</span><br><span class="line"></span><br><span class="line">请分析：</span><br><span class="line">1. 变慢是从什么时间开始的？（精确到分钟）</span><br><span class="line">2. 慢请求的查询参数有什么共同特征？</span><br><span class="line">3. 调用了哪些下游服务？哪个下游的耗时占比最高？</span><br><span class="line">4. 给出最可能的根因和排查建议。</span><br></pre></td></tr></table></figure>
+
+<p>LLM 的输出不会是完美的根因分析，但它能把排查方向从”看几百条日志”压缩到”验证 2~3 个假设”。</p>
+<h2 id="慢-SQL-的自动治理"><a href="#慢-SQL-的自动治理" class="headerlink" title="慢 SQL 的自动治理"></a>慢 SQL 的自动治理</h2><p>慢 SQL 的排查有一个固定套路：<strong>抓到 SQL → 看执行计划（EXPLAIN） → 判断是全表扫描还是索引失效 → 给出优化建议</strong>。这条路 LLM 非常擅长走，因为 SQL 是结构化文本，优化规则是明确的知识。</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">-- 输入：慢查询日志中的一条 SQL</span></span><br><span class="line"><span class="keyword">SELECT</span> o.<span class="operator">*</span>, u.name, p.title </span><br><span class="line"><span class="keyword">FROM</span> orders o</span><br><span class="line"><span class="keyword">LEFT</span> <span class="keyword">JOIN</span> users u <span class="keyword">ON</span> o.user_id <span class="operator">=</span> u.id</span><br><span class="line"><span class="keyword">LEFT</span> <span class="keyword">JOIN</span> products p <span class="keyword">ON</span> o.product_id <span class="operator">=</span> p.id</span><br><span class="line"><span class="keyword">WHERE</span> o.created_at <span class="operator">&gt;</span> <span class="string">&#x27;2026-01-01&#x27;</span></span><br><span class="line">  <span class="keyword">AND</span> o.status <span class="operator">=</span> <span class="string">&#x27;completed&#x27;</span></span><br><span class="line"><span class="keyword">ORDER</span> <span class="keyword">BY</span> o.created_at <span class="keyword">DESC</span></span><br><span class="line">LIMIT <span class="number">100</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">-- 耗时：8.2s</span></span><br><span class="line"><span class="comment">-- 扫描行数：2,340,000</span></span><br></pre></td></tr></table></figure>
+
+<p>让 AI 分析：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">以下是一条慢 SQL 及其 EXPLAIN 结果。请分析原因并给出优化建议。</span><br><span class="line"></span><br><span class="line">EXPLAIN 结果：</span><br><span class="line">orders: type=ALL, rows=2340000 (全表扫描)</span><br><span class="line">users: type=eq_ref, rows=1</span><br><span class="line">products: type=eq_ref, rows=1</span><br><span class="line">Extra: Using where; Using filesort</span><br><span class="line"></span><br><span class="line">执行计划解读：orders 表进行了全表扫描（234 万行），</span><br><span class="line">且排序使用了 filesort（磁盘排序）。</span><br></pre></td></tr></table></figure>
+
+<p>LLM 的典型分析和建议：</p>
+<table>
+<thead>
+<tr>
+<th>问题</th>
+<th>根因</th>
+<th>建议</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>全表扫描</td>
+<td><code>orders</code> 表 <code>created_at</code> 和 <code>status</code> 缺少联合索引</td>
+<td><code>CREATE INDEX idx_orders_time_status ON orders(created_at, status)</code></td>
+</tr>
+<tr>
+<td>filesort</td>
+<td><code>ORDER BY created_at DESC</code> 不能利用索引排序</td>
+<td>同上联合索引即可解决（索引天然有序）</td>
+</tr>
+<tr>
+<td>回表开销</td>
+<td><code>SELECT o.*</code> 使得即使走索引也需要回表查完整行</td>
+<td>考虑只查必要字段，或用覆盖索引</td>
+</tr>
+</tbody></table>
+<p>这比 DBA 手动写的建议更规范、更完整——因为 LLM 不会”跳步”，它会把每一条 EXPLAIN 线索都翻译成对应的建议。</p>
+<h2 id="AI-驱动的日常效能看板"><a href="#AI-驱动的日常效能看板" class="headerlink" title="AI 驱动的日常效能看板"></a>AI 驱动的日常效能看板</h2><p>把这些能力集成到日常流程中：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">flowchart TD</span><br><span class="line">    subgraph daily[每日自动化流程]</span><br><span class="line">        A[凌晨：抓取昨日 TOP 20 慢 API] --&gt; B[AI 分析每条慢 API]</span><br><span class="line">        B --&gt; C[生成分析报告]</span><br><span class="line">        C --&gt; D[自动创建 Jira Issue&lt;br/&gt;分配责任人]</span><br><span class="line">        </span><br><span class="line">        E[凌晨：抓取慢 SQL 日志] --&gt; F[AI 分析 + EXPLAIN]</span><br><span class="line">        F --&gt; G[生成优化建议 PR]</span><br><span class="line">    end</span><br><span class="line">    </span><br><span class="line">    subgraph weekly[每周汇总]</span><br><span class="line">        H[AI 汇总本周所有慢查询] --&gt; I[识别趋势：哪些接口在持续变慢？]</span><br><span class="line">        I --&gt; J[输出周报：性能健康度评分]</span><br><span class="line">    end</span><br></pre></td></tr></table></figure>
+
+<p>关键不是”AI 分析一次”，而是<strong>自动化、定期跑、积累趋势</strong>。一条 SQL 今天慢 2 秒下周慢 4 秒——这个趋势人很难注意到，但 AI + 定时任务天然能做。</p>
+<h1 id="工具与落地路径"><a href="#工具与落地路径" class="headerlink" title="工具与落地路径"></a>工具与落地路径</h1><table>
+<thead>
+<tr>
+<th>场景</th>
+<th>推荐工具&#x2F;方案</th>
+<th>成熟度</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>用例生成</td>
+<td>LLM + prompt engineering</td>
+<td>⭐⭐⭐⭐⭐</td>
+</tr>
+<tr>
+<td>单测生成</td>
+<td>Copilot &#x2F; Cursor &#x2F; Codium</td>
+<td>⭐⭐⭐⭐⭐</td>
+</tr>
+<tr>
+<td>UI 脚本生成</td>
+<td>LLM + Playwright + DOM 上下文</td>
+<td>⭐⭐⭐⭐</td>
+</tr>
+<tr>
+<td>UI 自主探索</td>
+<td>WebVoyager &#x2F; OS-Copilot</td>
+<td>⭐⭐</td>
+</tr>
+<tr>
+<td>接口测试</td>
+<td>LLM + HAR 解析 + pytest</td>
+<td>⭐⭐⭐⭐</td>
+</tr>
+<tr>
+<td>慢 API 分析</td>
+<td>LLM + 日志系统 API</td>
+<td>⭐⭐⭐⭐</td>
+</tr>
+<tr>
+<td>慢 SQL 治理</td>
+<td>LLM + EXPLAIN + 自动 PR</td>
+<td>⭐⭐⭐⭐</td>
+</tr>
+</tbody></table>
+<p>建议的落地顺序：</p>
+<ol>
+<li><strong>先做最成熟的</strong>：从用例生成和单测生成开始，这是投入产出比最高的——一个 prompt 出 20 条用例，立竿见影</li>
+<li><strong>再做有基础的</strong>：如果你的团队已经在写 Playwright 脚本，加上 LLM 生成能提速 3~5 倍</li>
+<li><strong>最后做需要集成的</strong>：慢 API&#x2F;SQL 分析需要打通日志系统、监控系统、项目管理工具，工程量大但长期收益最高</li>
+<li><strong>永远保留人工 gate</strong>：AI 生成的每一条用例、每一行测试代码、每一条优化建议，都要经过人 review。AI 负责”生成”，人负责”判断”</li>
+</ol>
+<h1 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h1><p>AI 在测试和研发效能上的价值，不是”取代测试工程师”，而是<strong>把机械重复的事自动化，让人聚焦在判断和设计上</strong>：</p>
+<ul>
+<li>用例&#x2F;脚本生成的机械活 → AI 出草稿，人审改</li>
+<li>慢 API&#x2F;慢 SQL 的排查 → AI 做第一轮分析，人验证</li>
+<li>回归用例的选择 → AI 推荐优先级的候选列表，人拍板</li>
+<li>UI 元素定位 → AI 给你稳定的定位策略，Playwright 执行</li>
+</ul>
+<p>这条路不缺需求——每个项目都在被慢查询和回归测试的维护成本折磨。缺的是把 AI 嵌入现有流程的工程化能力。</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/AI/" rel="tag"># AI</a>
+              <a href="/tags/%E6%B5%8B%E8%AF%95/" rel="tag"># 测试</a>
+              <a href="/tags/%E7%A0%94%E5%8F%91%E6%95%88%E8%83%BD/" rel="tag"># 研发效能</a>
+              <a href="/tags/%E8%87%AA%E5%8A%A8%E5%8C%96%E6%B5%8B%E8%AF%95/" rel="tag"># 自动化测试</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2026/07/21/%E5%A4%A7%E6%A8%A1%E5%9E%8B-20260721-%E6%99%BA%E8%83%BD%E4%BD%93%E8%AF%84%E6%B5%8B%EF%BC%9A%E7%A0%94%E7%A9%B6%E7%8E%B0%E7%8A%B6%E3%80%81%E6%96%B9%E5%90%91%E4%B8%8E%E6%8C%87%E6%A0%87%E4%BD%93%E7%B3%BB/" rel="prev" title="智能体评测：研究现状、方向与指标体系">
+                  <i class="fa fa-angle-left"></i> 智能体评测：研究现状、方向与指标体系
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2026/07/21/%E5%A4%A7%E6%A8%A1%E5%9E%8B-20260804-%E5%A4%A7%E6%A8%A1%E5%9E%8B%E6%99%BA%E8%83%BD%E4%BD%93%E8%AF%84%E6%B5%8B%E5%85%A5%E9%97%A8/" rel="next" title="大模型&amp;智能体评测入门">
+                  大模型&智能体评测入门 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2026</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">Hans</span>
+  </div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/pisces/" rel="noopener" target="_blank">NexT.Pisces</a>
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="Back to top">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+</body>
+</html>

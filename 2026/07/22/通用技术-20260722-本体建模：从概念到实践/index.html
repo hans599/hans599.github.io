@@ -1,0 +1,764 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#222" media="(prefers-color-scheme: dark)"><meta name="generator" content="Hexo 8.1.2">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css" integrity="sha256-VHqXKFhhMxcpubYf9xiWdCiojEbY9NexQ4jh8AxbvcM=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"hans599.github.io","root":"/","images":"/images","scheme":"Pisces","darkmode":true,"version":"8.27.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"codeblock":{"theme":{"light":"default","dark":"stackoverflow-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"language":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"},"path":"/search.xml","localsearch":{"enable":true,"top_n_per_article":1,"unescape":false,"preload":true,"trigger":"auto"}}</script><script src="/js/config.js" defer></script>
+
+    <meta name="description" content="“本体”（Ontology）这个词听起来很学术，但它的核心思想在日常开发中无处不在——任何需要”定义概念、理清关系”的场景，本质上都在做本体建模。这篇文章系统梳理本体的理论基础、建模方法、语言工具和工程实践。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="本体建模：从概念到实践">
+<meta property="og:url" content="https://hans599.github.io/2026/07/22/%E9%80%9A%E7%94%A8%E6%8A%80%E6%9C%AF-20260722-%E6%9C%AC%E4%BD%93%E5%BB%BA%E6%A8%A1%EF%BC%9A%E4%BB%8E%E6%A6%82%E5%BF%B5%E5%88%B0%E5%AE%9E%E8%B7%B5/index.html">
+<meta property="og:site_name" content="Hans&#39;s Homepage">
+<meta property="og:description" content="“本体”（Ontology）这个词听起来很学术，但它的核心思想在日常开发中无处不在——任何需要”定义概念、理清关系”的场景，本质上都在做本体建模。这篇文章系统梳理本体的理论基础、建模方法、语言工具和工程实践。">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2026-07-21T16:00:00.000Z">
+<meta property="article:modified_time" content="2026-08-07T10:49:58.783Z">
+<meta property="article:author" content="Hans">
+<meta property="article:tag" content="OWL">
+<meta property="article:tag" content="本体">
+<meta property="article:tag" content="知识图谱">
+<meta property="article:tag" content="知识工程">
+<meta property="article:tag" content="语义网">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="https://hans599.github.io/2026/07/22/%E9%80%9A%E7%94%A8%E6%8A%80%E6%9C%AF-20260722-%E6%9C%AC%E4%BD%93%E5%BB%BA%E6%A8%A1%EF%BC%9A%E4%BB%8E%E6%A6%82%E5%BF%B5%E5%88%B0%E5%AE%9E%E8%B7%B5/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"en","comments":true,"permalink":"https://hans599.github.io/2026/07/22/%E9%80%9A%E7%94%A8%E6%8A%80%E6%9C%AF-20260722-%E6%9C%AC%E4%BD%93%E5%BB%BA%E6%A8%A1%EF%BC%9A%E4%BB%8E%E6%A6%82%E5%BF%B5%E5%88%B0%E5%AE%9E%E8%B7%B5/","path":"2026/07/22/通用技术-20260722-本体建模：从概念到实践/","title":"本体建模：从概念到实践"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>本体建模：从概念到实践 | Hans's Homepage</title>
+  
+
+
+
+
+
+
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous" defer></script>
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.5.0/search.js" integrity="sha256-xFC6PJ82SL9b3WkGjFavNiA9gm5z6UBxWPiu4CYjptg=" crossorigin="anonymous" defer></script>
+<script src="/js/third-party/search/local-search.js" defer></script>
+
+
+  <script class="next-config" data-name="mermaid" type="application/json">{"enable":true,"theme":{"light":"default","dark":"dark"},"js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/mermaid/11.10.1/mermaid.min.js","integrity":"sha256-BmQmdWDS8X2OTbrwELWK366LV6escyWhHHe0XCTU/Hk="}}</script>
+  <script src="/js/third-party/tags/mermaid.js" defer></script>
+
+
+
+
+
+  
+
+
+
+
+  
+
+  <script class="next-config" data-name="enableMath" type="application/json">false</script><script class="next-config" data-name="mathjax" type="application/json">{"enable":true,"tags":"none","js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-mml-chtml.js","integrity":"sha256-MASABpB4tYktI2Oitl4t+78w/lyA+D7b/s9GEP0JOGI="}}</script>
+<script src="/js/third-party/math/mathjax.js" defer></script>
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">Hans's Homepage</p>
+      <i class="logo-line"></i>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="Search" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>About</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>Categories</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>Search
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+      <div class="search-header">
+        <span class="search-icon">
+          <i class="fa fa-search"></i>
+        </span>
+        <div class="search-input-container">
+          <input autocomplete="off" autocapitalize="off" maxlength="80"
+                placeholder="Searching..." spellcheck="false"
+                type="search" class="search-input">
+        </div>
+        <span class="popup-btn-close" role="button">
+          <i class="fa fa-times-circle"></i>
+        </span>
+      </div>
+      <div class="search-result-container">
+        <div class="search-result-icon">
+          <i class="fa fa-spinner fa-pulse fa-5x"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%BB%80%E4%B9%88%E5%8F%AB%E2%80%9D%E6%9C%AC%E4%BD%93%E2%80%9D%EF%BC%8C%E5%AE%83%E5%92%8C%E5%88%86%E7%B1%BB%E4%BD%93%E7%B3%BB%E6%9C%89%E4%BB%80%E4%B9%88%E5%8C%BA%E5%88%AB"><span class="nav-number">1.</span> <span class="nav-text">什么叫”本体”，它和分类体系有什么区别</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%9C%AC%E4%BD%93%E7%9A%84%E6%A0%B8%E5%BF%83%E7%BB%84%E4%BB%B6"><span class="nav-number">2.</span> <span class="nav-text">本体的核心组件</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%85%B3%E7%B3%BB%EF%BC%88Object-Property%EF%BC%89vs-%E5%B1%9E%E6%80%A7%EF%BC%88Data-Property%EF%BC%89"><span class="nav-number">2.1.</span> <span class="nav-text">关系（Object Property）vs 属性（Data Property）</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%85%B3%E7%B3%BB%E7%9A%84%E7%89%B9%E6%80%A7"><span class="nav-number">2.2.</span> <span class="nav-text">关系的特性</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%9C%AC%E4%BD%93%E6%8F%8F%E8%BF%B0%E8%AF%AD%E8%A8%80"><span class="nav-number">3.</span> <span class="nav-text">本体描述语言</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#OWL-%E7%9A%84%E4%B8%89%E4%B8%AA%E5%AD%90%E8%AF%AD%E8%A8%80"><span class="nav-number">3.1.</span> <span class="nav-text">OWL 的三个子语言</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%80%E4%B8%AA%E5%AE%8C%E6%95%B4%E7%9A%84-OWL-%E5%AE%9E%E4%BE%8B"><span class="nav-number">3.2.</span> <span class="nav-text">一个完整的 OWL 实例</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%9C%AC%E4%BD%93%E5%BB%BA%E6%A8%A1%E6%96%B9%E6%B3%95%E8%AE%BA"><span class="nav-number">4.</span> <span class="nav-text">本体建模方法论</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Methontology%EF%BC%9A%E6%9C%80%E7%BB%8F%E5%85%B8%E7%9A%84%E6%96%B9%E6%B3%95%E8%AE%BA"><span class="nav-number">4.1.</span> <span class="nav-text">Methontology：最经典的方法论</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%85%B6%E4%BB%96%E6%96%B9%E6%B3%95%E8%AE%BA%E9%80%9F%E8%A7%88"><span class="nav-number">4.2.</span> <span class="nav-text">其他方法论速览</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%A0%B8%E5%BF%83%E5%B7%A5%E5%85%B7"><span class="nav-number">5.</span> <span class="nav-text">核心工具</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Protege%EF%BC%9A%E6%9C%AC%E4%BD%93%E7%BC%96%E8%BE%91%E7%9A%84-VS-Code"><span class="nav-number">5.1.</span> <span class="nav-text">Protégé：本体编辑的 VS Code</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%8E%A8%E7%90%86%E6%9C%BA"><span class="nav-number">5.2.</span> <span class="nav-text">推理机</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#SPARQL%EF%BC%9A%E6%9C%AC%E4%BD%93%E7%9A%84-SQL"><span class="nav-number">5.3.</span> <span class="nav-text">SPARQL：本体的 SQL</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%9C%AC%E4%BD%93%E7%9A%84%E5%B7%A5%E7%A8%8B%E4%BB%B7%E5%80%BC"><span class="nav-number">6.</span> <span class="nav-text">本体的工程价值</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%BA%94%E7%94%A8-1%EF%BC%9A%E7%9F%A5%E8%AF%86%E5%9B%BE%E8%B0%B1%E7%9A%84%E5%9F%BA%E7%A1%80"><span class="nav-number">6.1.</span> <span class="nav-text">应用 1：知识图谱的基础</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%BA%94%E7%94%A8-2%EF%BC%9A%E6%95%B0%E6%8D%AE%E9%9B%86%E6%88%90%E4%B8%8E%E4%BA%92%E6%93%8D%E4%BD%9C"><span class="nav-number">6.2.</span> <span class="nav-text">应用 2：数据集成与互操作</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%BA%94%E7%94%A8-3%EF%BC%9A%E6%8E%A8%E7%90%86%E4%B8%8E%E4%B8%80%E8%87%B4%E6%80%A7%E6%A3%80%E6%9F%A5"><span class="nav-number">6.3.</span> <span class="nav-text">应用 3：推理与一致性检查</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%BA%94%E7%94%A8-4%EF%BC%9A%E5%A4%A7%E6%A8%A1%E5%9E%8B%E6%97%B6%E4%BB%A3%E7%9A%84%E8%A7%92%E8%89%B2%E5%8F%98%E5%8C%96"><span class="nav-number">6.4.</span> <span class="nav-text">应用 4：大模型时代的角色变化</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%B0%8F%E7%BB%93"><span class="nav-number">7.</span> <span class="nav-text">小结</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Hans</p>
+  <div class="site-description" itemprop="description">Personal website for research and blog</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">19</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">2</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">25</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="en">
+    <link itemprop="mainEntityOfPage" href="https://hans599.github.io/2026/07/22/%E9%80%9A%E7%94%A8%E6%8A%80%E6%9C%AF-20260722-%E6%9C%AC%E4%BD%93%E5%BB%BA%E6%A8%A1%EF%BC%9A%E4%BB%8E%E6%A6%82%E5%BF%B5%E5%88%B0%E5%AE%9E%E8%B7%B5/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Hans">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Hans's Homepage">
+      <meta itemprop="description" content="Personal website for research and blog">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="本体建模：从概念到实践 | Hans's Homepage">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          本体建模：从概念到实践
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+
+      <time title="Created: 2026-07-22 00:00:00" itemprop="dateCreated datePublished" datetime="2026-07-22T00:00:00+08:00">2026-07-22</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">Edited on</span>
+      <time title="Modified: 2026-08-07 18:49:58" itemprop="dateModified" datetime="2026-08-07T18:49:58+08:00">2026-08-07</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">In</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E9%80%9A%E7%94%A8%E6%8A%80%E6%9C%AF/" itemprop="url" rel="index"><span itemprop="name">通用技术</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p>“本体”（Ontology）这个词听起来很学术，但它的核心思想在日常开发中无处不在——任何需要”定义概念、理清关系”的场景，本质上都在做本体建模。这篇文章系统梳理本体的理论基础、建模方法、语言工具和工程实践。</p>
+<span id="more"></span>
+
+<h1 id="什么叫”本体”，它和分类体系有什么区别"><a href="#什么叫”本体”，它和分类体系有什么区别" class="headerlink" title="什么叫”本体”，它和分类体系有什么区别"></a>什么叫”本体”，它和分类体系有什么区别</h1><p>本体是对<strong>某个领域共享概念模型的形式化、显式规约</strong>。拆开这句话：</p>
+<ul>
+<li><strong>共享</strong>：不是一个人自说自话，是领域内共识</li>
+<li><strong>概念模型</strong>：抽象出领域中的实体、属性、关系</li>
+<li><strong>形式化</strong>：机器可读、可推理</li>
+<li><strong>显式规约</strong>：白纸黑字写清楚，不自带隐含假设</li>
+</ul>
+<p>它和常见的知识组织方式有本质区别：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">flowchart TD</span><br><span class="line">    subgraph level1[弱语义]</span><br><span class="line">        A1[词汇表 Glossary]</span><br><span class="line">        A2[分类法 Taxonomy]</span><br><span class="line">    end</span><br><span class="line">    subgraph level2[中等语义]</span><br><span class="line">        B1[叙词表 Thesaurus]</span><br><span class="line">        B2[概念模型 Conceptual Model]</span><br><span class="line">    end</span><br><span class="line">    subgraph level3[强语义]</span><br><span class="line">        C1[本体 Ontology]</span><br><span class="line">    end</span><br><span class="line"></span><br><span class="line">    A1 --&gt;|&quot;定义术语&quot;| A2</span><br><span class="line">    A2 --&gt;|&quot;加层次关系&quot;| B1</span><br><span class="line">    B1 --&gt;|&quot;加等价/关联关系&quot;| B2</span><br><span class="line">    B2 --&gt;|&quot;加约束和公理&quot;| C1</span><br></pre></td></tr></table></figure>
+
+<p>用一个医疗领域的例子直观感受各级别的差异：</p>
+<table>
+<thead>
+<tr>
+<th>层级</th>
+<th>能表达什么</th>
+<th>例子</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>词汇表</td>
+<td>“发烧”是身体温度升高的术语</td>
+<td><code>发烧 = 体温 &gt; 37.3℃</code></td>
+</tr>
+<tr>
+<td>分类法</td>
+<td>“病毒感染”是”疾病”的子类</td>
+<td><code>病毒感染 is-a 疾病</code></td>
+</tr>
+<tr>
+<td>叙词表</td>
+<td>“发热”和”发烧”是同义词</td>
+<td><code>发热 = 发烧</code></td>
+</tr>
+<tr>
+<td>概念模型</td>
+<td>疾病由病原体引起，有症状表现</td>
+<td><code>疾病 -[引起]-&gt; 症状</code></td>
+</tr>
+<tr>
+<td><strong>本体</strong></td>
+<td><strong>所有病毒感染必须由某种病毒引起；病毒不是细胞生物</strong></td>
+<td><code>病毒感染 ⊑ ∃hasCausativeAgent.Virus</code></td>
+</tr>
+</tbody></table>
+<p>本体的关键区别在最后一行——它不仅描述”是什么”，还通过<strong>公理和约束</strong>规定了”必须怎样”和”不可能怎样”。</p>
+<h1 id="本体的核心组件"><a href="#本体的核心组件" class="headerlink" title="本体的核心组件"></a>本体的核心组件</h1><p>一个本体由以下要素构成，缺一不可：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">flowchart TD</span><br><span class="line">    subgraph components[本体五要素]</span><br><span class="line">        C[Classes 类]</span><br><span class="line">        I[Individuals 个体/实例]</span><br><span class="line">        P[Properties 属性]</span><br><span class="line">        R[Relations 关系]</span><br><span class="line">        A[Axioms 公理]</span><br><span class="line">    end</span><br><span class="line"></span><br><span class="line">    C --&gt;|&quot;实例化 instantiate&quot;| I</span><br><span class="line">    C --&gt;|&quot;拥有&quot;| P</span><br><span class="line">    P --&gt;|&quot;分为&quot;| R</span><br><span class="line">    R --&gt;|&quot;约束于&quot;| A</span><br><span class="line">    A --&gt;|&quot;限定&quot;| C</span><br></pre></td></tr></table></figure>
+
+<table>
+<thead>
+<tr>
+<th>要素</th>
+<th>定义</th>
+<th>医疗本体例子</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>类（Class）</strong></td>
+<td>领域中的概念集合</td>
+<td><code>Disease</code>, <code>Symptom</code>, <code>Drug</code></td>
+</tr>
+<tr>
+<td><strong>个体（Individual）</strong></td>
+<td>类的具体实例</td>
+<td><code>COVID-19</code>（属于 Disease 类）</td>
+</tr>
+<tr>
+<td><strong>属性（Property）</strong></td>
+<td>描述类或个体的特征</td>
+<td><code>hasName</code>, <code>hasIncubationPeriod</code></td>
+</tr>
+<tr>
+<td><strong>关系（Relation）</strong></td>
+<td>连接两个个体的二元谓词</td>
+<td><code>treats(Drug, Disease)</code></td>
+</tr>
+<tr>
+<td><strong>公理（Axiom）</strong></td>
+<td>必须遵守的逻辑约束</td>
+<td><code>Drug treats some Disease</code></td>
+</tr>
+</tbody></table>
+<h2 id="关系（Object-Property）vs-属性（Data-Property）"><a href="#关系（Object-Property）vs-属性（Data-Property）" class="headerlink" title="关系（Object Property）vs 属性（Data Property）"></a>关系（Object Property）vs 属性（Data Property）</h2><p>这是初学者最容易混淆的点：</p>
+<ul>
+<li><strong>Object Property</strong>：连接两个个体。<code>病人 -(hasDisease)→ 流感</code>，箭头两端都是实体</li>
+<li><strong>Data Property</strong>：连接个体到字面量。<code>病人 -(hasAge)→ 35</code>，箭头一端是数字&#x2F;字符串</li>
+</ul>
+<p>在 OWL 中分别用 <code>owl:ObjectProperty</code> 和 <code>owl:DatatypeProperty</code> 区分。</p>
+<h2 id="关系的特性"><a href="#关系的特性" class="headerlink" title="关系的特性"></a>关系的特性</h2><p>本体中的关系可以声明额外的逻辑特性，推理机利用这些特性自动推导新知识：</p>
+<table>
+<thead>
+<tr>
+<th>特性</th>
+<th>含义</th>
+<th>例子</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>传递性（Transitive）</strong></td>
+<td>A→B 且 B→C 则 A→C</td>
+<td><code>isPartOf</code>：轮子 isPartOf 车，车 isPartOf 车队，则轮子 isPartOf 车队</td>
+</tr>
+<tr>
+<td><strong>对称性（Symmetric）</strong></td>
+<td>A→B 则 B→A</td>
+<td><code>isSiblingOf</code></td>
+</tr>
+<tr>
+<td><strong>函数性（Functional）</strong></td>
+<td>每个个体最多有一个值</td>
+<td><code>hasBiologicalMother</code>：一个人只能有一个生母</td>
+</tr>
+<tr>
+<td><strong>逆关系（Inverse）</strong></td>
+<td>A→B 等价于 B→A’</td>
+<td><code>hasChild</code> 的逆是 <code>hasParent</code></td>
+</tr>
+</tbody></table>
+<p>推理机的核心价值就体现在这里：你只需声明”轮子是车的一部分，车是车队的一部分”，加上 <code>isPartOf</code> 的传递性，推理机自动得出”轮子是车队的一部分”——你不用手动维护所有间接关系。</p>
+<h1 id="本体描述语言"><a href="#本体描述语言" class="headerlink" title="本体描述语言"></a>本体描述语言</h1><h2 id="OWL-的三个子语言"><a href="#OWL-的三个子语言" class="headerlink" title="OWL 的三个子语言"></a>OWL 的三个子语言</h2><p>本体的繁荣始于 W3C 2004 年的 OWL（Web Ontology Language）标准。OWL 不是一种语言，而是<strong>三种表达能力依次递减的子语言</strong>：</p>
+<table>
+<thead>
+<tr>
+<th>子语言</th>
+<th>表达能力</th>
+<th>推理复杂度</th>
+<th>适用场景</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>OWL Full</strong></td>
+<td>最强，完全兼容 RDF</td>
+<td>不可判定（推理可能不停）</td>
+<td>理论研究</td>
+</tr>
+<tr>
+<td><strong>OWL DL</strong></td>
+<td>强，基于描述逻辑</td>
+<td>可判定（指数级复杂度）</td>
+<td>需推理保证的领域本体</td>
+</tr>
+<tr>
+<td><strong>OWL Lite</strong></td>
+<td>弱</td>
+<td>最低（多项式级）</td>
+<td>简单分类体系</td>
+</tr>
+</tbody></table>
+<p><strong>OWL 2 的三个 Profile</strong>（2009 年发布，更实用的划分）：</p>
+<table>
+<thead>
+<tr>
+<th>Profile</th>
+<th>设计目标</th>
+<th>推理复杂度</th>
+<th>典型推理机</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>OWL 2 EL</strong></td>
+<td>大规模类层次（医疗、生命科学）</td>
+<td>多项式</td>
+<td>ELK（处理 SNOMED CT 只需数秒）</td>
+</tr>
+<tr>
+<td><strong>OWL 2 QL</strong></td>
+<td>数据库查询重写</td>
+<td>NLogSpace</td>
+<td>Ontop（本体+关系数据库）</td>
+</tr>
+<tr>
+<td><strong>OWL 2 RL</strong></td>
+<td>规则系统友好</td>
+<td>多项式</td>
+<td>RDFox（内存推理，极高吞吐）</td>
+</tr>
+</tbody></table>
+<p>选择 Profile 的原则：<strong>不是越强越好，是最适合你的推理需求和规模才好。</strong> SNOMED CT 医学术语集包含 35 万个概念，用 OWL DL 做推理需要数小时；用 OWL 2 EL + ELK 推理机，同样规模只需数秒。</p>
+<h2 id="一个完整的-OWL-实例"><a href="#一个完整的-OWL-实例" class="headerlink" title="一个完整的 OWL 实例"></a>一个完整的 OWL 实例</h2><figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">&lt;!-- 用 OWL 2 定义一个简单的疾病本体 --&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">rdf:RDF</span> <span class="attr">xmlns:owl</span>=<span class="string">&quot;http://www.w3.org/2002/07/owl#&quot;</span></span></span><br><span class="line"><span class="tag">         <span class="attr">xmlns:rdf</span>=<span class="string">&quot;http://www.w3.org/1999/02/22-rdf-syntax-ns#&quot;</span></span></span><br><span class="line"><span class="tag">         <span class="attr">xmlns:xsd</span>=<span class="string">&quot;http://www.w3.org/2001/XMLSchema#&quot;</span></span></span><br><span class="line"><span class="tag">         <span class="attr">xml:base</span>=<span class="string">&quot;http://example.org/medical#&quot;</span>&gt;</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">&lt;!-- 1. 定义类 --&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">owl:Class</span> <span class="attr">rdf:about</span>=<span class="string">&quot;Disease&quot;</span>/&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">owl:Class</span> <span class="attr">rdf:about</span>=<span class="string">&quot;InfectiousDisease&quot;</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">rdfs:subClassOf</span> <span class="attr">rdf:resource</span>=<span class="string">&quot;Disease&quot;</span>/&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">owl:Class</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">owl:Class</span> <span class="attr">rdf:about</span>=<span class="string">&quot;ViralDisease&quot;</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">rdfs:subClassOf</span> <span class="attr">rdf:resource</span>=<span class="string">&quot;InfectiousDisease&quot;</span>/&gt;</span></span><br><span class="line">        </span><br><span class="line">        <span class="comment">&lt;!-- 关键公理：所有病毒性疾病必须有某种病毒作为病原体 --&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">rdfs:subClassOf</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">owl:Restriction</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">owl:onProperty</span> <span class="attr">rdf:resource</span>=<span class="string">&quot;hasCausativeAgent&quot;</span>/&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">owl:someValuesFrom</span> <span class="attr">rdf:resource</span>=<span class="string">&quot;Virus&quot;</span>/&gt;</span></span><br><span class="line">            <span class="tag">&lt;/<span class="name">owl:Restriction</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">rdfs:subClassOf</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">owl:Class</span>&gt;</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">&lt;!-- 2. 定义属性 --&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">owl:ObjectProperty</span> <span class="attr">rdf:about</span>=<span class="string">&quot;hasCausativeAgent&quot;</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">rdfs:domain</span> <span class="attr">rdf:resource</span>=<span class="string">&quot;Disease&quot;</span>/&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">rdfs:range</span> <span class="attr">rdf:resource</span>=<span class="string">&quot;Pathogen&quot;</span>/&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">owl:ObjectProperty</span>&gt;</span></span><br><span class="line">    </span><br><span class="line">    <span class="tag">&lt;<span class="name">owl:DatatypeProperty</span> <span class="attr">rdf:about</span>=<span class="string">&quot;incubationPeriod&quot;</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">rdfs:domain</span> <span class="attr">rdf:resource</span>=<span class="string">&quot;InfectiousDisease&quot;</span>/&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">rdfs:range</span> <span class="attr">rdf:resource</span>=<span class="string">&quot;xsd:integer&quot;</span>/&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">owl:DatatypeProperty</span>&gt;</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">&lt;!-- 3. 声明不相交（Disjoint）——核心约束 --&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">owl:AllDisjointClasses</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">owl:members</span> <span class="attr">rdf:parseType</span>=<span class="string">&quot;Collection&quot;</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">rdf:Description</span> <span class="attr">rdf:about</span>=<span class="string">&quot;Bacteria&quot;</span>/&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">rdf:Description</span> <span class="attr">rdf:about</span>=<span class="string">&quot;Virus&quot;</span>/&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">rdf:Description</span> <span class="attr">rdf:about</span>=<span class="string">&quot;Fungus&quot;</span>/&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">owl:members</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">owl:AllDisjointClasses</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">rdf:RDF</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>这段 OWL 里最核心的是三件事：</p>
+<ol>
+<li><strong>类层次</strong>：<code>ViralDisease ⊑ InfectiousDisease ⊑ Disease</code></li>
+<li><strong>公理约束</strong>：每种 <code>ViralDisease</code> 必须至少有一个 <code>Virus</code> 作为病原体</li>
+<li><strong>Disjoint 声明</strong>：细菌、病毒、真菌是互斥的——一个病原体不能同时属于两类</li>
+</ol>
+<p>推理机读到这三条后，如果你错误地把一个 <code>Bacteria</code> 实例设为某个 <code>ViralDisease</code> 的病原体，推理机会自动标记为<strong>不一致（Inconsistency）</strong>——它在帮你检查本体质量的逻辑错误。</p>
+<h1 id="本体建模方法论"><a href="#本体建模方法论" class="headerlink" title="本体建模方法论"></a>本体建模方法论</h1><p>建一个稍微有点规模的本体不是”打开 Protégé 就画图”。业界有几种成熟的方法论：</p>
+<h2 id="Methontology：最经典的方法论"><a href="#Methontology：最经典的方法论" class="headerlink" title="Methontology：最经典的方法论"></a>Methontology：最经典的方法论</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">规格说明书 → 知识获取 → 概念化 → 集成 → 实现 → 评估 → 文档化</span><br><span class="line">    ↓                         ↓        ↓      ↓      ↓</span><br><span class="line">  领域范围                  概念表   现有本体  代码  专家评审</span><br><span class="line">  用户需求                  关系表   合并复用  测试  一致性检查</span><br><span class="line">  使用场景                  公理表</span><br></pre></td></tr></table></figure>
+
+<p>Methontology 的核心思想是<strong>在写代码之前，先把概念、关系、公理用自然语言或表格说清楚</strong>。这个阶段叫做”概念化”（Conceptualization），产出物是<strong>概念字典</strong>和<strong>关系表</strong>：</p>
+<p><strong>概念字典示例（医疗领域）</strong>：</p>
+<table>
+<thead>
+<tr>
+<th>概念名</th>
+<th>自然语言定义</th>
+<th>属性</th>
+<th>父类</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Disease</td>
+<td>由病原体或内部失调引发的异常生理状态</td>
+<td>name, ICDCode, hasSymptom</td>
+<td>Thing</td>
+</tr>
+<tr>
+<td>InfectiousDisease</td>
+<td>由病原微生物引起的疾病</td>
+<td>hasCausativeAgent, incubationPeriod</td>
+<td>Disease</td>
+</tr>
+<tr>
+<td>Symptom</td>
+<td>疾病的外在表现</td>
+<td>name, severity, bodyLocation</td>
+<td>Thing</td>
+</tr>
+</tbody></table>
+<p><strong>关系表示例</strong>：</p>
+<table>
+<thead>
+<tr>
+<th>关系名</th>
+<th>定义域</th>
+<th>值域</th>
+<th>特性</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>hasCausativeAgent</td>
+<td>InfectiousDisease</td>
+<td>Pathogen</td>
+<td>—</td>
+</tr>
+<tr>
+<td>hasSymptom</td>
+<td>Disease</td>
+<td>Symptom</td>
+<td>—</td>
+</tr>
+<tr>
+<td>treats</td>
+<td>Drug</td>
+<td>Disease</td>
+<td>Transitive?</td>
+</tr>
+<tr>
+<td>isCausedBy</td>
+<td>Disease</td>
+<td>Pathogen</td>
+<td>Inverse of hasCausativeAgent</td>
+</tr>
+</tbody></table>
+<p>把这些表格套进 OWL 的类&#x2F;属性&#x2F;公理框架里，就是形式化的本体。</p>
+<h2 id="其他方法论速览"><a href="#其他方法论速览" class="headerlink" title="其他方法论速览"></a>其他方法论速览</h2><table>
+<thead>
+<tr>
+<th>方法论</th>
+<th>特色</th>
+<th>适用场景</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>NeOn</strong></td>
+<td>强调本体复用和模块化</td>
+<td>多本体协作的大项目</td>
+</tr>
+<tr>
+<td><strong>On-To-Knowledge</strong></td>
+<td>以应用目标驱动</td>
+<td>企业知识管理</td>
+</tr>
+<tr>
+<td><strong>DILIGENT</strong></td>
+<td>分布式、迭代式协同构建</td>
+<td>多人长期协作的领域本体</td>
+</tr>
+<tr>
+<td><strong>eXtreme Design</strong></td>
+<td>测试驱动，每个需求对应一个测试用例</td>
+<td>敏捷开发团队</td>
+</tr>
+</tbody></table>
+<p>实际项目中很少有人严格遵循某一种方法论。但方法论的价值在于<strong>给你一张 checklist</strong>——在做”概念化”之前你不会忘记定义公理，在做”实现”之前不会临时拍脑袋补关系。</p>
+<h1 id="核心工具"><a href="#核心工具" class="headerlink" title="核心工具"></a>核心工具</h1><h2 id="Protege：本体编辑的-VS-Code"><a href="#Protege：本体编辑的-VS-Code" class="headerlink" title="Protégé：本体编辑的 VS Code"></a>Protégé：本体编辑的 VS Code</h2><p>Protégé 是斯坦福大学开发的免费开源本体编辑器，相当于本体建模领域的 VS Code。它的核心能力：</p>
+<ul>
+<li><strong>图形化编辑</strong>：拖拽创建类、属性、个体，实时显示类层次树</li>
+<li><strong>多格式支持</strong>：OWL&#x2F;RDF、OBO、Manchester Syntax</li>
+<li><strong>内置推理机</strong>：直接运行 HermiT&#x2F;Pellet&#x2F;ELK，实时显示推理结果</li>
+<li><strong>插件生态</strong>：OntoGraf 可视化、OWLViz 图形导出、SPARQL 查询面板</li>
+</ul>
+<p>打开 Protégé 做本体的日常流程：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">创建类层次 → 定义 Object Property → 加 Domain/Range 约束</span><br><span class="line">→ 声明 Disjoint → 运行推理机 → 看 Inferred Hierarchy</span><br><span class="line">→ 如果有红色标记 → 定位不一致 → 修改公理 → 重新推理</span><br><span class="line">→ SPARQL 查询验证 → 导出 OWL/RDF</span><br></pre></td></tr></table></figure>
+
+<h2 id="推理机"><a href="#推理机" class="headerlink" title="推理机"></a>推理机</h2><table>
+<thead>
+<tr>
+<th>推理机</th>
+<th>特点</th>
+<th>适合的 Profile</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>HermiT</strong></td>
+<td>Protégé 默认，基于 Hypertableau</td>
+<td>OWL 2 DL</td>
+</tr>
+<tr>
+<td><strong>Pellet</strong></td>
+<td>商业级，支持 SWRL 规则</td>
+<td>OWL 2 DL</td>
+</tr>
+<tr>
+<td><strong>ELK</strong></td>
+<td>极快，专为大规模类层次设计</td>
+<td>OWL 2 EL</td>
+</tr>
+<tr>
+<td><strong>RDFox</strong></td>
+<td>内存推理，支持增量更新</td>
+<td>OWL 2 RL</td>
+</tr>
+<tr>
+<td><strong>Openllet</strong></td>
+<td>Pellet 的开源分支</td>
+<td>OWL 2 DL</td>
+</tr>
+</tbody></table>
+<p>选推理机的原则：<strong>先用 HermiT 开发调试（错误信息清晰），上线根据规模选对应 Profile 的推理机。</strong></p>
+<h2 id="SPARQL：本体的-SQL"><a href="#SPARQL：本体的-SQL" class="headerlink" title="SPARQL：本体的 SQL"></a>SPARQL：本体的 SQL</h2><p>OWL 文件建好了，怎么查？SPARQL 是 W3C 标准的 RDF 查询语言，本质就是<strong>图模式匹配</strong>：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"># 查询所有病毒性疾病及其潜伏期</span><br><span class="line">PREFIX med: &lt;http://example.org/medical#&gt;</span><br><span class="line"></span><br><span class="line">SELECT ?disease ?period</span><br><span class="line">WHERE &#123;</span><br><span class="line">    ?disease rdfs:subClassOf med:ViralDisease .</span><br><span class="line">    ?disease med:incubationPeriod ?period .</span><br><span class="line">    FILTER(?period &lt;= 14)</span><br><span class="line">&#125;</span><br><span class="line">ORDER BY ?period</span><br></pre></td></tr></table></figure>
+
+<p>SPARQL 的 <code>SELECT</code> 部分看起来和 SQL 很像，但 <code>WHERE</code> 里的三元组模式匹配是图数据库独有的——你可以用 <code>?var1 relation ?var2 . ?var2 relation ?var3</code> 这样的模式在图中走多跳。</p>
+<h1 id="本体的工程价值"><a href="#本体的工程价值" class="headerlink" title="本体的工程价值"></a>本体的工程价值</h1><h2 id="应用-1：知识图谱的基础"><a href="#应用-1：知识图谱的基础" class="headerlink" title="应用 1：知识图谱的基础"></a>应用 1：知识图谱的基础</h2><p>知识图谱 ≈ <strong>本体（Schema 层）</strong> + <strong>实例（Data 层）</strong>。本体定义”人、公司、职位、地点”这些概念以及它们之间的合法关系，实例填充”张三、腾讯、工程师、深圳”这些具体数据。</p>
+<p>Google 知识图谱、DBpedia、Wikidata 的底层 Schema 都是本体。知识图谱的查询和推理能力，根本来自于本体的约束和公理。</p>
+<h2 id="应用-2：数据集成与互操作"><a href="#应用-2：数据集成与互操作" class="headerlink" title="应用 2：数据集成与互操作"></a>应用 2：数据集成与互操作</h2><p>不同系统对同一事物用不同的名字——系统 A 叫 <code>customer_name</code>，系统 B 叫 <code>client_full_name</code>——本体充当了<strong>全局的语义映射层</strong>：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">flowchart LR</span><br><span class="line">    subgraph systemA[系统 A]</span><br><span class="line">        SA[customer_name,</span><br><span class="line">customer_age]</span><br><span class="line">    end</span><br><span class="line">    subgraph systemB[系统 B]</span><br><span class="line">        SB[client_full_name,</span><br><span class="line">client_years]</span><br><span class="line">    end</span><br><span class="line">    subgraph ontology[本体映射层]</span><br><span class="line">        O1[Person.hasName]</span><br><span class="line">        O2[Person.hasAge]</span><br><span class="line">    end</span><br><span class="line"></span><br><span class="line">    SA --&gt;|&quot;映射&quot;| O1</span><br><span class="line">    SB --&gt;|&quot;映射&quot;| O1</span><br></pre></td></tr></table></figure>
+
+<p>这个模式在医疗数据交换（HL7 FHIR）、生物信息学（Gene Ontology）等领域是标准做法。</p>
+<h2 id="应用-3：推理与一致性检查"><a href="#应用-3：推理与一致性检查" class="headerlink" title="应用 3：推理与一致性检查"></a>应用 3：推理与一致性检查</h2><p>本体最有价值的能力不是”存储知识”，而是**”发现你存储的知识中的矛盾”**。一个手工维护的数据库里有 100 万条数据，你不知道里面有多少逻辑错误。推理机可以做到：</p>
+<ul>
+<li>如果你声明”COVID-19 是 Virus”，又声明”COVID-19 是 Bacteria”，而 Virus 和 Bacteria 被声明为 Disjoint → 推理机报告不一致</li>
+<li>如果你声明”每个 Patient 必须有 hasPrimaryDoctor”，但某个 Patient 实例没有填这个属性 → 推理机报告数据不完整</li>
+</ul>
+<h2 id="应用-4：大模型时代的角色变化"><a href="#应用-4：大模型时代的角色变化" class="headerlink" title="应用 4：大模型时代的角色变化"></a>应用 4：大模型时代的角色变化</h2><p>大模型可以生成知识、进行推理——那本体还有价值吗？有，但角色变了：</p>
+<table>
+<thead>
+<tr>
+<th>传统角色</th>
+<th>现在的角色</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>知识的唯一存储</td>
+<td><strong>知识的质量把关</strong>——LLM 可以生成候选知识，本体约束自动验证</td>
+</tr>
+<tr>
+<td>人工构建</td>
+<td>人机协作——LLM 生成初版本体，人修正公理</td>
+</tr>
+<tr>
+<td>推理的唯一引擎</td>
+<td>混合推理——本体做确定性推理，LLM 做模糊推理</td>
+</tr>
+</tbody></table>
+<p>一个正在出现的工作模式：<strong>LLM 阅读大量领域文档 → 提取概念和关系 → 生成本体草稿 → 推理机做一致性检查 → 发现矛盾后 LLM 修正 → 迭代收敛 → 人工最终确认。</strong></p>
+<h1 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h1><p>本体建模的本质可以浓缩为一句话：<strong>把”领域共识”从人的脑子里搬出来，写成机器能理解和推理的形式化规则。</strong></p>
+<p>核心知识点速查：</p>
+<table>
+<thead>
+<tr>
+<th>层级</th>
+<th>内容</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>构成要素</td>
+<td>类(Class) → 个体(Individual) → 属性(Property) → 关系(Relation) → 公理(Axiom)</td>
+</tr>
+<tr>
+<td>表达能力</td>
+<td>Taxonomy &lt; Thesaurus &lt; Conceptual Model &lt; <strong>Ontology</strong></td>
+</tr>
+<tr>
+<td>核心语言</td>
+<td>OWL 2（EL&#x2F;QL&#x2F;RL 三种 Profile）</td>
+</tr>
+<tr>
+<td>核心推理</td>
+<td>一致性检查、蕴含推导、分类（Subsumption）</td>
+</tr>
+<tr>
+<td>核心工具</td>
+<td>Protégé（编辑）、HermiT&#x2F;ELK（推理）、SPARQL（查询）</td>
+</tr>
+<tr>
+<td>方法论</td>
+<td>Methontology（概念化表格→形式化实现）</td>
+</tr>
+</tbody></table>
+<p>本体的学习曲线说陡也陡——因为它是逻辑+哲学+工程的交叉学科。但只要你建过一次哪怕只有 20 个类的小本体，就再也不会把”数据库 Schema”和”本体”混为一谈。</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E6%9C%AC%E4%BD%93/" rel="tag"># 本体</a>
+              <a href="/tags/%E7%9F%A5%E8%AF%86%E5%B7%A5%E7%A8%8B/" rel="tag"># 知识工程</a>
+              <a href="/tags/%E8%AF%AD%E4%B9%89%E7%BD%91/" rel="tag"># 语义网</a>
+              <a href="/tags/OWL/" rel="tag"># OWL</a>
+              <a href="/tags/%E7%9F%A5%E8%AF%86%E5%9B%BE%E8%B0%B1/" rel="tag"># 知识图谱</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2026/07/21/%E5%A4%A7%E6%A8%A1%E5%9E%8B-20260804-%E5%A4%A7%E6%A8%A1%E5%9E%8B%E6%99%BA%E8%83%BD%E4%BD%93%E8%AF%84%E6%B5%8B%E5%85%A5%E9%97%A8/" rel="prev" title="大模型&amp;智能体评测入门">
+                  <i class="fa fa-angle-left"></i> 大模型&智能体评测入门
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2026/08/05/%E5%A4%A7%E6%A8%A1%E5%9E%8B-20260805-EvalScope%E5%A4%A7%E6%A8%A1%E5%9E%8B%E8%AF%84%E6%B5%8B%E8%BF%9B%E9%98%B6/" rel="next" title="EvalScope大模型评测进阶">
+                  EvalScope大模型评测进阶 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2026</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">Hans</span>
+  </div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/pisces/" rel="noopener" target="_blank">NexT.Pisces</a>
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="Back to top">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+</body>
+</html>

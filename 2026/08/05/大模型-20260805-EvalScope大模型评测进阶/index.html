@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#222" media="(prefers-color-scheme: dark)"><meta name="generator" content="Hexo 8.1.2">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css" integrity="sha256-VHqXKFhhMxcpubYf9xiWdCiojEbY9NexQ4jh8AxbvcM=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"hans599.github.io","root":"/","images":"/images","scheme":"Pisces","darkmode":true,"version":"8.27.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"codeblock":{"theme":{"light":"default","dark":"stackoverflow-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"language":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"},"path":"/search.xml","localsearch":{"enable":true,"top_n_per_article":1,"unescape":false,"preload":true,"trigger":"auto"}}</script><script src="/js/config.js" defer></script>
+
+    <meta name="description" content="评测能力正在成为AI从业者的核心竞争壁垒之一。不会评测，就无法判断模型是真进步还是假把式；不会评测，在众多模型面前只能是“盲选”。EvalScope作为魔搭社区官方推出的模型评测框架，为这一需求提供了从入门到进阶的完整工具链。 主页：introduction.html#">
+<meta property="og:type" content="article">
+<meta property="og:title" content="EvalScope大模型评测进阶">
+<meta property="og:url" content="https://hans599.github.io/2026/08/05/%E5%A4%A7%E6%A8%A1%E5%9E%8B-20260805-EvalScope%E5%A4%A7%E6%A8%A1%E5%9E%8B%E8%AF%84%E6%B5%8B%E8%BF%9B%E9%98%B6/index.html">
+<meta property="og:site_name" content="Hans&#39;s Homepage">
+<meta property="og:description" content="评测能力正在成为AI从业者的核心竞争壁垒之一。不会评测，就无法判断模型是真进步还是假把式；不会评测，在众多模型面前只能是“盲选”。EvalScope作为魔搭社区官方推出的模型评测框架，为这一需求提供了从入门到进阶的完整工具链。 主页：introduction.html#">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2026-08-04T16:00:00.000Z">
+<meta property="article:modified_time" content="2026-08-07T10:49:58.782Z">
+<meta property="article:author" content="Hans">
+<meta property="article:tag" content="Agent">
+<meta property="article:tag" content="基准">
+<meta property="article:tag" content="智能体">
+<meta property="article:tag" content="评测">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="https://hans599.github.io/2026/08/05/%E5%A4%A7%E6%A8%A1%E5%9E%8B-20260805-EvalScope%E5%A4%A7%E6%A8%A1%E5%9E%8B%E8%AF%84%E6%B5%8B%E8%BF%9B%E9%98%B6/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"en","comments":true,"permalink":"https://hans599.github.io/2026/08/05/%E5%A4%A7%E6%A8%A1%E5%9E%8B-20260805-EvalScope%E5%A4%A7%E6%A8%A1%E5%9E%8B%E8%AF%84%E6%B5%8B%E8%BF%9B%E9%98%B6/","path":"2026/08/05/大模型-20260805-EvalScope大模型评测进阶/","title":"EvalScope大模型评测进阶"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>EvalScope大模型评测进阶 | Hans's Homepage</title>
+  
+
+
+
+
+
+
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous" defer></script>
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.5.0/search.js" integrity="sha256-xFC6PJ82SL9b3WkGjFavNiA9gm5z6UBxWPiu4CYjptg=" crossorigin="anonymous" defer></script>
+<script src="/js/third-party/search/local-search.js" defer></script>
+
+
+  <script class="next-config" data-name="mermaid" type="application/json">{"enable":true,"theme":{"light":"default","dark":"dark"},"js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/mermaid/11.10.1/mermaid.min.js","integrity":"sha256-BmQmdWDS8X2OTbrwELWK366LV6escyWhHHe0XCTU/Hk="}}</script>
+  <script src="/js/third-party/tags/mermaid.js" defer></script>
+
+
+
+
+
+  
+
+
+
+
+  
+
+  <script class="next-config" data-name="enableMath" type="application/json">true</script><script class="next-config" data-name="mathjax" type="application/json">{"enable":true,"tags":"none","js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-mml-chtml.js","integrity":"sha256-MASABpB4tYktI2Oitl4t+78w/lyA+D7b/s9GEP0JOGI="}}</script>
+<script src="/js/third-party/math/mathjax.js" defer></script>
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">Hans's Homepage</p>
+      <i class="logo-line"></i>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="Search" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>About</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>Categories</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>Search
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+      <div class="search-header">
+        <span class="search-icon">
+          <i class="fa fa-search"></i>
+        </span>
+        <div class="search-input-container">
+          <input autocomplete="off" autocapitalize="off" maxlength="80"
+                placeholder="Searching..." spellcheck="false"
+                type="search" class="search-input">
+        </div>
+        <span class="popup-btn-close" role="button">
+          <i class="fa fa-times-circle"></i>
+        </span>
+      </div>
+      <div class="search-result-container">
+        <div class="search-result-icon">
+          <i class="fa fa-spinner fa-pulse fa-5x"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#EvalScope"><span class="nav-number">1.</span> <span class="nav-text">EvalScope</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#LLM-as-a-Judge%E8%AF%84%E6%B5%8B"><span class="nav-number">2.</span> <span class="nav-text">LLM-as-a-Judge评测</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%80%9D%E8%80%83%E6%95%88%E7%8E%87%E8%AF%84%E6%B5%8B"><span class="nav-number">3.</span> <span class="nav-text">思考效率评测</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#EvalSope-%E8%AF%84%E6%B5%8B%E5%90%8E%E7%AB%AF%E5%AE%9E%E6%88%98"><span class="nav-number">4.</span> <span class="nav-text">EvalSope+评测后端实战</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#opencompass"><span class="nav-number">4.1.</span> <span class="nav-text">opencompass</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%8E%AF%E5%A2%83%E5%87%86%E5%A4%87"><span class="nav-number">4.1.1.</span> <span class="nav-text">环境准备</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%95%B0%E6%8D%AE%E5%87%86%E5%A4%87"><span class="nav-number">4.1.2.</span> <span class="nav-text">数据准备</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%83%A8%E7%BD%B2%E6%A8%A1%E5%9E%8B%E6%9C%8D%E5%8A%A1"><span class="nav-number">4.1.3.</span> <span class="nav-text">部署模型服务</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%B5%8B%E8%AF%84"><span class="nav-number">4.1.4.</span> <span class="nav-text">测评</span></a></li></ol></li></ol></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Hans</p>
+  <div class="site-description" itemprop="description">Personal website for research and blog</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">19</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">2</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">25</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="en">
+    <link itemprop="mainEntityOfPage" href="https://hans599.github.io/2026/08/05/%E5%A4%A7%E6%A8%A1%E5%9E%8B-20260805-EvalScope%E5%A4%A7%E6%A8%A1%E5%9E%8B%E8%AF%84%E6%B5%8B%E8%BF%9B%E9%98%B6/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Hans">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Hans's Homepage">
+      <meta itemprop="description" content="Personal website for research and blog">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="EvalScope大模型评测进阶 | Hans's Homepage">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          EvalScope大模型评测进阶
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+
+      <time title="Created: 2026-08-05 00:00:00" itemprop="dateCreated datePublished" datetime="2026-08-05T00:00:00+08:00">2026-08-05</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">Edited on</span>
+      <time title="Modified: 2026-08-07 18:49:58" itemprop="dateModified" datetime="2026-08-07T18:49:58+08:00">2026-08-07</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">In</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E5%A4%A7%E6%A8%A1%E5%9E%8B/" itemprop="url" rel="index"><span itemprop="name">大模型</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p>评测能力正在成为AI从业者的核心竞争壁垒之一。不会评测，就无法判断模型是真进步还是假把式；不会评测，在众多模型面前只能是“盲选”。EvalScope作为魔搭社区官方推出的模型评测框架，为这一需求提供了从入门到进阶的完整工具链。</p>
+<p>主页：<a target="_blank" rel="noopener" href="https://evalscope.readthedocs.io/zh-cn/v0.8.1/get_started/introduction.html#">introduction.html#</a> </p>
+<span id="more"></span>
+
+<h1 id="EvalScope"><a href="#EvalScope" class="headerlink" title="EvalScope"></a>EvalScope</h1><p>EvalScope是ModelScope社区官方推出的模型评测与性能基准测试框架，内置了多个常用测试基准和评测指标，如MMLU、CMMLU、C-Eval、GSM8K、ARC、HellaSwag、TruthfulQA、MATH和HumanEval等。它支持多种类型的模型评测，包括大语言模型（LLM）、多模态大模型、Embedding模型和Reranker模型。</p>
+<p> 具体的实践以及参数都可以参照官网的教程来。博客仅做简单的介绍。</p>
+<p>EvalScope的核心优势体现在三个层面：</p>
+<ul>
+<li><p>统一接入机制：兼容多个系列模型的Generate和Chat接口，无论是API调用的模型还是本地运行的模型，都能通过统一的接口进行评测。</p>
+</li>
+<li><p>多后端支持：除了自身的Native评测框架，还集成了OpenCompass和VLMEvalKit作为评测后端，可以轻松发起多模态评测任务。</p>
+</li>
+<li><p>全链路支持：通过与ms-swift训练框架的无缝集成，实现了从模型训练、部署到评测、报告查看的一站式开发流程。</p>
+</li>
+</ul>
+<p>以评测Qwen2.5-0.5B-Instruct模型在GSM8K数据集上的表现为例，一条命令即可完成：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">evalscope eval \</span><br><span class="line"> --model Qwen/Qwen2.5-0.5B-Instruct \</span><br><span class="line"> --datasets gsm8k \</span><br><span class="line"> --limit 10</span><br></pre></td></tr></table></figure>
+
+<p>执行后，EvalScope会自动下载模型和数据集，运行评测并输出结构化的结果表格</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">+-----------------------+----------------+-----------------+-----------------+---------------+-------+---------+</span><br><span class="line">| Model                 | Dataset Name   | Metric Name     | Category Name   | Subset Name   |   Num |   Score |</span><br><span class="line">+=======================+================+=================+=================+===============+=======+=========+</span><br><span class="line">| Qwen2.5-0.5B-Instruct | gsm8k          | AverageAccuracy | default         | main          |     5 |     0.4 |</span><br><span class="line">+-----------------------+----------------+-----------------+-----------------+---------------+-------+---------+</span><br></pre></td></tr></table></figure>
+
+<p><strong>评测模式扩展</strong></p>
+<p>EvalScope支持从本地模型到API服务的多种评测场景。对于已部署的模型服务，只需指定服务地址即可评测：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">evalscope eval \</span><br><span class="line"> --model qwen2.5 \</span><br><span class="line"> --api-url http://127.0.0.1:8801/v1 \</span><br><span class="line"> --api-key EMPTY \</span><br><span class="line"> --eval-type openai_api \</span><br><span class="line"> --datasets gsm8k \</span><br><span class="line"> --limit 10</span><br></pre></td></tr></table></figure>
+
+<p>通过–repeats参数可以指定重复生成次数，并使用不同的聚合方式（如mean_and_vote_at_k）来提升评测的鲁棒性。</p>
+<h1 id="LLM-as-a-Judge评测"><a href="#LLM-as-a-Judge评测" class="headerlink" title="LLM-as-a-Judge评测"></a>LLM-as-a-Judge评测</h1><p>当面对主观性任务（如开放式问答、创意写作）时，传统的准确率指标无法有效评估模型输出质量。LLM-as-a-Judge的核心思路是：用一个强大的模型来评价目标模型的输出质量。</p>
+<p>EvalScope的裁判模型评测支持两种方式：</p>
+<ol>
+<li><p>自动选择裁判策略：根据数据集类型自动匹配合适的裁判模型</p>
+</li>
+<li><p>自定义裁判模型配置：指定特定的模型作为裁判</p>
+</li>
+</ol>
+<p>以评测中文简单问答（chinese_simpleqa）为例：</p>
+<figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> os</span><br><span class="line"><span class="keyword">from</span> evalscope <span class="keyword">import</span> TaskConfig, run_task</span><br><span class="line"><span class="keyword">from</span> evalscope.constants <span class="keyword">import</span> JudgeStrategy</span><br><span class="line"></span><br><span class="line">task_cfg = TaskConfig(</span><br><span class="line">    model=<span class="string">&#x27;qwen2.5-7b-instruct&#x27;</span>,</span><br><span class="line">    api_url=<span class="string">&#x27;https://dashscope.aliyuncs.com/compatible-mode/v1&#x27;</span>,</span><br><span class="line">    api_key=os.getenv(<span class="string">&#x27;DASHSCOPE_API_KEY&#x27;</span>),</span><br><span class="line">    eval_type=<span class="string">&#x27;openai_api&#x27;</span>,</span><br><span class="line">    datasets=[<span class="string">&#x27;chinese_simpleqa&#x27;</span>],</span><br><span class="line">    limit=<span class="number">5</span>,</span><br><span class="line">    judge_strategy=JudgeStrategy.AUTO,</span><br><span class="line">    judge_model_args=&#123;</span><br><span class="line">        <span class="string">&#x27;model_id&#x27;</span>: <span class="string">&#x27;qwen2.5-72b-instruct&#x27;</span>,</span><br><span class="line">        <span class="string">&#x27;api_url&#x27;</span>: <span class="string">&#x27;https://dashscope.aliyuncs.com/compatible-mode/v1&#x27;</span>,</span><br><span class="line">        <span class="string">&#x27;api_key&#x27;</span>: os.getenv(<span class="string">&#x27;DASHSCOPE_API_KEY&#x27;</span>),</span><br><span class="line">    &#125;</span><br><span class="line">)</span><br><span class="line"></span><br><span class="line">run_task(task_cfg=task_cfg)</span><br></pre></td></tr></table></figure>
+
+
+<p>EvalScope支持Agent评测，允许模型在受控的多轮工具调用循环中完成评测任务，并把完整交互过程录制下来供回放与复盘。</p>
+<p>Agent评测提供两种模式 </p>
+<table>
+<thead>
+<tr>
+<th align="left">模式</th>
+<th align="left">适用场景</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">内置AgentLoop</td>
+<td align="left">给常规基准（GSM8K、AIME等）套上多轮工具调用循环，评测模型自身的工具使用能力</td>
+</tr>
+<tr>
+<td align="left">外部Agent Bridge</td>
+<td align="left">直接评测Claude Code、OpenCode等成品Agent CLI，EvalScope把CLI的LLM请求转发到评测模型</td>
+</tr>
+</tbody></table>
+<p>启用Agent评测后，每条样本都会附带一条Trace，通过Web界面可以按步骤回放完整交互过程，包括每一步的模型回复（含推理过程、延迟与token用量）、工具调用与观察结果、沙箱内执行的命令以及系统提醒与异常。</p>
+<h1 id="思考效率评测"><a href="#思考效率评测" class="headerlink" title="思考效率评测"></a>思考效率评测</h1><p>对于推理类模型（如DeepSeek-R1、QwQ-32B），EvalScope提供了思考效率评测能力，从六个维度评估模型表现：</p>
+<ul>
+<li><p>推理token数：模型推理过程中的总token数</p>
+</li>
+<li><p>首次正确token数：从起始位置到第一个正确答案位置的token数</p>
+</li>
+<li><p>剩余反思token数：首次正确答案到推理结束的token数</p>
+</li>
+<li><p>token效率：首次正确token数占总token数的比例</p>
+</li>
+<li><p>子思维链数量：推理过程中的思维跳转次数</p>
+</li>
+<li><p>准确率：正确样本占比</p>
+</li>
+</ul>
+<p>评测结果显示，o1&#x2F;R1类推理模型存在两种极端现象：</p>
+<ul>
+<li><p>Underthinking（思考不足）：模型频繁进行思路跳转，无法集中注意力深入思考</p>
+</li>
+<li><p>Overthinking（过度思考）：模型在简单问题上生成过长的思维链，浪费计算资源</p>
+</li>
+</ul>
+<p>例如，对于”2+3&#x3D;？”这样的问题，某些长推理模型可能会消耗超过900个token来探索多种解题策略。这凸显了如何在保证答案质量的同时提高思考效率的关键问题。</p>
+<h1 id="EvalSope-评测后端实战"><a href="#EvalSope-评测后端实战" class="headerlink" title="EvalSope+评测后端实战"></a>EvalSope+评测后端实战</h1><h2 id="opencompass"><a href="#opencompass" class="headerlink" title="opencompass"></a>opencompass</h2><p>参考：<a target="_blank" rel="noopener" href="https://evalscope.readthedocs.io/zh-cn/v0.8.1/user_guides/backend/opencompass_backend.html">opencompass_backend.html</a></p>
+<p><a target="_blank" rel="noopener" href="https://github.com/open-compass/opencompass/issues/1865">1865</a></p>
+<h3 id="环境准备"><a href="#环境准备" class="headerlink" title="环境准备"></a>环境准备</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 安装opencompass依赖</span></span><br><span class="line">pip install evalscope[opencompass] -U</span><br></pre></td></tr></table></figure>
+
+
+<h3 id="数据准备"><a href="#数据准备" class="headerlink" title="数据准备"></a>数据准备</h3><p>linux</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># ModelScope下载</span></span><br><span class="line">wget -O eval_data.zip https://www.modelscope.cn/datasets/swift/evalscope_resource/resolve/master/eval.zip</span><br><span class="line"></span><br><span class="line"><span class="comment"># 或使用github下载</span></span><br><span class="line">wget -O eval_data.zip https://github.com/open-compass/opencompass/releases/download/0.2.2.rc1/OpenCompassData-complete-20240207.zip</span><br><span class="line"></span><br><span class="line"><span class="comment"># 解压</span></span><br><span class="line">unzip eval_data.zip</span><br></pre></td></tr></table></figure>
+
+
+<p>windows</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">curl -L -o eval_data.zip https://www.modelscope.cn/datasets/swift/evalscope_resource/resolve/master/eval.zip</span><br><span class="line"></span><br><span class="line">unzip eval_data.zip</span><br></pre></td></tr></table></figure>
+
+
+<h3 id="部署模型服务"><a href="#部署模型服务" class="headerlink" title="部署模型服务"></a>部署模型服务</h3><p>ms-swift部署</p>
+<p>参考：<a target="_blank" rel="noopener" href="https://github.com/modelscope/ms-swift">ms-swift</a></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">pip install ms-swift -U</span><br></pre></td></tr></table></figure>
+
+<p>部署</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">CUDA_VISIBLE_DEVICES=0 swift deploy --model_type qwen2-0_5b-instruct --port 8000</span><br></pre></td></tr></table></figure>
+<p>如果没有模型，会自动下载到<code>C:\Users\&lt;你的用户名&gt;\.cache\huggingface\hub\</code></p>
+<p>如果有下载好的本地模型也可以，不过要额外指定需要参数</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># CPU部署</span></span><br><span class="line">swift deploy --model E:/xxxx/models/qwen2-0_5b-instruct --model_type qwen2 --template qwen --infer_backend transformers --torch_dtype float32 --port 8000</span><br></pre></td></tr></table></figure>
+
+
+<p>部署完成之后测试一下api</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">curl http://127.0.0.1:8000/v1/models</span><br></pre></td></tr></table></figure>
+
+
+<h3 id="测评"><a href="#测评" class="headerlink" title="测评"></a>测评</h3><p>配置yaml</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">eval_backend:</span> <span class="string">OpenCompass</span></span><br><span class="line"><span class="attr">dataset_dir:</span> <span class="string">E:\yxiong.liu\datasets\data</span></span><br><span class="line"><span class="attr">eval_config:</span></span><br><span class="line">  <span class="attr">datasets:</span></span><br><span class="line">    <span class="bullet">-</span> <span class="string">gsm8k</span></span><br><span class="line">  <span class="attr">models:</span></span><br><span class="line">    <span class="bullet">-</span> <span class="attr">openai_api_base:</span> <span class="string">http://127.0.0.1:8000/v1/chat/completions</span></span><br><span class="line">      <span class="attr">path:</span> <span class="string">qwen2</span>                                  </span><br><span class="line">      <span class="attr">temperature:</span> <span class="number">0.0</span></span><br><span class="line">      <span class="attr">batch_size:</span> <span class="number">1</span></span><br></pre></td></tr></table></figure>
+
+
+<p>跑一下</p>
+<figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> evalscope.run <span class="keyword">import</span> run_task</span><br><span class="line"><span class="keyword">from</span> evalscope.summarizer <span class="keyword">import</span> Summarizer</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">run_eval</span>():</span><br><span class="line">    <span class="comment"># 选项 1: python 字典</span></span><br><span class="line">    <span class="comment"># task_cfg = task_cfg_dict</span></span><br><span class="line"></span><br><span class="line">    <span class="comment"># 选项 2: yaml 配置文件</span></span><br><span class="line">    task_cfg = <span class="string">&#x27;eval_openai_api.yaml&#x27;</span></span><br><span class="line"></span><br><span class="line">    <span class="comment"># 选项 3: json 配置文件</span></span><br><span class="line">    <span class="comment"># task_cfg = &#x27;eval_openai_api.json&#x27;</span></span><br><span class="line"></span><br><span class="line">    run_task(task_cfg=task_cfg)</span><br><span class="line"></span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&#x27;&gt;&gt; Start to get the report with summarizer ...&#x27;</span>)</span><br><span class="line">    report_list = Summarizer.get_report_from_cfg(task_cfg)</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">f&#x27;\n&gt;&gt; The report list: <span class="subst">&#123;report_list&#125;</span>&#x27;</span>)</span><br><span class="line"></span><br><span class="line">run_eval()</span><br></pre></td></tr></table></figure>
+
+
+<p>结果如下</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">| dataset | version | metric | mode | qwen2 |</span><br><span class="line">|----- | ----- | ----- | ----- | -----|</span><br><span class="line">| gsm8k | - | - | - | - |</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+
+<p>莫名的错误，日后再解决</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">INFO:     127.0.0.1:59404 - <span class="string">&quot;POST /v1/chat/completions HTTP/1.1&quot;</span> 400 Bad Request</span><br><span class="line">INFO:     127.0.0.1:59405 - <span class="string">&quot;POST /v1/chat/completions HTTP/1.1&quot;</span> 400 Bad Request</span><br></pre></td></tr></table></figure>
+
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/Agent/" rel="tag"># Agent</a>
+              <a href="/tags/%E6%99%BA%E8%83%BD%E4%BD%93/" rel="tag"># 智能体</a>
+              <a href="/tags/%E8%AF%84%E6%B5%8B/" rel="tag"># 评测</a>
+              <a href="/tags/%E5%9F%BA%E5%87%86/" rel="tag"># 基准</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2026/07/22/%E9%80%9A%E7%94%A8%E6%8A%80%E6%9C%AF-20260722-%E6%9C%AC%E4%BD%93%E5%BB%BA%E6%A8%A1%EF%BC%9A%E4%BB%8E%E6%A6%82%E5%BF%B5%E5%88%B0%E5%AE%9E%E8%B7%B5/" rel="prev" title="本体建模：从概念到实践">
+                  <i class="fa fa-angle-left"></i> 本体建模：从概念到实践
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2026/08/06/%E5%A4%A7%E6%A8%A1%E5%9E%8B-20260806-Promptfoo/" rel="next" title="Promptfoo">
+                  Promptfoo <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2026</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">Hans</span>
+  </div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/pisces/" rel="noopener" target="_blank">NexT.Pisces</a>
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="Back to top">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+</body>
+</html>
