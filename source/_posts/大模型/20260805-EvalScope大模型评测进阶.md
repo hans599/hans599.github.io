@@ -140,13 +140,17 @@ Agent评测提供两种模式
 
 
 
-# EvalSope+OpenCompass实战 
+# EvalSope+评测后端实战 
+
+## opencompass
+
 
 参考：[opencompass_backend.html](https://evalscope.readthedocs.io/zh-cn/v0.8.1/user_guides/backend/opencompass_backend.html)
 
+[1865](https://github.com/open-compass/opencompass/issues/1865)
 
 
-## 环境准备
+### 环境准备
 
 ``` bash
 # 安装opencompass依赖
@@ -154,7 +158,7 @@ pip install evalscope[opencompass] -U
 ```
 
 
-## 数据准备
+### 数据准备
 
 linux
 ```bash
@@ -177,7 +181,7 @@ unzip eval_data.zip
 ```
 
 
-## 部署模型服务
+### 部署模型服务
 
 
 
@@ -208,4 +212,63 @@ swift deploy --model E:/xxxx/models/qwen2-0_5b-instruct --model_type qwen2 --tem
 curl http://127.0.0.1:8000/v1/models
 ```
 
-## 模型评测
+
+### 测评
+
+
+配置yaml
+```yaml
+eval_backend: OpenCompass
+dataset_dir: E:\yxiong.liu\datasets\data
+eval_config:
+  datasets:
+    - gsm8k
+  models:
+    - openai_api_base: http://127.0.0.1:8000/v1/chat/completions
+      path: qwen2                                  
+      temperature: 0.0
+      batch_size: 1
+```
+
+
+跑一下
+```py
+from evalscope.run import run_task
+from evalscope.summarizer import Summarizer
+
+def run_eval():
+    # 选项 1: python 字典
+    # task_cfg = task_cfg_dict
+
+    # 选项 2: yaml 配置文件
+    task_cfg = 'eval_openai_api.yaml'
+
+    # 选项 3: json 配置文件
+    # task_cfg = 'eval_openai_api.json'
+
+    run_task(task_cfg=task_cfg)
+
+    print('>> Start to get the report with summarizer ...')
+    report_list = Summarizer.get_report_from_cfg(task_cfg)
+    print(f'\n>> The report list: {report_list}')
+
+run_eval()
+```
+
+
+结果如下
+```
+| dataset | version | metric | mode | qwen2 |
+|----- | ----- | ----- | ----- | -----|
+| gsm8k | - | - | - | - |
+
+```
+
+
+莫名的错误，日后再解决
+
+```bash
+INFO:     127.0.0.1:59404 - "POST /v1/chat/completions HTTP/1.1" 400 Bad Request
+INFO:     127.0.0.1:59405 - "POST /v1/chat/completions HTTP/1.1" 400 Bad Request
+```
+
