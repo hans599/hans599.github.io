@@ -9,6 +9,8 @@ mathjax: true
 
 评测能力正在成为AI从业者的核心竞争壁垒之一。不会评测，就无法判断模型是真进步还是假把式；不会评测，在众多模型面前只能是“盲选”。EvalScope作为魔搭社区官方推出的模型评测框架，为这一需求提供了从入门到进阶的完整工具链。
 
+主页：[introduction.html#](https://evalscope.readthedocs.io/zh-cn/v0.8.1/get_started/introduction.html#) 
+
 <!-- more -->
 
 # EvalScope
@@ -16,7 +18,7 @@ mathjax: true
 
 EvalScope是ModelScope社区官方推出的模型评测与性能基准测试框架，内置了多个常用测试基准和评测指标，如MMLU、CMMLU、C-Eval、GSM8K、ARC、HellaSwag、TruthfulQA、MATH和HumanEval等。它支持多种类型的模型评测，包括大语言模型（LLM）、多模态大模型、Embedding模型和Reranker模型。
 
-主页：[introduction.html#](https://evalscope.readthedocs.io/zh-cn/v0.8.1/get_started/introduction.html#) ， 具体的实践以及参数都可以参照官网的教程来。博客仅做简单的介绍。
+ 具体的实践以及参数都可以参照官网的教程来。博客仅做简单的介绍。
 
 EvalScope的核心优势体现在三个层面：
 
@@ -135,3 +137,75 @@ Agent评测提供两种模式
 - Overthinking（过度思考）：模型在简单问题上生成过长的思维链，浪费计算资源
 
 例如，对于"2+3=？"这样的问题，某些长推理模型可能会消耗超过900个token来探索多种解题策略。这凸显了如何在保证答案质量的同时提高思考效率的关键问题。
+
+
+
+# EvalSope+OpenCompass实战 
+
+参考：[opencompass_backend.html](https://evalscope.readthedocs.io/zh-cn/v0.8.1/user_guides/backend/opencompass_backend.html)
+
+
+
+## 环境准备
+
+``` bash
+# 安装opencompass依赖
+pip install evalscope[opencompass] -U
+```
+
+
+## 数据准备
+
+linux
+```bash
+# ModelScope下载
+wget -O eval_data.zip https://www.modelscope.cn/datasets/swift/evalscope_resource/resolve/master/eval.zip
+
+# 或使用github下载
+wget -O eval_data.zip https://github.com/open-compass/opencompass/releases/download/0.2.2.rc1/OpenCompassData-complete-20240207.zip
+
+# 解压
+unzip eval_data.zip
+```
+
+
+windows
+```bash 
+curl -L -o eval_data.zip https://www.modelscope.cn/datasets/swift/evalscope_resource/resolve/master/eval.zip
+
+unzip eval_data.zip
+```
+
+
+## 部署模型服务
+
+
+
+ms-swift部署
+
+参考：[ms-swift](https://github.com/modelscope/ms-swift)
+
+```bash
+pip install ms-swift -U
+```
+
+部署
+```bash
+CUDA_VISIBLE_DEVICES=0 swift deploy --model_type qwen2-0_5b-instruct --port 8000
+```
+如果没有模型，会自动下载到`C:\Users\<你的用户名>\.cache\huggingface\hub\`
+
+
+如果有下载好的本地模型也可以，不过要额外指定需要参数
+```bash
+# CPU部署
+swift deploy --model E:/xxxx/models/qwen2-0_5b-instruct --model_type qwen2 --template qwen --infer_backend transformers --torch_dtype float32 --port 8000
+```
+
+
+部署完成之后测试一下api
+```
+curl http://127.0.0.1:8000/v1/models
+```
+
+## 模型评测
